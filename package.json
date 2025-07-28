@@ -1,6 +1,6 @@
 {
   "name": "slupe",
-  "version": "0.1.0",
+  "version": "0.1.0-beta.0",
   "description": "LLM coder 'tools' for any model",
   "type": "module",
   "main": "./dist/src/index.js",
@@ -39,6 +39,7 @@
     "clipboardy": "^4.0.0",
     "js-yaml": "^4.1.0",
     "marked": "^12.0.0",
+    "minimatch": "^9.0.3",
     "nesl": "^0.1.11"
   },
   "devDependencies": {

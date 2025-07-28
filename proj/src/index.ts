@@ -5,7 +5,7 @@ import { loadConfig } from '../comp/config/src/index.js';
 import { join } from 'path';
 import { access, writeFile } from 'fs/promises';
 
-async function main() {
+async function main(): Promise<void> {
   const args = process.argv.slice(2);
   const hasClipboardFlag = args.includes('--clipboard');
 

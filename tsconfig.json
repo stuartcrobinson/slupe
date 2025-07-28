@@ -1,11 +1,11 @@
 {
   "compilerOptions": {
 
-
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "allowImportingTsExtensions": true,  // Use .ts extensions
-    "noEmit": true,                      // Let bundler handle emission
+    "allowImportingTsExtensions": false,  // Must be false to emit
+    "noEmit": false,
+
     "emitDeclarationOnly": false,         // Bundler generates .d.ts too
 
     // Modern output settings
