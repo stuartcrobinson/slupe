@@ -1,5 +1,5 @@
 import { ValidationResult, ActionDefinition } from './types.js';
-import type { Block } from 'nesl-js';
+import type { Block } from 'nesl';
 
 /**
  * Validate a single NESL block against action schema

@@ -5,7 +5,7 @@
 import { ParseResult, SlupeAction, ParseError, ValidationResult, TransformError, ActionDefinition } from './types.js';
 import { validateNeslBlock } from './validateNeslBlock.js';
 import { transformToAction } from './transformToAction.js';
-import { parseNesl, type Block, type ParseResult as NeslParseResult } from 'nesl-js';
+import { parseNesl, type Block, type ParseResult as NeslParseResult } from 'nesl';
 
 // Re-export types for consumers
 export type { ParseResult, SlupeAction, ParseError, ValidationResult, TransformError };

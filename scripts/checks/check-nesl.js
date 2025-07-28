@@ -1,5 +1,5 @@
-import { parseNesl } from 'nesl-js';
-import * as nesl from 'nesl-js';
+import { parseNesl } from 'nesl';
+import * as nesl from 'nesl';
 
 console.log('nesl-js exports:', Object.keys(nesl));
 console.log('\nparseNesl type:', typeof parseNesl);

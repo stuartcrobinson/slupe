@@ -125,7 +125,7 @@ slupe/
 
 ### Critical
 1. **NESL parser package**: `nesl-js` from `github:nesl-lang/nesl-js`
-   - Import: `const { parseNESL } = require('nesl-js')`
+   - Import: `const { parseNESL } = require('nesl')`
 2. **Transaction API**: Single `execute()` method processes NESL block array
 
 ### Design

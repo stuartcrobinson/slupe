@@ -1,5 +1,5 @@
 import { SlupeAction, TransformError, ActionDefinition } from './types.js';
-import type { Block } from 'nesl-js';
+import type { Block } from 'nesl';
 
 /**
  * Transform validated NESL block into typed slupe action
