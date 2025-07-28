@@ -1,0 +1,78 @@
+{
+  "cases": [
+    {
+      "name": "successful start with default config",
+      "input": [{
+        "filePath": "/tmp/t_listener_start/test.md"
+      }],
+      "setup": {
+        "createFile": "/tmp/t_listener_start/test.md",
+        "content": "# Test file\n"
+      },
+      "expected": {
+        "id": "mock-id",
+        "filePath": "/tmp/t_listener_start/test.md",
+        "hasStopMethod": true
+      }
+    },
+    {
+      "name": "file not found error",
+      "input": [{
+        "filePath": "/tmp/t_listener_missing/ghost.md"
+      }],
+      "throws": "ListenerError",
+      "expectedError": {
+        "code": "FILE_NOT_FOUND",
+        "path": "/tmp/t_listener_missing/ghost.md"
+      }
+    },
+    {
+      "name": "already watching error",
+      "input": [{
+        "filePath": "/tmp/t_listener_duplicate/test.md"
+      }],
+      "setup": {
+        "createFile": "/tmp/t_listener_duplicate/test.md",
+        "content": "test",
+        "alreadyWatching": true
+      },
+      "throws": "ListenerError",
+      "expectedError": {
+        "code": "ALREADY_WATCHING",
+        "path": "/tmp/t_listener_duplicate/test.md"
+      }
+    },
+    {
+      "name": "custom debounce time",
+      "input": [{
+        "filePath": "/tmp/t_listener_debounce/test.md",
+        "debounceMs": 1000
+      }],
+      "setup": {
+        "createFile": "/tmp/t_listener_debounce/test.md",
+        "content": "test"
+      },
+      "expected": {
+        "id": "mock-id",
+        "filePath": "/tmp/t_listener_debounce/test.md",
+        "hasStopMethod": true
+      }
+    },
+    {
+      "name": "custom output filename",
+      "input": [{
+        "filePath": "/tmp/t_listener_output/test.md",
+        "outputFilename": ".my-output.txt"
+      }],
+      "setup": {
+        "createFile": "/tmp/t_listener_output/test.md",
+        "content": "test"
+      },
+      "expected": {
+        "id": "mock-id",
+        "filePath": "/tmp/t_listener_output/test.md",
+        "hasStopMethod": true
+      }
+    }
+  ]
+}

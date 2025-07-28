@@ -1,0 +1,44 @@
+{
+  "cases": [
+    {
+      "name": "filters single tool from Actions section",
+      "input": {
+        "markdown": "# Header\n\n## Actions\n\n### `file_write`\nWrite files\n\n### `file_read`\nRead files\n\n## Other Section\nKeep this",
+        "allowedTools": ["file_write"]
+      },
+      "expected": "# Header\n\n## Actions\n\n### `file_write`\nWrite files\n\n## Other Section\nKeep this"
+    },
+    {
+      "name": "preserves content outside Actions section",
+      "input": {
+        "markdown": "# Header\nIntro text\n\n## Actions\n\n### `file_write`\nWrite\n\n## Other Section\nMore content\n\n## Final Section\nEnd",
+        "allowedTools": []
+      },
+      "expected": "# Header\nIntro text\n\n## Actions\n\n## Other Section\nMore content\n\n## Final Section\nEnd"
+    },
+    {
+      "name": "handles multi-line tool descriptions",
+      "input": {
+        "markdown": "## Actions\n\n### `file_write`\nCreate/overwrite file\n```sh nesl\n#!nesl\naction = \"file_write\"\n#!end\n```\n\n### `file_read`\nRead file\n```sh nesl\n#!nesl\naction = \"file_read\"\n#!end\n```\n\n## Other",
+        "allowedTools": ["file_read"]
+      },
+      "expected": "## Actions\n\n### `file_read`\nRead file\n```sh nesl\n#!nesl\naction = \"file_read\"\n#!end\n```\n\n## Other"
+    },
+    {
+      "name": "preserves Actions header when no tools allowed",
+      "input": {
+        "markdown": "## Actions\n\n### `file_write`\nWrite\n\n### `file_read`\nRead",
+        "allowedTools": []
+      },
+      "expected": "## Actions\n"
+    },
+    {
+      "name": "handles tools not in markdown",
+      "input": {
+        "markdown": "## Actions\n\n### `file_write`\nWrite",
+        "allowedTools": ["file_write", "file_delete", "exec"]
+      },
+      "expected": "## Actions\n\n### `file_write`\nWrite"
+    }
+  ]
+}

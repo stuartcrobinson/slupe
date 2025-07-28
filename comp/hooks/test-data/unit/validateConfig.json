@@ -1,0 +1,125 @@
+{
+  "cases": [
+    {
+      "name": "valid complete config",
+      "input": [
+        {
+          "version": 1,
+          "hooks": {
+            "before": [
+              {
+                "run": "git status"
+              }
+            ],
+            "after": [
+              {
+                "run": "git commit -m \"test\""
+              }
+            ]
+          },
+          "vars": {
+            "MSG": "hello"
+          }
+        }
+      ],
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "empty config object",
+      "input": [
+        {}
+      ],
+      "expected": {
+        "valid": true
+      }
+    },
+    {
+      "name": "hooks not an object",
+      "input": [
+        {
+          "hooks": "invalid"
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "error": "hooks must be an object"
+      }
+    },
+    {
+      "name": "before hooks not an array",
+      "input": [
+        {
+          "hooks": {
+            "before": "git status"
+          }
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "error": "hooks.before must be an array"
+      }
+    },
+    {
+      "name": "invalid command in array",
+      "input": [
+        {
+          "hooks": {
+            "after": [
+              "git add ."
+            ]
+          }
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "error": "hook commands must be objects"
+      }
+    },
+    {
+      "name": "vars not an object",
+      "input": [
+        {
+          "vars": ["VAR1", "VAR2"]
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "error": "vars must be an object"
+      }
+    },
+    {
+      "name": "non-string var value",
+      "input": [
+        {
+          "vars": {
+            "COUNT": 123
+          }
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "error": "var values must be strings"
+      }
+    },
+    {
+      "name": "unknown top-level keys ignored",
+      "input": [
+        {
+          "hooks": {
+            "before": [
+              {
+                "run": "echo test"
+              }
+            ]
+          },
+          "unknown": "ignored"
+        }
+      ],
+      "expected": {
+        "valid": true
+      }
+    }
+  ]
+}

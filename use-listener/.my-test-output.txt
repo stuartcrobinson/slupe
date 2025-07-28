@@ -1,0 +1,14 @@
+=== SLUPE RESULTS ===
+v7x ✅ exec python
+=== END ===
+
+=== OUTPUTS ===
+
+[v7x] exec python:
+stdout:
+Python version:
+3.13.2 (main, Feb  4 2025, 14:51:09) [Clang 15.0.0 (clang-1500.1.0.2.5)]
+
+Version info:
+sys.version_info(major=3, minor=13, micro=2, releaselevel='final', serial=0)
+=== END ===

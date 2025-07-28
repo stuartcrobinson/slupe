@@ -1,0 +1,13 @@
+
+=== START FILE: /path/to/file1.txt ===
+
+=== END FILE: /path/to/file1.txt ===
+
+=== START FILE: /path/to/file2.txt ===
+
+=== END FILE: /path/to/file2.txt ===
+
+=== START FILE: /path/to/file3.txt ===
+
+=== END FILE: /path/to/file3.txt ===
+

@@ -1,0 +1,54 @@
+{
+  "cases": [
+    {
+      "name": "successful execution",
+      "input": [0, "output text", ""],
+      "expected": {
+        "success": true,
+        "stdout": "output text",
+        "stderr": "",
+        "exit_code": 0
+      }
+    },
+    {
+      "name": "failed execution with stderr",
+      "input": [1, "", "error message"],
+      "expected": {
+        "success": false,
+        "stdout": "",
+        "stderr": "error message",
+        "exit_code": 1
+      }
+    },
+    {
+      "name": "non-zero exit with stdout and stderr",
+      "input": [2, "partial output", "warning: failed"],
+      "expected": {
+        "success": false,
+        "stdout": "partial output",
+        "stderr": "warning: failed",
+        "exit_code": 2
+      }
+    },
+    {
+      "name": "execution error without exit code",
+      "input": [null, "", "", {"message": "spawn ENOENT"}],
+      "expected": {
+        "success": false,
+        "stdout": "",
+        "stderr": "",
+        "error": "spawn ENOENT"
+      }
+    },
+    {
+      "name": "timeout error with partial output",
+      "input": [null, "started...", "", {"message": "Process timeout after 30s"}],
+      "expected": {
+        "success": false,
+        "stdout": "started...",
+        "stderr": "",
+        "error": "Process timeout after 30s"
+      }
+    }
+  ]
+}

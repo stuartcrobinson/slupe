@@ -1,0 +1,42 @@
+{
+  "cases": [
+    {
+      "name": "default options without cwd",
+      "input": [],
+      "expected": {
+        "cwd": "{PROCESS_CWD}",
+        "env": "{PROCESS_ENV}",
+        "shell": false,
+        "windowsHide": true,
+        "detached": true
+      }
+    },
+    {
+      "name": "custom cwd",
+      "input": ["/tmp"],
+      "expected": {
+        "cwd": "/tmp",
+        "env": "{PROCESS_ENV}",
+        "shell": false,
+        "windowsHide": true,
+        "detached": true
+      }
+    },
+    {
+      "name": "relative cwd resolved to absolute",
+      "input": ["./proj"],
+      "expected": {
+        "cwd": "{RESOLVED_PATH}",
+        "env": "{PROCESS_ENV}",
+        "shell": false,
+        "windowsHide": true,
+        "detached": true
+      }
+    },
+    {
+      "name": "non-existent cwd throws",
+      "input": ["/nonexistent/ghost/directory"],
+      "throws": "ExecError"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "cases": [
+    {
+      "name": "loads base instructions template",
+      "input": [],
+      "verify": {
+        "contains": [
+          "## Actions"
+        ],
+        "type": "string"
+      }
+    }
+  ]
+}

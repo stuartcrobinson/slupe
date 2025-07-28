@@ -1,0 +1,108 @@
+{
+  "cases": [
+    {
+      "name": "valid file_write block",
+      "input": [
+        {
+          "id": "abc",
+          "properties": {
+            "action": "file_write",
+            "path": "/tmp/test.txt",
+            "content": "hello"
+          }
+        },
+        {
+          "type": "write",
+          "description": "Create new file",
+          "parameters": {
+            "path": {
+              "type": "string",
+              "required": true,
+              "format": "absolute_path"
+            },
+            "content": {
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      ],
+      "expected": {
+        "valid": true,
+        "actionType": "file_write",
+        "errors": []
+      }
+    },
+    {
+      "name": "missing action field",
+      "input": [
+        {
+          "id": "bad",
+          "properties": {
+            "path": "/tmp/test.txt",
+            "content": "hello"
+          }
+        },
+        null
+      ],
+      "expected": {
+        "valid": false,
+        "errors": [
+          "Missing 'action' field in NESL block"
+        ]
+      }
+    },
+    {
+      "name": "unknown action type",
+      "input": [
+        {
+          "id": "unk",
+          "properties": {
+            "action": "not_real_action",
+            "path": "/tmp/test.txt"
+          }
+        },
+        null
+      ],
+      "expected": {
+        "valid": false,
+        "errors": [
+          "Unknown action: not_real_action"
+        ]
+      }
+    },
+    {
+      "name": "missing required parameter",
+      "input": [
+        {
+          "id": "miss",
+          "properties": {
+            "action": "file_write",
+            "path": "/tmp/test.txt"
+          }
+        },
+        {
+          "type": "write",
+          "description": "Create new file",
+          "parameters": {
+            "path": {
+              "type": "string",
+              "required": true,
+              "format": "absolute_path"
+            },
+            "content": {
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      ],
+      "expected": {
+        "valid": false,
+        "errors": [
+          "Missing required parameter: content"
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,90 @@
+{
+  "cases": [
+    {
+      "name": "valid hooks config",
+      "input": [
+        "version: 1\n\nhooks:\n  before:\n    - run: git status\n  after:\n    - run: git add .\n    - run: git commit -m \"changes\"\n\nvars:\n  MSG: default message"
+      ],
+      "expected": {
+        "version": 1,
+        "hooks": {
+          "before": [
+            {
+              "run": "git status"
+            }
+          ],
+          "after": [
+            {
+              "run": "git add ."
+            },
+            {
+              "run": "git commit -m \"changes\""
+            }
+          ]
+        },
+        "vars": {
+          "MSG": "default message"
+        }
+      }
+    },
+    {
+      "name": "empty yaml",
+      "input": [
+        ""
+      ],
+      "expected": null
+    },
+    {
+      "name": "minimal config",
+      "input": [
+        "hooks:\n  before:\n    - run: echo start"
+      ],
+      "expected": {
+        "hooks": {
+          "before": [
+            {
+              "run": "echo start"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "command with all options",
+      "input": [
+        "hooks:\n  after:\n    - run: npm test\n      continueOnError: true\n      timeout: 60000\n      cwd: /project"
+      ],
+      "expected": {
+        "hooks": {
+          "after": [
+            {
+              "run": "npm test",
+              "continueOnError": true,
+              "timeout": 60000,
+              "cwd": "/project"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "invalid yaml syntax",
+      "input": [
+        "hooks:\n  before:\n    - run: test\n    bad indentation here"
+      ],
+      "throws": "Error"
+    },
+    {
+      "name": "only vars no hooks",
+      "input": [
+        "vars:\n  USER: bot\n  ENV: prod"
+      ],
+      "expected": {
+        "vars": {
+          "USER": "bot",
+          "ENV": "prod"
+        }
+      }
+    }
+  ]
+}

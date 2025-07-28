@@ -1,0 +1,127 @@
+{
+  "cases": [
+    {
+      "name": "basic variable substitution",
+      "input": [
+        {
+          "run": "git commit -m \"${COMMIT_MSG}\"",
+          "continueOnError": false
+        },
+        {
+          "COMMIT_MSG": "AI changes"
+        },
+        null
+      ],
+      "expected": {
+        "run": "git commit -m \"AI changes\"",
+        "continueOnError": false
+      }
+    },
+    {
+      "name": "multiple variables",
+      "input": [
+        {
+          "run": "echo \"${USER} made ${COUNT} changes\"",
+          "continueOnError": true
+        },
+        {
+          "USER": "bot",
+          "COUNT": "5"
+        },
+        null
+      ],
+      "expected": {
+        "run": "echo \"bot made 5 changes\"",
+        "continueOnError": true
+      }
+    },
+    {
+      "name": "missing variable throws error",
+      "input": [
+        {
+          "run": "git commit -m \"${MISSING_VAR}\""
+        },
+        {},
+        null
+      ],
+      "throws": "Error"
+    },
+    {
+      "name": "context variables override config vars",
+      "input": [
+        {
+          "run": "echo \"${STATUS}\""
+        },
+        {
+          "STATUS": "config-value"
+        },
+        {
+          "STATUS": "context-value"
+        }
+      ],
+      "expected": {
+        "run": "echo \"context-value\""
+      }
+    },
+    {
+      "name": "preserve other command properties",
+      "input": [
+        {
+          "run": "echo \"${MSG}\"",
+          "timeout": 5000,
+          "cwd": "/tmp"
+        },
+        {
+          "MSG": "hello"
+        },
+        null
+      ],
+      "expected": {
+        "run": "echo \"hello\"",
+        "timeout": 5000,
+        "cwd": "/tmp"
+      }
+    },
+    {
+      "name": "no variables to substitute",
+      "input": [
+        {
+          "run": "git status"
+        },
+        {},
+        null
+      ],
+      "expected": {
+        "run": "git status"
+      }
+    },
+    {
+      "name": "escaped dollar sign",
+      "input": [
+        {
+          "run": "echo \"\\${NOT_A_VAR}\""
+        },
+        {},
+        null
+      ],
+      "expected": {
+        "run": "echo \"${NOT_A_VAR}\""
+      }
+    },
+    {
+      "name": "variable in middle of string",
+      "input": [
+        {
+          "run": "prefix-${VAR}-suffix"
+        },
+        {
+          "VAR": "middle"
+        },
+        null
+      ],
+      "expected": {
+        "run": "prefix-middle-suffix"
+      }
+    }
+  ]
+}

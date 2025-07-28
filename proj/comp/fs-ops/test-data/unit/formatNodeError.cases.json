@@ -1,0 +1,87 @@
+{
+  "cases": [
+    {
+      "name": "ENOENT error",
+      "input": [
+        { "code": "ENOENT", "message": "no such file or directory" },
+        "/tmp/missing.txt",
+        "open"
+      ],
+      "expected": "ENOENT: no such file or directory, open '/tmp/missing.txt'"
+    },
+    {
+      "name": "EEXIST error",
+      "input": [
+        { "code": "EEXIST", "message": "file already exists" },
+        "/tmp/existing.txt",
+        "open"
+      ],
+      "expected": "EEXIST: file already exists, open '/tmp/existing.txt'"
+    },
+    {
+      "name": "EACCES error",
+      "input": [
+        { "code": "EACCES", "message": "permission denied" },
+        "/root/forbidden.txt",
+        "open"
+      ],
+      "expected": "EACCES: permission denied, open '/root/forbidden.txt'"
+    },
+    {
+      "name": "EISDIR error",
+      "input": [
+        { "code": "EISDIR", "message": "illegal operation on a directory" },
+        "/tmp/",
+        "read"
+      ],
+      "expected": "EISDIR: illegal operation on a directory, read '/tmp/'"
+    },
+    {
+      "name": "unknown error code",
+      "input": [
+        { "code": "ESOMETHING", "message": "something went wrong" },
+        "/tmp/file.txt",
+        "write"
+      ],
+      "expected": "ESOMETHING: something went wrong"
+    },
+    {
+      "name": "error without code",
+      "input": [
+        { "message": "Generic error occurred" },
+        "/tmp/file.txt",
+        "write"
+      ],
+      "expected": "Generic error occurred"
+    },
+    {
+      "name": "error with no message or code",
+      "input": [
+        {},
+        "/tmp/file.txt",
+        "write"
+      ],
+      "expected": "Unknown error during write on '/tmp/file.txt'"
+    },
+    {
+      "name": "rename ENOENT error",
+      "input": [
+        { "code": "ENOENT", "message": "no such file or directory" },
+        "/tmp/source.txt",
+        "rename",
+        "/tmp/dest.txt"
+      ],
+      "expected": "ENOENT: no such file or directory, rename '/tmp/source.txt' -> '/tmp/dest.txt'"
+    },
+    {
+      "name": "rename EACCES error",
+      "input": [
+        { "code": "EACCES", "message": "permission denied" },
+        "/tmp/source.txt",
+        "rename",
+        "/root/dest.txt"
+      ],
+      "expected": "EACCES: permission denied, rename '/tmp/source.txt' -> '/root/dest.txt'"
+    }
+  ]
+}

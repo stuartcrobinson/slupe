@@ -1,0 +1,218 @@
+{
+  "cases": [
+    {
+      "name": "simple string parameters",
+      "input": [
+        {
+          "id": "str",
+          "properties": {
+            "action": "file_write",
+            "path": "/tmp/test.txt",
+            "content": "hello world"
+          },
+          "startLine": 1,
+          "endLine": 5
+        },
+        {
+          "type": "write",
+          "parameters": {
+            "path": {
+              "type": "string",
+              "required": true,
+              "format": "absolute_path"
+            },
+            "content": {
+              "type": "string",
+              "required": true
+            }
+          }
+        }
+      ],
+      "expected": {
+        "action": "file_write",
+        "parameters": {
+          "path": "/tmp/test.txt",
+          "content": "hello world"
+        },
+        "metadata": {
+          "blockId": "str",
+          "startLine": 1,
+          "endLine": 5
+        }
+      }
+    },
+    {
+      "name": "with NESL annotation",
+      "input": [
+        {
+          "id": "ann",
+          "properties": {
+            "action": "file_delete",
+            "path": "/tmp/remove.txt",
+            "@three-char-SHA-256": "abc"
+          },
+          "startLine": 10,
+          "endLine": 13
+        },
+        {
+          "type": "write",
+          "parameters": {
+            "path": {
+              "type": "string",
+              "required": true,
+              "format": "absolute_path"
+            }
+          }
+        }
+      ],
+      "expected": {
+        "action": "file_delete",
+        "parameters": {
+          "path": "/tmp/remove.txt"
+        },
+        "metadata": {
+          "blockId": "ann",
+          "startLine": 10,
+          "endLine": 13
+        }
+      }
+    },
+    {
+      "name": "integer parameter conversion",
+      "input": [
+        {
+          "id": "int",
+          "properties": {
+            "action": "file_replace_all_text",
+            "path": "/tmp/edit.txt",
+            "old_text": "foo",
+            "new_text": "bar",
+            "count": "3"
+          },
+          "startLine": 1,
+          "endLine": 7
+        },
+        {
+          "type": "write",
+          "parameters": {
+            "path": {
+              "type": "string",
+              "required": true,
+              "format": "absolute_path"
+            },
+            "old_text": {
+              "type": "string",
+              "required": true
+            },
+            "new_text": {
+              "type": "string",
+              "required": true
+            },
+            "count": {
+              "type": "integer",
+              "required": false
+            }
+          }
+        }
+      ],
+      "expected": {
+        "action": "file_replace_all_text",
+        "parameters": {
+          "path": "/tmp/edit.txt",
+          "old_text": "foo",
+          "new_text": "bar",
+          "count": 3
+        },
+        "metadata": {
+          "blockId": "int",
+          "startLine": 1,
+          "endLine": 7
+        }
+      }
+    },
+    {
+      "name": "enum parameter validation",
+      "input": [
+        {
+          "id": "enum",
+          "properties": {
+            "action": "exec",
+            "code": "print(1)",
+            "lang": "python"
+          },
+          "startLine": 5,
+          "endLine": 9
+        },
+        {
+          "type": "dynamic",
+          "parameters": {
+            "code": {
+              "type": "string",
+              "required": true
+            },
+            "lang": {
+              "type": "enum",
+              "values": [
+                "python",
+                "javascript",
+                "bash"
+              ],
+              "required": true
+            }
+          }
+        }
+      ],
+      "expected": {
+        "action": "exec",
+        "parameters": {
+          "code": "print(1)",
+          "lang": "python"
+        },
+        "metadata": {
+          "blockId": "enum",
+          "startLine": 5,
+          "endLine": 9
+        }
+      }
+    },
+    {
+      "name": "invalid integer throws",
+      "input": [
+        {
+          "id": "bad",
+          "properties": {
+            "action": "file_replace_all_text",
+            "path": "/tmp/edit.txt",
+            "old_text": "foo",
+            "new_text": "bar",
+            "count": "not-a-number"
+          },
+          "startLine": 1,
+          "endLine": 7
+        },
+        {
+          "type": "write",
+          "parameters": {
+            "path": {
+              "type": "string",
+              "required": true
+            },
+            "old_text": {
+              "type": "string",
+              "required": true
+            },
+            "new_text": {
+              "type": "string",
+              "required": true
+            },
+            "count": {
+              "type": "integer",
+              "required": false
+            }
+          }
+        }
+      ],
+      "throws": "TransformError"
+    }
+  ]
+}

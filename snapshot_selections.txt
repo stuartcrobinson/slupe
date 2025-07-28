@@ -1,0 +1,765 @@
+=== START FILE: /Users/stuart/repos/slupe/use-listener/instruct.md ===
+# NESL Actions API Reference
+
+you, the LLM, can write nesl for the user to execute on their computer once your response is complete.
+
+Critical constraints:
+- Paths: always absolute
+- Whitespace: preserved exactly in heredocs
+- when needing output from an action, like from file_read, you must terminate your LLM response and wait for the user to respond with the output
+- `exec` is not supported.  to initiate bash commands, place them in a separate fenced code block and just ask the user to run them
+
+## NESL examples
+
+### example 1
+
+```sh nesl
+#!nesl [@three-char-SHA-256: v7r]
+action = "file_write"
+path = "/absolute/path/to/file.txt"
+content = <<'EOT_v7r'
+
+ Multi-line content
+ always in a heredoc,
+
+always literal text verbatim
+
+ nothing ever escaped: "'\n
+
+   always with preserved whitespace
+
+   
+EOT_v7r
+#!end_v7r
+```
+
+```json
+{
+  "action": "file_write",
+  "path": "/absolute/path/to/file.txt",
+  "content": "\n Multi-line content\n always in a heredoc,\n\nalways literal text verbatim\n\n nothing ever escaped: \"'\\n\n\n   always with preserved whitespace\n\n   \n"
+}
+```
+
+### example 2
+
+```sh nesl
+#!nesl [@three-char-SHA-256: qk6]
+action = "file_replace_text"
+path = "/home/user/config.py"
+old_text = <<'EOT_qk6'
+  "version": "0.1",
+EOT_qk6
+new_text = <<'EOT_qk6'
+  "version": "0.2",
+EOT_qk6
+#!end_qk6
+```
+
+JSON equivalent:
+
+```json
+{
+  "action": "file_replace_text",
+  "path": "/home/user/config.py",
+  "old_text": "  \"version\": \"0.1\",",
+  "new_text": "  \"version\": \"0.2\",",
+}
+```
+
+## Actions
+
+### `file_write`
+Create/overwrite file
+- `path`
+- `content`
+
+### `file_replace_text`
+Replace the only one occurrence
+- `path`
+- `old_text`
+- `new_text`
+
+### `file_replace_all_text`
+Replace all occurrences
+- `path`
+- `old_text`
+- `new_text`
+- `count` (optional) string. eg: `count = "2"`
+
+### `file_replace_text_range`
+Replace text between markers
+- `path`
+- `old_text_beginning`
+- `old_text_end`
+- `new_text`
+
+
+### `file_append`
+Append to file
+- `path`
+- `content`
+
+### `file_read`
+Read file
+- `path`
+
+### `file_delete`
+Delete file
+- `path`
+
+### `file_move`
+Move/rename file
+- `old_path`
+- `new_path`
+
+### `files_read`
+Read multiple files
+- `paths` heredoc string, one path per line
+
+## bash
+
+for any bash commands you would like to execute, just share them directly with the user in fenced off code block in your response
+
+
+## Coding Guides
+
+when writing computer scripts or code:
+
+- do not use comments.  code should be clear clean obvious and self-documenting
+
+## LLM Behavior guide
+
+Prioritize substance, clarity, and depth. Challenge all my proposals, designs, and conclusions as hypotheses to be tested. Sharpen follow-up questions for precision, surfacing hidden assumptions, trade offs, and failure modes early. Default to terse, logically structured, information-dense responses unless detailed exploration is required. Skip unnecessary praise unless grounded in evidence. Explicitly acknowledge uncertainty when applicable. propose an alternate framing when it feels important. Accept critical debate as normal and preferred. Treat all factual claims as provisional unless cited or clearly justified. Cite when appropriate. Acknowledge when claims rely on inference or incomplete information. Favor accuracy over sounding certain.
+
+check anything online when it feels relevant.  good to compare our thoughts/assumptions with what other people are actually doing and thinking
+
+when asked to share your thoughts (like if user says "wdyt"), then walk it out and talk it out gradually, incrementally, slowly, and thoughtfully.  challenge the user and yourself so you can both succeed overall.  the user is not tied or attached to any one idea or approach
+
+## Important for nesl
+
+- when replacing content in a file, make the old_string as short as you can while still being unique.  its better to err on the side of being too short and having to redo it, vs always being too long and wasting time and tokens
+
+- do not attempt to run nesl syntax while responding.  nesl is NOT "tools" like ones that you might have access to already as an LLM
+
+
+
+=== END FILE: /Users/stuart/repos/slupe/use-listener/instruct.md ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/exec/src/executeCommand.ts ===
+import { spawn } from 'child_process';
+import type { ExecResult } from './types';
+import { ExecError } from './types';
+import { mapLanguageToCommand } from './mapLanguageToCommand';
+import { buildSpawnOptions } from './buildSpawnOptions';
+import { formatExecResult } from './formatExecResult';
+
+/**
+ * Executes code from parsed NESL action in specified language
+ * @param action - SlupeAction with exec action and parameters
+ * @returns ExecResult with success status, output, and exit code
+ * Never throws - all errors captured in result
+ */
+export async function executeCommand(action: any): Promise<ExecResult> {
+  try {
+    // Validate action structure
+    if (!action?.parameters?.lang || !action?.parameters?.code === undefined) {
+      return formatExecResult(null, '', '',
+        new Error('Invalid action: missing lang or code parameter'));
+    }
+
+    const { lang, code, cwd, timeout } = action.parameters;
+
+    // Map language to command (may throw)
+    const { command, args } = mapLanguageToCommand(lang, code);
+
+    // Build spawn options with validated cwd (may throw)
+    const options = await buildSpawnOptions(cwd);
+
+    // Execute command and capture results
+    return await runProcess(command, args, options, timeout);
+
+  } catch (error) {
+    // Convert exceptions to ExecResult format
+    if (error instanceof ExecError) {
+      return formatExecResult(null, '', '', error);
+    }
+    return formatExecResult(null, '', '',
+      error instanceof Error ? error : new Error(String(error)));
+  }
+}
+
+/**
+ * Spawns child process and captures output with timeout handling
+ * @param command - Interpreter command to run
+ * @param args - Arguments for the command
+ * @param options - Spawn options including cwd and timeout
+ * @returns ExecResult with captured output and exit code
+ */
+async function runProcess(
+  command: string,
+  args: string[],
+  options: any,
+  timeout?: number
+): Promise<ExecResult> {
+  return new Promise((resolve) => {
+    let stdout = '';
+    let stderr = '';
+    let timedOut = false;
+    let timeoutId: NodeJS.Timeout | null = null;
+
+    const child = spawn(command, args, options);
+
+    // Set up timeout (default 30s)
+    const TIMEOUT_MS = timeout || 30000;
+    timeoutId = setTimeout(() => {
+      timedOut = true;
+      // Kill entire process group if detached
+      const pid = child.pid;
+      if (pid && options.detached) {
+        try {
+          process.kill(-pid, 'SIGTERM'); // Negative PID kills the group
+        } catch (e) {
+          // Fallback to regular kill if group kill fails
+          child.kill('SIGTERM');
+        }
+      } else {
+        child.kill('SIGTERM');
+      }
+      // Grace period before SIGKILL
+      setTimeout(() => {
+        if (!child.killed) {
+          if (pid && options.detached) {
+            try {
+              process.kill(-pid, 'SIGKILL');
+            } catch (e) {
+              child.kill('SIGKILL');
+            }
+          } else {
+            child.kill('SIGKILL');
+          }
+        }
+      }, 100); // 100ms grace - balance between speed and cleanup
+    }, TIMEOUT_MS);
+
+    // Capture output streams
+    child.stdout?.on('data', (data) => {
+      stdout += data.toString();
+      // TODO: Implement size limit truncation
+    });
+
+    child.stderr?.on('data', (data) => {
+      stderr += data.toString();
+      // TODO: Implement size limit truncation
+    });
+
+    // Handle process completion
+    child.on('close', (code, signal) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
+      if (timedOut) {
+        resolve(formatExecResult(null, stdout, stderr,
+          new Error(`exec: Process timeout after ${TIMEOUT_MS / 1000}s (TIMEOUT)`)));
+      } else if (code !== null) {
+        resolve(formatExecResult(code, stdout, stderr));
+      } else if (signal) {
+        resolve(formatExecResult(null, stdout, stderr,
+          new Error(`Process killed by signal ${signal}`)));
+      }
+    });
+
+    // Handle spawn errors (command not found, etc)
+    child.on('error', (error) => {
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+      // Check if it's ENOENT (command not found)
+      if ((error as any).code === 'ENOENT') {
+        resolve(formatExecResult(null, stdout, stderr,
+          new Error(`exec: ${command} not found in PATH (ENOENT)`)));
+      } else {
+        resolve(formatExecResult(null, stdout, stderr, error));
+      }
+    });
+
+
+  });
+}
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/exec/src/executeCommand.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/exec/src/formatExecResult.ts ===
+import type { ExecResult } from './types';
+
+/**
+ * Formats raw process execution results into standardized ExecResult
+ * @param exitCode - Process exit code, null if process didn't exit normally
+ * @param stdout - Captured standard output
+ * @param stderr - Captured standard error
+ * @param error - Error object if execution failed before process exit
+ * @returns Formatted result with success based on exit code 0
+ */
+export function formatExecResult(
+  exitCode: number | null,
+  stdout: string,
+  stderr: string,
+  error?: Error
+): ExecResult {
+  // Error takes precedence - process didn't run or was killed
+  if (error) {
+    return {
+      success: false,
+      stdout: stdout || '',
+      stderr: stderr || '',
+      error: error.message
+    };
+  }
+  
+  // Normal process completion
+  if (exitCode !== null) {
+    return {
+      success: exitCode === 0,
+      stdout,
+      stderr,
+      exit_code: exitCode
+    };
+  }
+  
+  // Shouldn't reach here, but handle gracefully
+  return {
+    success: false,
+    stdout,
+    stderr,
+    error: 'Unknown execution state'
+  };
+}
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/exec/src/formatExecResult.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/exec/src/types.ts ===
+export interface ExecResult {
+  success: boolean;
+  stdout?: string;
+  stderr?: string;
+  exit_code?: number;
+  error?: string;
+}
+
+export class ExecError extends Error {
+  code: string;
+  details?: any;
+  
+  constructor(message: string, code: string, details?: any) {
+    super(message);
+    this.name = 'ExecError';
+    this.code = code;
+    this.details = details;
+  }
+}
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/exec/src/types.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts ===
+import type { ExecutionResult as OrchestratorResult } from '../../orch/src/index.js';
+
+// export function formatSummary(orchResult: OrchestratorResult, timestamp: Date): string {
+//   const lines = ['', '=== SLUPE RESULTS ==='];
+
+//   // Add execution results
+//   if (orchResult.results) {
+//     for (const result of orchResult.results) {
+//       const icon = result.success ? '✅' : '❌';
+//       const primaryParam = getPrimaryParamFromResult(result);
+
+//       if (result.success) {
+//         lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam}`.trim());
+//       } else {
+//         lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam} - ${getErrorSummary(result.error)}`.trim());
+//       }
+//     }
+//   }
+
+//   // Add parse errors - group by blockId
+//   if (orchResult.parseErrors) {
+//     const errorsByBlock = new Map<string, any[]>();
+
+//     for (const error of orchResult.parseErrors) {
+//       const blockId = error.blockId || 'unknown';
+//       if (!errorsByBlock.has(blockId)) {
+//         errorsByBlock.set(blockId, []);
+//       }
+//       errorsByBlock.get(blockId)!.push(error);
+//     }
+
+//     // Format grouped errors
+//     for (const [blockId, errors] of errorsByBlock) {
+//       const firstError = errors[0];
+//       const action = firstError.action || 'parse';
+//       const lineInfo = firstError.blockStartLine ? `, line ${firstError.blockStartLine}` : '';
+
+//       if (errors.length === 1) {
+//         // Single error - simple format
+//         lines.push(`${blockId} ❌ ${action}${lineInfo} - ${firstError.errorType}: ${firstError.message}`);
+//       } else {
+//         // Multiple errors - list them
+//         lines.push(`${blockId} ❌ ${action}${lineInfo} - ${errors.length} errors:`);
+//         const uniqueMessages = [...new Set(errors.map(e => `  ${e.errorType}: ${e.message}`))];
+//         lines.push(...uniqueMessages);
+//       }
+//     }
+//   }
+
+//   lines.push('=== END ===', '');
+//   return lines.join('\n');
+// }
+
+
+export function formatSummary(orchResult: OrchestratorResult): string {
+  const lines = ['', '=== SLUPE RESULTS ==='];
+
+  // DEBUG: Log raw orchestrator result for parse errors
+  if (orchResult.parseErrors && orchResult.parseErrors.length > 0) {
+    // console.log('DEBUG: Raw parseErrors:', JSON.stringify(orchResult.parseErrors, null, 2));
+  }
+
+  // Add execution results
+  if (orchResult.results) {
+    for (const result of orchResult.results) {
+      const icon = result.success ? '✅' : '❌';
+      const primaryParam = getPrimaryParamFromResult(result);
+
+      if (result.success) {
+        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam}`.trim());
+      } else {
+        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam} - ${getErrorSummary(result.error)}`.trim());
+      }
+    }
+  }
+
+  // Add parse errors - group by blockId
+  if (orchResult.parseErrors) {
+    const errorsByBlock = new Map<string, any[]>();
+
+    // Group errors by blockId
+    for (const error of orchResult.parseErrors) {
+      const blockId = error.blockId || 'unknown';
+      if (!errorsByBlock.has(blockId)) {
+        errorsByBlock.set(blockId, []);
+      }
+      errorsByBlock.get(blockId)!.push(error);
+    }
+
+    // Format grouped errors
+    for (const [blockId, errors] of errorsByBlock) {
+      const firstError = errors[0];
+      const action = firstError.action || '-';
+      const lineInfo = firstError.blockStartLine ? ` (line ${firstError.blockStartLine})` : '';
+
+      // Pad action to 10 characters for alignment
+      const paddedAction = action.padEnd(10);
+
+      if (errors.length === 1) {
+        // Single error
+        lines.push(`${blockId} ❌ ${paddedAction} ERROR: ${firstError.message}${lineInfo}`);
+      } else {
+        // Multiple errors - count unique messages
+        const messageCount = new Map<string, number>();
+        for (const error of errors) {
+          const msg = error.message;
+          messageCount.set(msg, (messageCount.get(msg) || 0) + 1);
+        }
+
+        // First line shows total count
+        lines.push(`${blockId} ❌ ${paddedAction} ERROR: ${errors.length} syntax errors${lineInfo}`);
+
+        // Sub-bullets for each unique error type
+        const indent = ' '.repeat(20); // Align with ERROR: column
+        for (const [msg, count] of messageCount) {
+          if (count > 1) {
+            lines.push(`${indent}- ${msg} (${count} occurrences)`);
+          } else {
+            lines.push(`${indent}- ${msg}`);
+          }
+        }
+      }
+    }
+  }
+
+  lines.push('=== END ===', '');
+  return lines.join('\n');
+}
+
+function getPrimaryParamFromResult(result: any): string {
+  if (!result.params) return '';
+  if (result.params.path) return result.params.path;
+  if (result.params.paths) {
+    const paths = result.params.paths.trim().split('\n').filter((p: string) => p.trim());
+    return `(${paths.length} files)`;
+  }
+  if (result.params.pattern) return result.params.pattern;
+  if (result.params.lang) return result.params.lang;
+  if (result.params.old_path) return result.params.old_path;
+  return '';
+}
+
+function getErrorSummary(error?: string): string {
+  if (!error) return 'Unknown error';
+
+  // Extract key error info
+  if (error.includes('File not found')) return 'File not found';
+  if (error.includes('no such file or directory')) return 'File not found';
+  if (error.includes('Permission denied')) return 'Permission denied';
+  if (error.includes('Output too large')) return error; // Keep full message
+
+  // For other errors, take first part before details
+  const match = error.match(/^[^:]+:\s*([^'(]+)/);
+  if (match) return match[1]!.trim();
+
+  return error?.split('\n')[0] || 'Unknown error'; // First line only
+}
+
+/**
+ * Format file read output in a human-readable way
+ */
+function formatFileReadOutput(result: any): string[] {
+  const lines: string[] = [];
+
+  if (result.action === 'file_read') {
+    // Simple file read - data contains { path, content }
+    const path = result.data.path || result.params?.path || 'unknown';
+    lines.push(`=== START FILE: ${path} ===`);
+    lines.push((result.data.content !== undefined ? result.data.content : result.data) || '[empty file]');
+    lines.push(`=== END FILE: ${path} ===`);
+  } else if (result.action === 'file_read_numbered') {
+    // Numbered file read - data contains { path, content } where content has line numbers
+    const path = result.data.path || result.params?.path || 'unknown';
+    lines.push(`=== START FILE: [numbered] ${path} ===`);
+    lines.push((result.data.content !== undefined ? result.data.content : result.data) || '[empty file]');
+    lines.push(`=== END FILE: [numbered] ${path} ===`);
+  } else if (result.action === 'files_read') {
+    // Multiple files read - data contains { paths: string[], content: string[] }
+    // Each element in content array corresponds to the file at the same index in paths
+    if (result.data.paths && result.data.content) {
+      lines.push(`Reading ${result.data.paths.length} files:`);
+
+      // List all files first
+      for (const path of result.data.paths) {
+        lines.push(`- ${path}`);
+      }
+
+      // Add blank line before file contents
+      lines.push('');
+
+      // Format each file's content with START/END markers
+      for (let i = 0; i < result.data.paths.length; i++) {
+        const path = result.data.paths[i];
+        const content = result.data.content[i];
+
+        lines.push(`=== START FILE: ${path} ===`);
+        lines.push(content || '[empty file]');
+        lines.push(`=== END FILE: ${path} ===`);
+
+        // Add blank line between files (except after the last one)
+        if (i < result.data.paths.length - 1) {
+          lines.push('');
+        }
+      }
+    } else {
+      // Fallback for unexpected format
+      lines.push(`Reading 0 files:`);
+    }
+  }
+
+  return lines;
+}
+
+export function formatFullOutput(orchResult: OrchestratorResult): string {
+  const lines = ['=== SLUPE RESULTS ==='];
+
+  // Add execution results
+  if (orchResult.results) {
+    for (const result of orchResult.results) {
+      const icon = result.success ? '✅' : '❌';
+      const primaryParam = getPrimaryParamFromResult(result);
+
+      if (result.success) {
+        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam}`.trim());
+      } else {
+        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam} - ${getErrorSummary(result.error)}`.trim());
+      }
+    }
+  }
+
+  // Add parse errors - group by blockId
+  if (orchResult.parseErrors) {
+    const errorsByBlock = new Map<string, any[]>();
+
+    // Group errors by blockId
+    for (const error of orchResult.parseErrors) {
+      const blockId = error.blockId || 'unknown';
+      if (!errorsByBlock.has(blockId)) {
+        errorsByBlock.set(blockId, []);
+      }
+      errorsByBlock.get(blockId)!.push(error);
+    }
+
+    // Format grouped errors
+    for (const [blockId, errors] of errorsByBlock) {
+      const firstError = errors[0];
+      const action = firstError.action || '-';
+      const lineInfo = firstError.blockStartLine ? ` (line ${firstError.blockStartLine})` : '';
+
+      // Pad action to 10 characters for alignment
+      const paddedAction = action.padEnd(10);
+
+      if (errors.length === 1) {
+        // Single error
+        lines.push(`${blockId} ❌ ${paddedAction} ERROR: ${firstError.message}${lineInfo}`);
+      } else {
+        // Multiple errors - count unique messages
+        const messageCount = new Map<string, number>();
+        for (const error of errors) {
+          const msg = error.message;
+          messageCount.set(msg, (messageCount.get(msg) || 0) + 1);
+        }
+
+        // First line shows total count
+        lines.push(`${blockId} ❌ ${paddedAction} ERROR: ${errors.length} syntax errors${lineInfo}`);
+
+        // Sub-bullets for each unique error type
+        const indent = ' '.repeat(20); // Align with ERROR: column
+        for (const [msg, count] of messageCount) {
+          if (count > 1) {
+            lines.push(`${indent}- ${msg} (${count} occurrences)`);
+          } else {
+            lines.push(`${indent}- ${msg}`);
+          }
+        }
+      }
+    }
+  }
+
+  lines.push('=== END ===', '', '=== OUTPUTS ===');
+
+  // Add outputs for successful actions based on output_display rules
+  if (orchResult.results) {
+    for (const result of orchResult.results) {
+      if (result.success && result.data && shouldShowOutput(result.action, result.params)) {
+        const primaryParam = getPrimaryParamFromResult(result);
+        // For file read operations, don't include path in header since it's shown in the formatted output
+        const includeParam = !['file_read', 'file_read_numbered', 'files_read'].includes(result.action);
+        const header = (primaryParam && includeParam)
+          ? `[${result.blockId}] ${result.action} ${primaryParam}:`
+          : `[${result.blockId}] ${result.action}:`;
+        lines.push('', header);
+
+        // Special formatting for file read operations
+        if (['file_read', 'file_read_numbered', 'files_read'].includes(result.action)) {
+          const formattedOutput = formatFileReadOutput(result);
+          lines.push(...formattedOutput);
+        } else if (typeof result.data === 'string') {
+          lines.push(result.data.trimEnd());
+        } else if (result.data.stdout || result.data.stderr) {
+          if (result.data.stdout) {
+            lines.push(`stdout:\n${result.data.stdout.trimEnd()}`);
+          }
+          if (result.data.stderr) {
+            lines.push(`stderr:\n${result.data.stderr.trimEnd()}`);
+          }
+        } else {
+          lines.push(JSON.stringify(result.data, null, 2));
+        }
+      }
+    }
+  }
+
+  lines.push('=== END ===');
+  return lines.join('\n');
+}
+
+function shouldShowOutput(action: string, params?: any): boolean {
+  // Actions with output_display: never
+  const neverShowOutput = ['file_write', 'file_replace_text', 'file_replace_all_text', 'file_append', 'file_delete', 'file_move', 'dir_create', 'dir_delete'];
+  if (neverShowOutput.includes(action)) {
+    return false;
+  }
+
+  // Actions with output_display: always
+  const alwaysShowOutput = ['file_read', 'file_read_numbered', 'files_read', 'ls', 'grep', 'glob'];
+  if (alwaysShowOutput.includes(action)) {
+    return true;
+  }
+
+  // Actions with output_display: conditional
+  if (action === 'exec') {
+    // Check return_output parameter (default is true)
+    return params?.return_output !== false;
+  }
+
+  // Default to showing output for unknown actions
+  return true;
+}
+
+
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/exec/test/unit/executeCommand.test.ts ===
+import { describe, it, expect, vi } from 'vitest';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { executeCommand } from '../../src/executeCommand';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const testData = JSON.parse(
+  readFileSync(join(__dirname, '../../test-data/unit/executeCommand.json'), 'utf8')
+);
+
+describe('executeCommand', () => {
+  testData.cases.forEach((testCase: any) => {
+    it(testCase.name, async () => {
+      if (testCase.throws) {
+        await expect(executeCommand(testCase.input)).rejects.toThrow(testCase.throws);
+      } else {
+        const result = await executeCommand(testCase.input);
+        
+        // Handle dynamic values
+        const expected = { ...testCase.expected };
+        if (expected.stdout === '{TMP_PATH}\n') {
+          expected.stdout = result.stdout; // Accept whatever tmp path the system gives
+        }
+        
+        expect(result).toEqual(expected);
+      }
+    });
+  });
+});
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/exec/test/unit/executeCommand.test.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/exec/test/unit/formatExecResult.test.ts ===
+import { describe, it, expect } from 'vitest';
+import { readFileSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { formatExecResult } from '../../src/formatExecResult';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const testData = JSON.parse(
+  readFileSync(join(__dirname, '../../test-data/unit/formatExecResult.json'), 'utf8')
+);
+
+describe('formatExecResult', () => {
+  testData.cases.forEach((testCase: any) => {
+    it(testCase.name, () => {
+      // Convert Error placeholder to actual Error object
+      const input = [...testCase.input];
+      if (input[3] && typeof input[3] === 'object' && 'message' in input[3]) {
+        input[3] = new Error(input[3].message);
+      }
+      
+      const result = formatExecResult(...input);
+      expect(result).toEqual(testCase.expected);
+    });
+  });
+});
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/exec/test/unit/formatExecResult.test.ts ===
+
