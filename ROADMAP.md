@@ -3,6 +3,7 @@ TODO:
 X start working in a dev branch?
 - need tests for copy/paste stuff.  with that feature on and off. 
 - we need to prevent repeat edits/overwrites from happening.  we need a 'log' per sha id and once its successful we should block re-executing it. i think.  cos i just accidentally overwrote a bunch of changes i made.
+    - quick fix - just dont apply any changes if the top nonwhitespace text is "=== SLUPE RESULTS ==="
 - must put timestamps back in output.  just fix the tests to deal with them.  have some central code that replaces the timestamp with something like `[valid timestamp]`. so there's a static value to put in the tests?
 - write e2e tests that dont use copy/paste
 - set up the git hooks
