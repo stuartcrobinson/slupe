@@ -1,12 +1,17 @@
 TODO:
 
 X start working in a dev branch?
+- we need to prevent repeat edits/overwrites from happening.  we need a 'log' per sha id and once its successful we should block re-executing it. i think.  cos i just accidentally overwrote a bunch of changes i made.
 - write e2e tests that dont use copy/paste
 - set up the git hooks
 - allow cmd line arg and config arg for custom input/output files
     - critical for using npx slupe in actual slupe repo
 - build search/replace range action
 
+
+wdw doing now ..
+
+- claude is getting bad at reading files from pasted snapshots.  need to inlude some header info about how to process them i think
 -----------------
 
 TODO:

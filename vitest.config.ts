@@ -11,6 +11,10 @@ export default defineConfig({
       '**/listener/test/unit/stopListener.test.ts',
       '**/listener/test/integration/listener-workflow-v2.test.ts'
     ],
+    poolMatchGlobs: [
+      // Use forks pool for entry test since it needs process.chdir()
+      ['**/test/integration/entry.test.ts', 'forks']
+    ],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],

@@ -21,8 +21,29 @@ Config file options (slupe.yml):
 `);
 }
 
+function showHelp(): void {
+  console.log(`Usage: slupe [options]
+
+Options:
+  --clipboard              Enable clipboard copy on execution
+  --input_file <path>      Input file path (default: slupe_input.md)
+  --output_file <path>     Output file path (default: .slupe_output.md)
+  --help                   Show this help message
+
+Config file options (slupe.yml):
+  clipboard: boolean       Enable clipboard by default
+  input_file: string       Default input file path
+  output_file: string      Default output file path
+`);
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+
+  if (args.includes('--help')) {
+    showHelp();
+    process.exit(0);
+  }
 
   if (args.includes('--help')) {
     showHelp();

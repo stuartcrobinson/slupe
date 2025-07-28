@@ -36,12 +36,8 @@ hooks:
   
   # Example hooks
   # before:
-  #   - run: git add -A
-  #   - run: git commit -m "${COMMIT_MSG}"
+  #   - run: git stash --include-untracked
   #     continueOnError: false
-  #   - run: git push
-  #     continueOnError: true
-  #     timeout: 10000  # 10s for slow networks
   
   # after:
   #   - run: git add -A
@@ -58,3 +54,5 @@ vars:
 
 # Listener configuration
 clipboard: false  # Enable clipboard copy on execution
+input_file: slupe_input.md
+output_file: .slupe_output.md

@@ -1,11 +1,12 @@
 === SLUPE RESULTS ===
-a3b ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/config/src/types.ts
-b4c ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/config/src/base-slupe.yml-defaults.ts
-c5d ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/config/src/validate.ts
-d6e ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
-e7f ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
-f8g ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
+m8r ✅ file_read /Users/stuart/repos/slupe/proj/comp/fs-guard/src/index.ts
 === END ===
 
 === OUTPUTS ===
+
+[m8r] file_read:
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/fs-guard/src/index.ts ===
+export { FsGuard } from './FsGuard.js';
+export type { GuardCheckResult, PathPermission } from './types.js';
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/fs-guard/src/index.ts ===
 === END ===
