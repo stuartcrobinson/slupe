@@ -1,6 +1,7 @@
 TODO:
 
-- start working in a dev branch?
+X start working in a dev branch?
+- write e2e tests that dont use copy/paste
 - set up the git hooks
 - allow cmd line arg and config arg for custom input/output files
     - critical for using npx slupe in actual slupe repo
