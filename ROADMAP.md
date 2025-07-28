@@ -1,13 +1,16 @@
 TODO:
 
 X start working in a dev branch?
+- need tests for copy/paste stuff.  with that feature on and off. 
 - we need to prevent repeat edits/overwrites from happening.  we need a 'log' per sha id and once its successful we should block re-executing it. i think.  cos i just accidentally overwrote a bunch of changes i made.
+- must put timestamps back in output.  just fix the tests to deal with them.  have some central code that replaces the timestamp with something like `[valid timestamp]`. so there's a static value to put in the tests?
 - write e2e tests that dont use copy/paste
 - set up the git hooks
 - allow cmd line arg and config arg for custom input/output files
     - critical for using npx slupe in actual slupe repo
 - build search/replace range action
 
+- ast code... for query / especially debugging, get all the file paths and most relevant functions from the error statements.  then get all the functions connectd to those. like as in graph.  pagerank or whatever.  and inlude those in context. i think thats what aider does maybe. 
 
 wdw doing now ..
 

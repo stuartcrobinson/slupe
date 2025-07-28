@@ -18,7 +18,7 @@ content = "hello world"
 
 ```md
 === SLUPE RESULTS ===
-abc ✅ file_write /tmp/test.txt
+abc ✅ file_write /tmp/slupe-entry-tests/test.txt
 === END ===
 
 === OUTPUTS ===

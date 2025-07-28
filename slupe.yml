@@ -53,6 +53,6 @@ vars:
   # Add more variables as needed
 
 # Listener configuration
-clipboard: false  # Enable clipboard copy on execution
+clipboard: true  # Enable clipboard copy on execution
 input_file: slupe_input.md
 output_file: .slupe_output.md

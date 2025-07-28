@@ -63,6 +63,31 @@ ${config}`;
           await handle.stop();
           
           const actual = readFileSync(outputPath, 'utf8');
+          
+          // Debug output for test failures
+          if (actual.trim() !== expected.trim()) {
+            console.log('\n=== TEST FAILURE DEBUG ===');
+            console.log('Test:', testName);
+            console.log('\nExpected:');
+            console.log(expected.trim());
+            console.log('\nActual:');
+            console.log(actual.trim());
+            console.log('\nDifferences:');
+            const actualLines = actual.trim().split('\n');
+            const expectedLines = expected.trim().split('\n');
+            const maxLines = Math.max(actualLines.length, expectedLines.length);
+            for (let i = 0; i < maxLines; i++) {
+              const actualLine = actualLines[i] || '[missing]';
+              const expectedLine = expectedLines[i] || '[missing]';
+              if (actualLine !== expectedLine) {
+                console.log(`Line ${i + 1}:`);
+                console.log(`  Expected: ${expectedLine}`);
+                console.log(`  Actual:   ${actualLine}`);
+              }
+            }
+            console.log('=== END DEBUG ===\n');
+          }
+          
           expect(actual.trim()).toBe(expected.trim());
         } finally {
           process.chdir(originalCwd);
