@@ -1,3 +1,7 @@
+
+=== SLUPE RESULTS ===
+=== END ===
+
 Looking at the code, I need to add configuration for input and output file paths. Let me analyze the current structure:
 
 1. Currently hardcoded: `slupe_input.md` and `.slupe_output.md`
