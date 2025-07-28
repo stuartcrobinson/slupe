@@ -1,6 +1,5 @@
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 === END ===
 
-test
+=== OUTPUTS ===
+=== END ===
