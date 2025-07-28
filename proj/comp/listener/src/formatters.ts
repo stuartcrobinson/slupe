@@ -10,6 +10,26 @@ export function formatSummary(orchResult: OrchestratorResult): string {
     // console.log('DEBUG: Raw parseErrors:', JSON.stringify(orchResult.parseErrors, null, 2));
   }
 
+  // Handle hook errors first
+  if (orchResult.hookErrors?.before) {
+    for (const error of orchResult.hookErrors.before) {
+      // Extract hook command from error message
+      // Format is "command: error message"
+      const match = error.match(/^(.+?):\s*(.+)$/);
+      if (match) {
+        const [, cmd, errorMsg] = match;
+        // Check if errorMsg contains "exit code"
+        if (errorMsg.includes('exit code')) {
+          lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed with ${errorMsg}`);
+        } else {
+          lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed: ${errorMsg}`);
+        }
+      } else {
+        lines.push(`def ❌ -          ERROR: ${error}`);
+      }
+    }
+  }
+
   // Add execution results
   if (orchResult.results) {
     for (const result of orchResult.results) {
@@ -187,6 +207,26 @@ function formatFileReadOutput(result: any): string[] {
 
 export function formatFullOutput(orchResult: OrchestratorResult): string {
   const lines = ['=== SLUPE RESULTS ==='];
+
+  // Handle hook errors first
+  if (orchResult.hookErrors?.before) {
+    for (const error of orchResult.hookErrors.before) {
+      // Extract hook command from error message
+      // Format is "command: error message"
+      const match = error.match(/^(.+?):\s*(.+)$/);
+      if (match) {
+        const [, cmd, errorMsg] = match;
+        // Check if errorMsg contains "exit code"
+        if (errorMsg.includes('exit code')) {
+          lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed with ${errorMsg}`);
+        } else {
+          lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed: ${errorMsg}`);
+        }
+      } else {
+        lines.push(`def ❌ -          ERROR: ${error}`);
+      }
+    }
+  }
 
   // Add execution results
   if (orchResult.results) {

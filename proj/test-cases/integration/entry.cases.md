@@ -11,7 +11,7 @@
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
 action = "file_write"
-path = "/tmp/test.txt"
+path = "/tmp/slupe-entry-tests/test.txt"
 content = "hello world"
 #!end_abc
 ```
@@ -36,7 +36,7 @@ hooks:
 ```sh nesl
 #!nesl [@three-char-SHA-256: def]
 action = "file_write"
-path = "/tmp/test2.txt"
+path = "/tmp/slupe-entry-tests/test2.txt"
 content = "should not write"
 #!end_def
 ```

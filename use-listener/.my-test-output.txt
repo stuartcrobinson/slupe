@@ -1,12 +1,7 @@
 === SLUPE RESULTS ===
-m8r ✅ file_read /Users/stuart/repos/slupe/proj/comp/fs-guard/src/index.ts
+t6m ✅ file_replace_all_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
+r2d ✅ file_replace_all_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
 === END ===
 
 === OUTPUTS ===
-
-[m8r] file_read:
-=== START FILE: /Users/stuart/repos/slupe/proj/comp/fs-guard/src/index.ts ===
-export { FsGuard } from './FsGuard.js';
-export type { GuardCheckResult, PathPermission } from './types.js';
-=== END FILE: /Users/stuart/repos/slupe/proj/comp/fs-guard/src/index.ts ===
 === END ===
