@@ -103,7 +103,7 @@ export class Slupe {
               results: [],
               parseErrors: [],
               hookErrors: {
-                before: beforeResult.errors?.map(e => `${e.command}: ${e.error}`) || ['Unknown before hook error']
+                before: beforeResult.errors?.map(e => `${e.command}: ${e.error.trim()}`) || ['Unknown before hook error']
               },
               fatalError: 'Before hooks failed - aborting execution'
             };

@@ -3,7 +3,9 @@ import { readFileSync } from 'fs';
 
 
 export function formatSummary(orchResult: OrchestratorResult): string {
-  const lines = ['', '=== SLUPE RESULTS ==='];
+  const lines = ['=== SLUPE RESULTS ==='];
+
+
 
   // DEBUG: Log raw orchestrator result for parse errors
   if (orchResult.parseErrors && orchResult.parseErrors.length > 0) {
@@ -12,6 +14,7 @@ export function formatSummary(orchResult: OrchestratorResult): string {
 
   // Handle hook errors first
   if (orchResult.hookErrors?.before) {
+
     for (const error of orchResult.hookErrors.before) {
       // Extract hook command from error message
       // Format is "command: error message"
@@ -97,7 +100,7 @@ export function formatSummary(orchResult: OrchestratorResult): string {
     }
   }
 
-  lines.push('=== END ===', '');
+  lines.push('=== END ===');
   return lines.join('\n');
 }
 

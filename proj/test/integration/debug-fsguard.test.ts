@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { FsGuard } from '../../comp/fs-guard/src/index.js';
 import { mkdir, rmdir } from 'fs/promises';
 
-describe('fs-guard debug', () => {
+describe('fs-guard-debug', () => {
   it('should check /tmp paths correctly', async () => {
-    const testDir = '/tmp/slupe-entry-tests';
+    const testDir = '/tmp/t_fs-guard-debug';
     
     // Create test directory
     await mkdir(testDir, { recursive: true });
@@ -20,7 +20,7 @@ describe('fs-guard debug', () => {
       const result = await guard.check({
         action: 'file_write',
         parameters: {
-          path: '/tmp/slupe-entry-tests/test.txt',
+          path: '/tmp/t_fs-guard-debug/test.txt',
           content: 'hello'
         },
         metadata: { blockId: 'test' }
@@ -29,26 +29,22 @@ describe('fs-guard debug', () => {
       console.log('Guard check result:', result);
       expect(result.allowed).toBe(true);
       
-      // Also test with process.cwd changed
-      const originalCwd = process.cwd();
-      process.chdir(testDir);
-      
+      // Test with explicit base path instead of process.chdir
       const guard2 = new FsGuard({
         allowed: ['./**', '/tmp/**'],
         denied: ['**/.git/**', '**/.ssh/**', '**/node_modules/**']
-      }, process.cwd());
+      }, testDir);
       
       const result2 = await guard2.check({
         action: 'file_write',
         parameters: {
-          path: '/tmp/slupe-entry-tests/test.txt',
+          path: '/tmp/t_fs-guard-debug/test.txt',
           content: 'hello'
         },
         metadata: { blockId: 'test' }
       });
       
-      console.log('Guard check result (with cwd):', result2);
-      process.chdir(originalCwd);
+      console.log('Guard check result (with explicit base):', result2);
       
       expect(result2.allowed).toBe(true);
     } finally {

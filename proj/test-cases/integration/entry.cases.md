@@ -43,7 +43,7 @@ content = "should not write"
 
 ```md
 === SLUPE RESULTS ===
-def ❌ -          ERROR: false: Command failed: false
+def ❌ -          ERROR: Hook 'false' failed: Command failed: false
 === END ===
 
 === OUTPUTS ===
