@@ -1,3 +1,3 @@
-export { startListener, stopListener } from './listener.js';
-export type { ListenerConfig, ListenerHandle, ListenerState } from './types.js';
-export { ListenerError } from './errors.js';
+export { startListener, stopListener } from './listener';
+export type { ListenerConfig, ListenerHandle, ListenerState } from './types';
+export { ListenerError } from './errors';

@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync, mkdirSync, rmSync, writeFileSync } from 'fs';
 import { join } from 'path';
-import { Slupe } from '../../../orch/src/index.js';
+import { Slupe } from '../../../orch/src/index';
 
 describe('Hooks Abort Behavior', () => {
   test('hook failure aborts NESL execution', async () => {

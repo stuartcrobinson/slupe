@@ -1,4 +1,4 @@
-import type { ExecutionResult as OrchestratorResult } from '../../orch/src/index.js';
+import type { ExecutionResult as OrchestratorResult } from '../../orch/src/index';
 import { readFileSync } from 'fs';
 
 
@@ -98,7 +98,7 @@ function getErrorSummary(error?: string, result?: any): string {
   // Special handling for exec failures
   if (result?.action === 'exec' && result?.data?.stderr) {
     const stderr = result.data.stderr.trim();
-    const lines = stderr.split('\n').filter(l => l.trim());
+    const lines = stderr.split('\n').filter((l: string) => l.trim());
     if (lines.length > 0) {
       // Get last non-empty line as likely error message
       return lines[lines.length - 1];
@@ -273,7 +273,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
         continue;
       }
 
-      if (result.data && shouldShowOutput(result.action, result.params)) {
+      if (result.data && shouldShowOutput(result.action)) {
         // Special formatting for failed exec commands
         if (result.action === 'exec' && !result.success) {
           lines.push('', `[${result.blockId}] exec ${result.params.lang || 'bash'} (failed):`);
@@ -291,7 +291,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
             lines.push('stderr:');
             // Indent stderr content for clarity
             const stderrLines = result.data.stderr.trimEnd().split('\n');
-            lines.push(...stderrLines.map(line => '  ' + line));
+            lines.push(...stderrLines.map((line: string) => '  ' + line));
             lines.push('');
           }
 
@@ -334,7 +334,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
   return lines.join('\n');
 }
 
-function shouldShowOutput(action: string, params?: any): boolean {
+function shouldShowOutput(action: string): boolean {
   // Actions with output_display: never
   const neverShowOutput = ['file_write', 'file_replace_text', 'file_replace_all_text', 'file_append', 'file_delete', 'file_move', 'dir_create', 'dir_delete'];
   if (neverShowOutput.includes(action)) {

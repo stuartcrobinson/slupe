@@ -2,7 +2,7 @@ import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { existsSync, mkdirSync, rmSync, writeFileSync, readFileSync } from 'fs';
 import { join } from 'path';
 import { execSync } from 'child_process';
-import { Slupe } from '../../../orch/src/index.js';
+import { Slupe } from '../../../orch/src/index';
 
 const TEST_BASE = '/tmp/t_hooks_git_integration';
 const REPO_DIR = join(TEST_BASE, 'repo');

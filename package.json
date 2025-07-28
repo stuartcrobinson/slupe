@@ -3,14 +3,25 @@
   "version": "0.1.0",
   "description": "LLM coder 'tools' for any model",
   "type": "module",
+  "main": "./dist/src/index.js",
+  "exports": {
+    ".": "./dist/src/index.js"
+  },
+  "bin": {
+    "slupe": "./dist/src/index.js"
+  },
   "engines": {
     "node": ">=20.0.0"
   },
-  "bin": {
-    "slupe": "./proj/src/index.ts"
-  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
-    "build": "tsc --noEmit",
+    "build": "tsc",
+    "prepare": "npm run build",
+    "prepublishOnly": "npm run lint && npm run test && npm run build",
     "dev": "tsx watch proj/src/index.ts",
     "start": "tsx proj/src/index.ts",
     "test": "vitest run",
@@ -28,7 +39,7 @@
     "clipboardy": "^4.0.0",
     "js-yaml": "^4.1.0",
     "marked": "^12.0.0",
-    "nesl": "github:nesl-lang/nesl-js"
+    "nesl": "^0.1.11"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
@@ -47,6 +58,14 @@
     "filesystem",
     "nesl"
   ],
-  "author": "",
+  "author": "Stuart Robinson",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/stuartcrobinson/slupe.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stuartcrobinson/slupe/issues"
+  },
+  "homepage": "https://github.com/stuartcrobinson/slupe#readme",
   "license": "MIT"
 }

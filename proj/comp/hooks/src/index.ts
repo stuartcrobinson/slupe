@@ -1,9 +1,9 @@
 import { promisify } from 'util';
 import { exec } from 'child_process';
-import { interpolateCommand } from './interpolateCommand.js';
-import { validateCommand } from './validateCommand.js';
-import { formatHookResult } from './formatHookResult.js';
-import type { CommandResult } from './types.js';
+import { interpolateCommand } from './interpolateCommand';
+import { validateCommand } from './validateCommand';
+import { formatHookResult } from './formatHookResult';
+import type { CommandResult } from './types';
 
 // Public types
 export interface HooksConfig {

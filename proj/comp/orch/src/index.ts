@@ -1,17 +1,17 @@
-import type { SlupeAction, ParseError } from '../../nesl-action-parser/src/index.js';
-import { parseNeslResponse } from '../../nesl-action-parser/src/index.js';
-import type { FileOpResult } from '../../fs-ops/src/index.js';
-import { FsOpsExecutor } from '../../fs-ops/src/index.js';
-import type { HooksConfig, HookContext } from '../../hooks/src/index.js';
-import { HooksManager } from '../../hooks/src/index.js';
-import { FsGuard } from '../../fs-guard/src/index.js';
-import { ExecExecutor } from '../../exec/src/index.js';
+import type { SlupeAction, ParseError } from '../../nesl-action-parser/src/index';
+import { parseNeslResponse } from '../../nesl-action-parser/src/index';
+import type { FileOpResult } from '../../fs-ops/src/index';
+import { FsOpsExecutor } from '../../fs-ops/src/index';
+import type { HooksConfig, HookContext } from '../../hooks/src/index';
+import { HooksManager } from '../../hooks/src/index';
+import { FsGuard } from '../../fs-guard/src/index';
+import { ExecExecutor } from '../../exec/src/index';
 
 
-import { loadConfig } from '../../config/src/index.js';
-import type { SlupeConfig } from '../../config/src/index.js';
-import { updateInstructions } from '../../instruct-gen/src/index.js';
-import { ActionDefinitions } from '../../../../unified-design.js';
+import { loadConfig } from '../../config/src/index';
+import type { SlupeConfig } from '../../config/src/index';
+import { updateInstructions } from '../../instruct-gen/src/index';
+import { ActionDefinitions } from '../../../src/unified-design';
 
 export interface ExecutionResult {
   success: boolean;

@@ -1,8 +1,8 @@
-import type { SlupeAction } from '../../../nesl-action-parser/src/index.js';
-import type { FileOpResult } from '../index.js';
+import type { SlupeAction } from '../../../nesl-action-parser/src/index';
+import type { FileOpResult } from '../index';
 import { readFile } from 'fs/promises';
-import { formatNodeError } from '../utils.js';
-import { extractNumberedLines } from '../extractNumberedLines.js';
+import { formatNodeError } from '../utils';
+import { extractNumberedLines } from '../extractNumberedLines';
 
 export async function handle__file_read_numbered(action: SlupeAction): Promise<FileOpResult> {
   const { path, lines, delimiter = ": " } = action.parameters;

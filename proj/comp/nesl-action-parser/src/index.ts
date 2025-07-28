@@ -2,9 +2,9 @@
  * NESL Action Parser - Parses NESL blocks into validated slupe actions
  */
 
-import { ParseResult, SlupeAction, ParseError, ValidationResult, TransformError, ActionDefinition } from './types.js';
-import { validateNeslBlock } from './validateNeslBlock.js';
-import { transformToAction } from './transformToAction.js';
+import { ParseResult, SlupeAction, ParseError, ValidationResult, TransformError, ActionDefinition } from './types';
+import { validateNeslBlock } from './validateNeslBlock';
+import { transformToAction } from './transformToAction';
 import { parseNesl, type Block, type ParseResult as NeslParseResult } from 'nesl';
 
 // Re-export types for consumers
@@ -219,7 +219,7 @@ async function loadActionSchema(): Promise<Map<string, ActionDefinition>> {
 
   try {
     // Import from TypeScript source
-    const { ActionDefinitions } = await import('../../../../unified-design.js');
+    const { ActionDefinitions } = await import('../../../src/unified-design.js');
 
     actionSchemaCache = new Map();
 

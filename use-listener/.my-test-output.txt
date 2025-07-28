@@ -1,14 +1,57 @@
 === SLUPE RESULTS ===
-v7x ✅ exec python
+w8j ✅ file_replace_text /Users/stuart/repos/slupe/tsconfig.json
+n5v ✅ file_replace_text /Users/stuart/repos/slupe/package.json
+r9m ✅ file_replace_text /Users/stuart/repos/slupe/package.json
+h3k ✅ file_read /Users/stuart/repos/slupe/proj/src/index.ts
 === END ===
 
 === OUTPUTS ===
 
-[v7x] exec python:
-stdout:
-Python version:
-3.13.2 (main, Feb  4 2025, 14:51:09) [Clang 15.0.0 (clang-1500.1.0.2.5)]
+[h3k] file_read:
+=== START FILE: /Users/stuart/repos/slupe/proj/src/index.ts ===
+#!/usr/bin/env node
 
-Version info:
-sys.version_info(major=3, minor=13, micro=2, releaselevel='final', serial=0)
+import { startListener } from '../comp/listener/src/index.js';
+import { loadConfig } from '../comp/config/src/index.js';
+import { join } from 'path';
+import { access, writeFile } from 'fs/promises';
+
+async function main() {
+  const args = process.argv.slice(2);
+  const hasClipboardFlag = args.includes('--clipboard');
+
+  const config = await loadConfig(process.cwd());
+  const useClipboard = hasClipboardFlag || (config.clipboard ?? false);
+
+  const filePath = join(process.cwd(), 'slupe_input.md');
+
+  // Create file if it doesn't exist
+  try {
+    await access(filePath);
+  } catch {
+    await writeFile(filePath, '', 'utf8');
+    console.log(`Created: ${filePath}`);
+  }
+
+  console.log(`Starting listener on: ${filePath}`);
+  console.log(`Clipboard: ${useClipboard ? 'enabled' : 'disabled'}`);
+
+  const handle = await startListener({
+    filePath,
+    debounceMs: 500,
+    outputFilename: '.slupe_output.md',
+    useClipboard
+  });
+
+  process.on('SIGINT', async () => {
+    console.log('\nStopping...');
+    await handle.stop();
+    process.exit(0);
+  });
+
+  await new Promise(() => { });
+}
+
+main().catch(console.error);
+=== END FILE: /Users/stuart/repos/slupe/proj/src/index.ts ===
 === END ===

@@ -1,6 +1,6 @@
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
-import { DEFAULT_SLUPE_YAML } from './base-slupe.yml-defaults.js';
+import { DEFAULT_SLUPE_YAML } from './base-slupe.yml-defaults';
 
 /**
  * Creates a starter slupe.yml file if it doesn't exist

@@ -1,8 +1,8 @@
-import type { SlupeAction } from '../../../nesl-action-parser/src/index.js';
-import type { FileOpResult } from '../index.js';
+import type { SlupeAction } from '../../../nesl-action-parser/src/index.ts';
+import type { FileOpResult } from '../index';
 import { rename, mkdir } from 'fs/promises';
 import { dirname } from 'path';
-import { formatNodeError, fileExists } from '../utils.js';
+import { formatNodeError, fileExists } from '../utils';
 
 export async function handle__file_move(action: SlupeAction): Promise<FileOpResult> {
   const { old_path, new_path } = action.parameters;

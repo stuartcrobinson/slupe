@@ -1,11 +1,18 @@
 {
   "compilerOptions": {
+
+
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext",
+    "allowImportingTsExtensions": true,  // Use .ts extensions
+    "noEmit": true,                      // Let bundler handle emission
+    "emitDeclarationOnly": false,         // Bundler generates .d.ts too
+
     // Modern output settings
     "target": "ES2022",
-    "module": "ESNext",
-    "moduleResolution": "bundler",
-    "lib": ["ES2022"],
-    
+    "lib": [
+      "ES2022"
+    ],
     // Strict type checking
     "strict": true,
     "noImplicitAny": true,
@@ -15,27 +22,23 @@
     "strictPropertyInitialization": true,
     "noImplicitThis": true,
     "alwaysStrict": true,
-    
     // Additional checks
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
-    
     // Output settings
     "outDir": "./dist",
-    "rootDir": ".",
+    "rootDir": "./proj",
     "declaration": true,
     "declarationMap": true,
     "sourceMap": true,
-    
     // Module resolution
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "resolveJsonModule": true,
     "forceConsistentCasingInFileNames": true,
-    
     // Path mapping for cleaner imports
     "baseUrl": "."
   },

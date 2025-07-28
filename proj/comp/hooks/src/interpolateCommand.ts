@@ -1,4 +1,4 @@
-import type { Command, HookContext } from './types.js';
+import type { Command, HookContext } from './types';
 
 /**
  * Interpolates variables in a command's run string

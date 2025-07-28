@@ -5,8 +5,8 @@ import { fileURLToPath } from 'url';
 import { marked } from 'marked';
 import clipboard from 'clipboardy';
 
-import { startListener } from '../../src/listener.js';
-import type { ListenerHandle } from '../../src/types.js';
+import { startListener } from '../../src/listener.ts';
+import type { ListenerHandle } from '../../src/types';
 // // At the top of your test file
 // import { test } from 'vitest';
 // test.concurrent = false;

@@ -3,11 +3,11 @@ import { readFile, writeFile, access, constants } from 'fs/promises';
 import { dirname, join } from 'path';
 import clipboard from 'clipboardy';
 
-import type { ListenerConfig, ListenerHandle, ListenerState } from './types.js';
-import { ListenerError } from './errors.js';
-import { Slupe } from '../../orch/src/index.js';
-import { formatSummary, formatFullOutput } from './formatters.js';
-import { computeContentHash } from './utils.js';
+import type { ListenerConfig, ListenerHandle, ListenerState } from './types';
+import { ListenerError } from './errors';
+import { Slupe } from '../../orch/src/index';
+import { formatSummary, formatFullOutput } from './formatters.ts';
+import { computeContentHash } from './utils';
 
 // Module-level state for tracking active listeners
 const activeListeners = new Map<string, ListenerHandle>();
@@ -19,7 +19,7 @@ interface ClipboardEntry {
 }
 
 let lastClipboard: ClipboardEntry | null = null;
-let clipboardMonitorInterval: NodeJS.Timer | null = null;
+let clipboardMonitorInterval: NodeJS.Timeout | null = null;
 
 // Strip prepended summary section if present
 function stripSummarySection(content: string): string {
@@ -34,15 +34,14 @@ function extractNeslShas(content: string): Set<string> {
   const shas = new Set<string>();
   let match;
   while ((match = shaPattern.exec(content)) !== null) {
-    shas.add(match[1]);
+    if (match[1]) {
+      shas.add(match[1]);
+    }
   }
   return shas;
 }
 
-// Check if content has valid NESL blocks
-function hasValidNesl(content: string): boolean {
-  return extractNeslShas(content).size > 0;
-}
+
 
 // Check clipboard for input trigger pattern
 async function checkClipboardTrigger(current: ClipboardEntry, state: ListenerState): Promise<void> {

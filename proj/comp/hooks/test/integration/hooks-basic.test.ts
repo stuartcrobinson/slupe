@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { HooksManager } from '../../src/index.js';
+import { HooksManager } from '../../src/index';
 
 const TEST_DIR = '/tmp/t_hooks_test';
 

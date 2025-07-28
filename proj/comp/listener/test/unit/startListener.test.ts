@@ -2,9 +2,9 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { readFile, writeFile, mkdir, rm } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { startListener, stopListener } from '../../src/listener.js';
-import { ListenerError } from '../../src/errors.js';
-import type { ListenerConfig } from '../../src/types.js';
+import { startListener, stopListener } from '../../src/listener';
+import { ListenerError } from '../../src/errors';
+import type { ListenerConfig } from '../../src/types';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { updateInstructions } from '../../src/index.js';
+import { updateInstructions } from '../../src/index';
 import { readFileSync, existsSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 
