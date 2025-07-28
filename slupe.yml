@@ -31,21 +31,25 @@ fs-guard:
 
 # Git hooks configuration
 hooks:
-  before: []
-  after: []
+  # before: []
+  # after: []
   
   # Example hooks
-  # before:
-  #   - run: git stash --include-untracked
-  #     continueOnError: false
+  before:
+    - run: git add -A
+    - run: git commit -m "${COMMIT_MSG}"
+      continueOnError: false
+    - run: git push
+      continueOnError: true
+      timeout: 10000  # 10s for slow networks
   
-  # after:
-  #   - run: git add -A
-  #   - run: git commit -m "${COMMIT_MSG}"
-  #     continueOnError: false
-  #   - run: git push
-  #     continueOnError: true
-  #     timeout: 10000  # 10s for slow networks
+  after:
+    - run: git add -A
+    - run: git commit -m "${COMMIT_MSG}"
+      continueOnError: false
+    - run: git push
+      continueOnError: true
+      timeout: 10000  # 10s for slow networks
 
 # Variables available in commands
 vars:

@@ -1,6 +1,6 @@
 {
   "name": "slupe",
-  "version": "0.1.0-beta.0",
+  "version": "0.1.1-beta.0",
   "description": "LLM coder 'tools' for any model",
   "type": "module",
   "main": "./dist/src/index.js",
@@ -8,7 +8,7 @@
     ".": "./dist/src/index.js"
   },
   "bin": {
-    "slupe": "./dist/src/index.js"
+    "slupe": "dist/src/index.js"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -19,9 +19,13 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf dist/",
+    "build": "npm run clean && tsc && npm run add-shebang",
+    "add-shebang": "echo '#!/usr/bin/env node' | cat - dist/src/index.js > temp && mv temp dist/src/index.js && chmod +x dist/src/index.js",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run lint && npm run test && npm run build",
+    "prepublishOnly": "npm run lint && vitest run --exclude '**/listener/**' && npm run build",
+    "package": "npm run build && npm pack",
+    "local-install": "npm run package && npm install -g ./slupe-*.tgz",
     "dev": "tsx watch proj/src/index.ts",
     "start": "tsx proj/src/index.ts",
     "test": "vitest run",
@@ -55,9 +59,13 @@
   },
   "keywords": [
     "llm",
+    "ai",
+    "tools",
     "actions",
     "filesystem",
-    "nesl"
+    "nesl",
+    "code-generation",
+    "automation"
   ],
   "author": "Stuart Robinson",
   "repository": {

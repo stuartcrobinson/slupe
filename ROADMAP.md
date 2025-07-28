@@ -1,4 +1,12 @@
+TODO:
 
+- start working in a dev branch?
+- set up the git hooks
+- allow cmd line arg and config arg for custom input/output files
+    - critical for using npx slupe in actual slupe repo
+- build search/replace range action
+
+-----------------
 
 TODO:
 
@@ -31,14 +39,23 @@ X new feature - listen for LLM output copy?
             x so u click the copy button, then do ctrl-a, ctrl-v -- to immediately just copy the whole page
             x and this is how sloop will know that the first thing u copied was real nesl syntax that u want to get executed.  
             x no - should we integrate mac notifications?  prob too hard. deal w settings etc
-- publish nesl to npm 
-- publish slupe to npm 
+X publish nesl to npm 
+X publish slupe to npm 
 - look for response from npm support about getting my account back...             
-- rename to slupe
+X rename to slupe
 - cleanup, just delete trash or embarrassing bits
 
 WHAT TO DO WHILE WAITING FOR NPM ACCESS?
 
+start doing some of this ... maybe in a dev branch now!!!! YES USE DEV BRANCHES NOW 
+
+use npx slupe for stuff now.  wdiw most.... 
+- paths support wildcards 
+- search replace range
+
+^ those seem easiest to implement and biggest reward rn.  
+
+oh also we need to figure out why cant run node tests from exec command. 
 
 
 - update all 'path' vars to support wildcard/glob expansion.  
