@@ -1,5 +1,5 @@
 // Re-export public types from index
-export type { HooksConfig, Command, HookContext, HookResult } from './index';
+export type { HooksConfig, Command, HookContext, HookResult } from './index.ts';
 
 // Internal types
 export interface CommandResult {

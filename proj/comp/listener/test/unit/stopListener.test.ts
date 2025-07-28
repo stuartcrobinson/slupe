@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { readFile, writeFile, mkdir, rm } from 'fs/promises';
 import { dirname } from 'path';
-import { startListener, stopListener } from '../../src/listener';
-import type { ListenerHandle } from '../../src/types';
+import { startListener, stopListener } from '../../src/listener.ts';
+import type { ListenerHandle } from '../../src/types.ts';
 
 // import { test } from 'vitest';
 // test.concurrent = false;

@@ -2,9 +2,9 @@
  * NESL Action Parser - Parses NESL blocks into validated slupe actions
  */
 
-import { ParseResult, SlupeAction, ParseError, ValidationResult, TransformError, ActionDefinition } from './types';
-import { validateNeslBlock } from './validateNeslBlock';
-import { transformToAction } from './transformToAction';
+import { ParseResult, SlupeAction, ParseError, ValidationResult, TransformError, ActionDefinition } from './types.ts';
+import { validateNeslBlock } from './validateNeslBlock.ts';
+import { transformToAction } from './transformToAction.ts';
 import { parseNesl, type Block, type ParseResult as NeslParseResult } from 'nesl';
 
 // Re-export types for consumers

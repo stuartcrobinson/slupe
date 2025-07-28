@@ -1,9 +1,9 @@
-import type { SlupeAction } from '../../../nesl-action-parser/src/index';
+import type { SlupeAction } from '../../../nesl-action-parser/src/index.ts';
 
-import type { FileOpResult } from '../index';
+import type { FileOpResult } from '../index.ts';
 import { writeFile, mkdir } from 'fs/promises';
 import { dirname } from 'path';
-import { formatNodeError } from '../utils';
+import { formatNodeError } from '../utils.ts';
 
 export async function handle__file_write(action: SlupeAction): Promise<FileOpResult> {
   const { path, content } = action.parameters;

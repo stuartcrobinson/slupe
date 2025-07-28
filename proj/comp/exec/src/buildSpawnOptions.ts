@@ -2,7 +2,7 @@ import type { SpawnOptions } from 'child_process';
 import { access } from 'fs/promises';
 import { constants } from 'fs';
 import { resolve } from 'path';
-import { ExecError } from './types';
+import { ExecError } from './types.ts';
 
 /**
  * Builds spawn options for child process with validated working directory

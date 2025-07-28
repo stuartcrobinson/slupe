@@ -6,7 +6,7 @@ import { fileURLToPath } from 'url';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
 // Import the function directly since it's not exported
-import { startListener } from '../../src/listener';
+import { startListener } from '../../src/listener.ts';
 
 // Helper to access internal stripSummarySection via module internals
 async function getStripSummarySection() {

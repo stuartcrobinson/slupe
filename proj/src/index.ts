@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { startListener } from '../comp/listener/src/index';
-import { loadConfig } from '../comp/config/src/index';
+import { startListener } from '../comp/listener/src/index.ts';
+import { loadConfig } from '../comp/config/src/index.ts';
 import { join } from 'path';
 import { access, writeFile } from 'fs/promises';
 

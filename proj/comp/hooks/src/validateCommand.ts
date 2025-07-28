@@ -1,4 +1,4 @@
-import type { Command, ValidationResult } from './types';
+import type { Command, ValidationResult } from './types.ts';
 
 /**
  * Validates a command object has required properties and valid values

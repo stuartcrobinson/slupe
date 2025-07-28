@@ -1,7 +1,7 @@
-import type { SlupeAction } from '../../../nesl-action-parser/src/index';
-import type { FileOpResult } from '../index';
+import type { SlupeAction } from '../../../nesl-action-parser/src/index.ts';
+import type { FileOpResult } from '../index.ts';
 import { readFile } from 'fs/promises';
-import { formatNodeError } from '../utils';
+import { formatNodeError } from '../utils.ts';
 
 export async function handle__files_read(action: SlupeAction): Promise<FileOpResult> {
   const { paths } = action.parameters;

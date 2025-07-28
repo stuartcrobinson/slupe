@@ -1,8 +1,8 @@
-import type { SlupeAction } from '../../../nesl-action-parser/src/index';
-import type { FileOpResult } from '../index';
+import type { SlupeAction } from '../../../nesl-action-parser/src/index.ts';
+import type { FileOpResult } from '../index.ts';
 import { readFile, writeFile } from 'fs/promises';
-import { formatNodeError } from '../utils';
-import { replaceText } from '../replaceText';
+import { formatNodeError } from '../utils.ts';
+import { replaceText } from '../replaceText.ts';
 
 export async function handle__file_replace_all_text(action: SlupeAction): Promise<FileOpResult> {
   const { path, old_text, new_text, count } = action.parameters;

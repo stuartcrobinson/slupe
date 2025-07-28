@@ -6,7 +6,7 @@ import { marked } from 'marked';
 import clipboard from 'clipboardy';
 
 import { startListener } from '../../src/listener.ts';
-import type { ListenerHandle } from '../../src/types';
+import type { ListenerHandle } from '../../src/types.ts';
 // // At the top of your test file
 // import { test } from 'vitest';
 // test.concurrent = false;

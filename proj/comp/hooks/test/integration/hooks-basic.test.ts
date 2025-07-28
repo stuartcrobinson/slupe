@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { mkdirSync, rmSync, readFileSync, existsSync } from 'fs';
 import { join } from 'path';
-import { HooksManager } from '../../src/index';
+import { HooksManager } from '../../src/index.ts';
 
 const TEST_DIR = '/tmp/t_hooks_test';
 
@@ -33,7 +33,7 @@ describe('HooksManager Integration', () => {
     };
 
     const hooks = new HooksManager(config.hooks, config.vars);
-    
+
     // Run before hooks
     const beforeResult = await hooks.runBefore();
     expect(beforeResult.success).toBe(true);
@@ -63,7 +63,7 @@ describe('HooksManager Integration', () => {
 
     const hooks = new HooksManager(config.hooks, config.vars);
     const result = await hooks.runBefore();
-    
+
     expect(result.success).toBe(true);
     expect(readFileSync(`${TEST_DIR}/var.txt`, 'utf8').trim()).toBe(`${TEST_DIR}/hello-world`);
   });
@@ -82,7 +82,7 @@ describe('HooksManager Integration', () => {
 
     const hooks = new HooksManager(config.hooks, config.vars);
     const result = await hooks.runAfter({ STATUS: 'from-context' });
-    
+
     expect(result.success).toBe(true);
     expect(readFileSync(`${TEST_DIR}/status.txt`, 'utf8').trim()).toBe('from-context');
   });
@@ -99,7 +99,7 @@ describe('HooksManager Integration', () => {
 
     const hooks = new HooksManager(config.hooks, config.vars);
     const result = await hooks.runBefore();
-    
+
     expect(result.success).toBe(false);
     expect(result.executed).toBe(2);
     expect(result.errors).toHaveLength(1);
@@ -118,7 +118,7 @@ describe('HooksManager Integration', () => {
 
     const hooks = new HooksManager(config.hooks, config.vars);
     const result = await hooks.runBefore();
-    
+
     expect(result.success).toBe(false);
     expect(result.executed).toBe(1);
     expect(result.errors).toHaveLength(1);
@@ -138,7 +138,7 @@ describe('HooksManager Integration', () => {
     const start = Date.now();
     const result = await hooks.runBefore();
     const duration = Date.now() - start;
-    
+
     expect(result.success).toBe(false);
     expect(result.errors).toHaveLength(1);
     expect(duration).toBeLessThan(1000); // Should timeout quickly
@@ -149,13 +149,13 @@ describe('HooksManager Integration', () => {
   test('custom cwd works', async () => {
     const subDir = `${TEST_DIR}/subdir`;
     mkdirSync(subDir, { recursive: true });
-    
+
     // Use Node.js to create a cross-platform test
     // This avoids shell-specific differences
-    const testScript = process.platform === 'win32' 
+    const testScript = process.platform === 'win32'
       ? 'node -e "require(\'fs\').writeFileSync(\'test-cwd.txt\', \'cwd-test\')"'
       : 'node -e "require(\'fs\').writeFileSync(\'test-cwd.txt\', \'cwd-test\')"';
-    
+
     const config = {
       hooks: {
         before: [
@@ -166,14 +166,14 @@ describe('HooksManager Integration', () => {
 
     const hooks = new HooksManager(config.hooks, config.vars);
     const result = await hooks.runBefore();
-    
+
     expect(result.success).toBe(true);
-    
+
     // Verify the file was created in the correct directory
     const testFilePath = join(subDir, 'test-cwd.txt');
     expect(existsSync(testFilePath)).toBe(true);
     expect(readFileSync(testFilePath, 'utf8')).toBe('cwd-test');
   });
 
-  
+
 });

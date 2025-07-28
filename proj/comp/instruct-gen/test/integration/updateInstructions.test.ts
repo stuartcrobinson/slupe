@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { updateInstructions } from '../../src/index';
+import { updateInstructions } from '../../src/index.ts';
 import { readFileSync, existsSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
 
@@ -30,13 +30,13 @@ describe('updateInstructions', () => {
 
         if (testCase.verify.fileExists) {
           expect(existsSync(testCase.verify.fileExists)).toBe(true);
-          
+
           const content = readFileSync(testCase.verify.fileExists, 'utf8');
-          
+
           testCase.verify.fileContains?.forEach(text => {
             expect(content).toContain(text);
           });
-          
+
           testCase.verify.fileNotContains?.forEach(text => {
             expect(content).not.toContain(text);
           });

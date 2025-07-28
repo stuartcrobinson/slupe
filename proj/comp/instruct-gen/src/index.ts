@@ -1,5 +1,5 @@
-import { loadBaseInstructions } from './loader';
-import { filterByAllowedTools } from './parser';
+import { loadBaseInstructions } from './loader.ts';
+import { filterByAllowedTools } from './parser.ts';
 import { writeFile } from 'fs/promises';
 import { join } from 'path';
 

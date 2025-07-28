@@ -4,19 +4,19 @@
  * Handles all file and directory operations from parsed NESL actions
  */
 
-import type { SlupeAction } from '../../nesl-action-parser/src/index';
-import type { FsGuard } from '../../fs-guard/src/index';
+import type { SlupeAction } from '../../nesl-action-parser/src/index.ts';
+import type { FsGuard } from '../../fs-guard/src/index.ts';
 
 // Import all implemented action handlers
-import { handle__file_write } from './actions/file_write';
-import { handle__file_read } from './actions/file_read';
-import { handle__file_read_numbered } from './actions/file_read_numbered';
-import { handle__file_replace_text } from './actions/file_replace_text';
-import { handle__file_replace_all_text } from './actions/file_replace_all_text';
-import { handle__file_replace_lines } from './actions/file_replace_lines';
-import { handle__file_delete } from './actions/file_delete';
-import { handle__file_move } from './actions/file_move';
-import { handle__files_read } from './actions/files_read';
+import { handle__file_write } from './actions/file_write.ts';
+import { handle__file_read } from './actions/file_read.ts';
+import { handle__file_read_numbered } from './actions/file_read_numbered.ts';
+import { handle__file_replace_text } from './actions/file_replace_text.ts';
+import { handle__file_replace_all_text } from './actions/file_replace_all_text.ts';
+import { handle__file_replace_lines } from './actions/file_replace_lines.ts';
+import { handle__file_delete } from './actions/file_delete.ts';
+import { handle__file_move } from './actions/file_move.ts';
+import { handle__files_read } from './actions/files_read.ts';
 
 export interface FileOpResult {
   success: boolean;

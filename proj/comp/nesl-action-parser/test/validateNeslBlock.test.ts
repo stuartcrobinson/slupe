@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { validateNeslBlock } from '../src/index';
+import { validateNeslBlock } from '../src/index.ts';
 
 const testData = JSON.parse(
   readFileSync(join(__dirname, '../test-data/validateNeslBlock.json'), 'utf8')

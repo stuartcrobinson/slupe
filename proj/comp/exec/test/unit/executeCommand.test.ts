@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { executeCommand } from '../../src/executeCommand';
+import { executeCommand } from '../../src/executeCommand.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const testData = JSON.parse(

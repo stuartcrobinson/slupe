@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { marked, Token } from 'marked';
-import { parseNeslResponse } from '../src/index';
+import { parseNeslResponse } from '../src/index.ts';
 
 const testPath = join(__dirname, '../test-data/parseNeslResponse.md');
 const mdContent = readFileSync(testPath, 'utf8');

@@ -3,8 +3,8 @@ import { readFileSync, existsSync, rmSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { marked, Token } from 'marked';
-import { Slupe } from '../src/index';
-import { clearActionSchemaCache } from '../../nesl-action-parser/src/index';
+import { Slupe } from '../src/index.ts';
+import { clearActionSchemaCache } from '../../nesl-action-parser/src/index.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

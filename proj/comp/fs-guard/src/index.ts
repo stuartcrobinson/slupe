@@ -1,2 +1,2 @@
-export { FsGuard } from './FsGuard';
-export type { GuardCheckResult, PathPermission } from './types';
+export { FsGuard } from './FsGuard.ts';
+export type { GuardCheckResult, PathPermission } from './types.ts';

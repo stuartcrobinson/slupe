@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { validateConfig } from '../../src/validate';
+import { validateConfig } from '../../src/validate.ts';
 
 describe('validateConfig', () => {
   test('accepts valid config', () => {

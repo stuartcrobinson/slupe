@@ -1,4 +1,4 @@
-import { ExecError } from './types';
+import { ExecError } from './types.ts';
 
 /**
  * Maps language identifier to interpreter command and arguments

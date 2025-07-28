@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join, dirname, resolve } from 'path';
 import { fileURLToPath } from 'url';
-import { buildSpawnOptions } from '../../src/buildSpawnOptions';
-import { ExecError } from '../../src/types';
+import { buildSpawnOptions } from '../../src/buildSpawnOptions.ts';
+import { ExecError } from '../../src/types.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const testData = JSON.parse(

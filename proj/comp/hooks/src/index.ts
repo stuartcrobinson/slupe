@@ -1,9 +1,9 @@
 import { promisify } from 'util';
 import { exec } from 'child_process';
-import { interpolateCommand } from './interpolateCommand';
-import { validateCommand } from './validateCommand';
-import { formatHookResult } from './formatHookResult';
-import type { CommandResult } from './types';
+import { interpolateCommand } from './interpolateCommand.ts';
+import { validateCommand } from './validateCommand.ts';
+import { formatHookResult } from './formatHookResult.ts';
+import type { CommandResult } from './types.ts';
 
 // Public types
 export interface HooksConfig {

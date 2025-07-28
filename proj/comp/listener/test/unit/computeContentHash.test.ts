@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFile } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { computeContentHash } from '../../src/utils';
+import { computeContentHash } from '../../src/utils.ts';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

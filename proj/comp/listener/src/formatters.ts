@@ -1,4 +1,4 @@
-import type { ExecutionResult as OrchestratorResult } from '../../orch/src/index';
+import type { ExecutionResult as OrchestratorResult } from '../../orch/src/index.ts';
 import { readFileSync } from 'fs';
 
 

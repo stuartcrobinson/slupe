@@ -1,7 +1,7 @@
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
-import { validateCommand } from '../../src/validateCommand';
+import { validateCommand } from '../../src/validateCommand.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);

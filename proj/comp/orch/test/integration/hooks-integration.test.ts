@@ -1,8 +1,8 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { readFileSync, existsSync, mkdirSync, rmSync } from 'fs';
 import { join } from 'path';
-import { Slupe } from '../../src/index';
-import { parseTestFile } from '../utils/parseTestFile';
+import { Slupe } from '../../src/index.ts';
+import { parseTestFile } from '../utils/parseTestFile.ts';
 
 describe('Hooks Integration', () => {
   const testDataPath = join(import.meta.dirname, '../../test-data/integration/hooks-integration.md');

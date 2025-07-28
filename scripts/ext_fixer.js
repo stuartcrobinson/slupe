@@ -1,5 +1,7 @@
 #!/usr/bin/env node
 
+// for going from esnode to NodeNext or soemthing.  imports used to have no extensions.  this put .ts on all
+
 import { readdir, readFile, writeFile, stat } from 'fs/promises';
 import { join, dirname, resolve } from 'path';
 
