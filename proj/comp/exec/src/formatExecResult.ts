@@ -1,4 +1,4 @@
-import type { ExecResult } from './types.ts';
+import type { ExecResult } from './types.js';
 
 /**
  * Formats raw process execution results into standardized ExecResult

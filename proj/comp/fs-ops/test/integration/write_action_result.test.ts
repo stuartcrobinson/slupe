@@ -2,9 +2,9 @@ import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { readFileSync, rmSync, existsSync, readdirSync, statSync } from 'fs';
 import { join } from 'path';
 import { marked } from 'marked';
-import { parseNeslResponse } from '../../../nesl-action-parser/src/index.ts';
-import { FsOpsExecutor } from '../../src/index.ts';
-import type { FsGuard } from '../../../fs-guard/src/index.ts';
+import { parseNeslResponse } from '../../../nesl-action-parser/src/index.js';
+import { FsOpsExecutor } from '../../src/index.js';
+import type { FsGuard } from '../../../fs-guard/src/index.js';
 
 // Mock FsGuard that allows all operations
 const mockGuard: FsGuard = {

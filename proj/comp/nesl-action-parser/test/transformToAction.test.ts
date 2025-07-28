@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join } from 'path';
-import { transformToAction, TransformError } from '../src/index.ts';
+import { transformToAction, TransformError } from '../src/index.js';
 
 const testData = JSON.parse(
   readFileSync(join(__dirname, '../test-data/transformToAction.json'), 'utf8')

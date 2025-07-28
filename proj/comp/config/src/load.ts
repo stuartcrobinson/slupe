@@ -1,10 +1,10 @@
 import { readFile } from 'fs/promises';
 import { join } from 'path';
 import { load as loadYaml } from 'js-yaml';
-import type { SlupeConfig } from './types.ts';
-import { validateConfig } from './validate.ts';
-import { createStarterConfig } from './create.ts';
-import { DEFAULT_SLUPE_YAML } from './base-slupe.yml-defaults.ts';
+import type { SlupeConfig } from './types.js';
+import { validateConfig } from './validate.js';
+import { createStarterConfig } from './create.js';
+import { DEFAULT_SLUPE_YAML } from './base-slupe.yml-defaults.js';
 
 export async function loadConfig(repoPath: string): Promise<SlupeConfig> {
   const configPath = join(repoPath, 'slupe.yml');

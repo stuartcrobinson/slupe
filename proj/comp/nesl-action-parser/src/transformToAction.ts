@@ -1,4 +1,4 @@
-import { SlupeAction, TransformError, ActionDefinition } from './types.ts';
+import { SlupeAction, TransformError, ActionDefinition } from './types.js';
 import type { Block } from 'nesl';
 
 /**

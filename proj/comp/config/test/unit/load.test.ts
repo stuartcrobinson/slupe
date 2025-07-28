@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { writeFileSync, mkdirSync, rmSync, existsSync } from 'fs';
 import { join } from 'path';
-import { loadConfig } from '../../src/load.ts';
+import { loadConfig } from '../../src/load.js';
 
 const TEST_DIR = '/tmp/t_config_load_test';
 

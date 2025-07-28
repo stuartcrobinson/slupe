@@ -1,4 +1,4 @@
-import { ValidationResult, ActionDefinition } from './types.ts';
+import { ValidationResult, ActionDefinition } from './types.js';
 import type { Block } from 'nesl';
 
 /**

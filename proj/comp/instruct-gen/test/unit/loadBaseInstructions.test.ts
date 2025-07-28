@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { loadBaseInstructions } from '../../src/loader.ts';
+import { loadBaseInstructions } from '../../src/loader.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { filterByAllowedTools } from '../../src/parser.ts';
+import { filterByAllowedTools } from '../../src/parser.js';
 import { readFileSync } from 'fs';
 import { join } from 'path';
 

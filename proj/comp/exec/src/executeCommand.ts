@@ -1,9 +1,9 @@
 import { spawn } from 'child_process';
-import type { ExecResult } from './types.ts';
-import { ExecError } from './types.ts';
-import { mapLanguageToCommand } from './mapLanguageToCommand.ts';
-import { buildSpawnOptions } from './buildSpawnOptions.ts';
-import { formatExecResult } from './formatExecResult.ts';
+import type { ExecResult } from './types.js';
+import { ExecError } from './types.js';
+import { mapLanguageToCommand } from './mapLanguageToCommand.js';
+import { buildSpawnOptions } from './buildSpawnOptions.js';
+import { formatExecResult } from './formatExecResult.js';
 
 /**
  * Executes code from parsed NESL action in specified language

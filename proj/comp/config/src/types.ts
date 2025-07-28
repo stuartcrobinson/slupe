@@ -1,4 +1,4 @@
-import type { HooksConfig } from '../../hooks/src/index.ts';
+import type { HooksConfig } from '../../hooks/src/index.js';
 
 export interface SlupeConfig {
   version: number;

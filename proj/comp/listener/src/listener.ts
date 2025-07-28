@@ -3,11 +3,11 @@ import { readFile, writeFile, access, constants } from 'fs/promises';
 import { dirname, join } from 'path';
 import clipboard from 'clipboardy';
 
-import type { ListenerConfig, ListenerHandle, ListenerState } from './types.ts';
-import { ListenerError } from './errors.ts';
-import { Slupe } from '../../orch/src/index.ts';
-import { formatSummary, formatFullOutput } from './formatters.ts';
-import { computeContentHash } from './utils.ts';
+import type { ListenerConfig, ListenerHandle, ListenerState } from './types.js';
+import { ListenerError } from './errors.js';
+import { Slupe } from '../../orch/src/index.js';
+import { formatSummary, formatFullOutput } from './formatters.js';
+import { computeContentHash } from './utils.js';
 
 // Module-level state for tracking active listeners
 const activeListeners = new Map<string, ListenerHandle>();

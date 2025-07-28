@@ -1,9 +1,9 @@
 import { realpath } from 'fs/promises';
 import { minimatch } from 'minimatch';
 import { dirname, resolve, isAbsolute } from 'path';
-import type { SlupeAction } from '../../nesl-action-parser/src/index.ts';
-import type { FsGuardConfig } from '../../orch/src/types.ts';
-import type { GuardCheckResult, PathPermission } from './types.ts';
+import type { SlupeAction } from '../../nesl-action-parser/src/index.js';
+import type { FsGuardConfig } from '../../orch/src/types.js';
+import type { GuardCheckResult, PathPermission } from './types.js';
 
 export class FsGuard {
   private allowedPatterns: string[];

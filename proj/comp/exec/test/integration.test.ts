@@ -3,7 +3,7 @@ import { readFileSync, readdirSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { marked, Token } from 'marked';
-import { executeCommand } from '../src/index.ts';
+import { executeCommand } from '../src/index.js';
 import { platform } from 'os';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));

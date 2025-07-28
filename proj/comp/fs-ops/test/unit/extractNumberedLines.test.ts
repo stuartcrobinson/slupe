@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { extractNumberedLines } from '../../src/extractNumberedLines.ts';
-import { cases } from '../../test-data/unit/extractNumberedLines.cases.ts';
+import { extractNumberedLines } from '../../src/extractNumberedLines.js';
+import { cases } from '../../test-data/unit/extractNumberedLines.cases.js';
 
 describe('extractNumberedLines', () => {
   cases.forEach(({ name, input, expected, throws }) => {

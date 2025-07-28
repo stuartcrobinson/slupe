@@ -1,4 +1,4 @@
-import type { Command, HookContext } from './types.ts';
+import type { Command, HookContext } from './types.js';
 
 /**
  * Interpolates variables in a command's run string

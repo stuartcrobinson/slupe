@@ -1,4 +1,4 @@
-import type { CommandResult, HookResult } from './types.ts';
+import type { CommandResult, HookResult } from './types.js';
 
 /**
  * Formats array of command results into a HookResult

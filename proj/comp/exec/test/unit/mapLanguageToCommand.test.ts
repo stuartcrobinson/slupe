@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { mapLanguageToCommand } from '../../src/mapLanguageToCommand.ts';
-import { ExecError } from '../../src/types.ts';
+import { mapLanguageToCommand } from '../../src/mapLanguageToCommand.js';
+import { ExecError } from '../../src/types.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const testData = JSON.parse(

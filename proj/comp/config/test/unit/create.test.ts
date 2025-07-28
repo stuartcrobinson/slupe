@@ -1,7 +1,7 @@
 import { describe, test, expect, beforeEach, afterEach } from 'vitest';
 import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'fs';
 import { join } from 'path';
-import { createStarterConfig } from '../../src/create.ts';
+import { createStarterConfig } from '../../src/create.js';
 
 const TEST_DIR = '/tmp/t_config_create_test';
 

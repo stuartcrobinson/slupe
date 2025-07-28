@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { replaceText } from '../../src/replaceText.ts';
-import { cases } from '../../test-data/unit/replaceText.cases.ts';
+import { replaceText } from '../../src/replaceText.js';
+import { cases } from '../../test-data/unit/replaceText.cases.js';
 
 describe('replaceText', () => {
   cases.forEach(({ name, input, expected, throws }) => {

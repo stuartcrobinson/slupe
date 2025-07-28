@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { formatExecResult } from '../../src/formatExecResult.ts';
+import { formatExecResult } from '../../src/formatExecResult.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const testData = JSON.parse(

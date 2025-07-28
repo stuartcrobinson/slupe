@@ -1,6 +1,6 @@
-import type { SlupeAction } from '../../nesl-action-parser/src/index.ts';
-import type { FileOpResult } from '../../fs-ops/src/index.ts';
-import { executeCommand } from './executeCommand.ts';
+import type { SlupeAction } from '../../nesl-action-parser/src/index.js';
+import type { FileOpResult } from '../../fs-ops/src/index.js';
+import { executeCommand } from './executeCommand.js';
 
 /**
  * Executor for shell/code execution operations

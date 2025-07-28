@@ -1,9 +1,9 @@
 // Re-export all public functions
-export { executeCommand } from './executeCommand.ts';
-export { mapLanguageToCommand } from './mapLanguageToCommand.ts';
-export { buildSpawnOptions } from './buildSpawnOptions.ts';
-export { formatExecResult } from './formatExecResult.ts';
-export { ExecExecutor } from './ExecExecutor.ts';
+export { executeCommand } from './executeCommand.js';
+export { mapLanguageToCommand } from './mapLanguageToCommand.js';
+export { buildSpawnOptions } from './buildSpawnOptions.js';
+export { formatExecResult } from './formatExecResult.js';
+export { ExecExecutor } from './ExecExecutor.js';
 
 // Re-export types
-export type { ExecResult } from './types.ts';
+export type { ExecResult } from './types.js';
