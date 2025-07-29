@@ -12,15 +12,10 @@ done
 
 
 file_list=$(cat <<'EOF'
-
-proj/src/index.ts
-proj/test/integration/entry.test.ts
-proj/comp/orch/src/index.ts
-proj/comp/orch/src/types.ts
 /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
-/Users/stuart/repos/slupe/proj/comp/hooks/src/formatHookResult.ts
+/Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
+/Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
 /Users/stuart/repos/slupe/proj/comp/hooks/src/index.ts
-/Users/stuart/repos/slupe/proj/test-cases/integration/entry.cases.md
 
 
 EOF

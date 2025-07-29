@@ -1,3 +1,10 @@
+=== SLUPE RESULTS ===
+f1x ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/hooks/src/index.ts
+f2x ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
+f3x ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
+f4x ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
+f5x ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
+=== END ===
 ```sh nesl
 #!nesl [@three-char-SHA-256: f1x]
 action = "file_replace_text"
