@@ -2,7 +2,7 @@ import type { SlupeAction, ParseError } from '../../nesl-action-parser/src/index
 import { parseNeslResponse } from '../../nesl-action-parser/src/index.js';
 import type { FileOpResult } from '../../fs-ops/src/index.js';
 import { FsOpsExecutor } from '../../fs-ops/src/index.js';
-import type { HooksConfig, HookContext } from '../../hooks/src/index.js';
+import type { HooksConfig, HookContext, HookError } from '../../hooks/src/index.js';
 import { HooksManager } from '../../hooks/src/index.js';
 import { FsGuard } from '../../fs-guard/src/index.js';
 import { ExecExecutor } from '../../exec/src/index.js';
@@ -21,8 +21,8 @@ export interface ExecutionResult {
   parseErrors: ParseError[];
   fatalError?: string;
   hookErrors?: {
-    before?: string[];
-    after?: string[];
+    before?: HookError[];
+    after?: HookError[];
   };
   debug?: {
     parseDebug?: any;
@@ -176,7 +176,10 @@ export class Slupe {
           }
         } catch (error) {
           // After hook unexpected errors also affect success
-          hookErrors.after = [`After hooks threw unexpected error: ${error instanceof Error ? error.message : String(error)}`];
+          hookErrors.after = [{
+            command: 'after hooks',
+            error: `After hooks threw unexpected error: ${error instanceof Error ? error.message : String(error)}`
+          }];
         }
       }
 

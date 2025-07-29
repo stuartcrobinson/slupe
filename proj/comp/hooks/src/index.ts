@@ -24,15 +24,17 @@ export interface HookContext {
   [key: string]: string | number | boolean;
 }
 
+export interface HookError {
+  command: string;
+  error: string;
+  stdout?: string;
+  stderr?: string;
+}
+
 export interface HookResult {
   success: boolean;
   executed: number;
-  errors?: Array<{
-    command: string;
-    error: string;
-    stdout?: string;
-    stderr?: string;
-  }>;
+  errors?: HookError[];
 }
 
 // Promisified exec
