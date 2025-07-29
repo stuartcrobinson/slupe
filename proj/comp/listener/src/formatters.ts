@@ -14,21 +14,30 @@ export function formatSummary(orchResult: OrchestratorResult): string {
 
   // Handle hook errors first
   if (orchResult.hookErrors?.before) {
-
     for (const error of orchResult.hookErrors.before) {
-      // Extract hook command from error message
-      // Format is "command: error message"
-      const match = error.match(/^(.+?):\s*(.+)$/);
-      if (match) {
-        const [, cmd, errorMsg] = match;
-        // Check if errorMsg contains "exit code"
-        if (errorMsg.includes('exit code')) {
-          lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed with ${errorMsg}`);
+      if (typeof error === 'string') {
+        // Legacy string format
+        const match = error.match(/^(.+?):\s*(.+)$/);
+        if (match) {
+          const [, cmd, errorMsg] = match;
+          if (errorMsg.includes('exit code')) {
+            lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed with ${errorMsg}`);
+          } else {
+            lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed: ${errorMsg}`);
+          }
         } else {
-          lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed: ${errorMsg}`);
+          lines.push(`def ❌ -          ERROR: ${error}`);
         }
       } else {
-        lines.push(`def ❌ -          ERROR: ${error}`);
+        // New object format with details
+        lines.push(`def ❌ - Hook failed: ${error.command}`);
+        lines.push(`          Error: ${error.error}`);
+        if (error.stderr?.trim()) {
+          lines.push(`          stderr: ${error.stderr.trim()}`);
+        }
+        if (error.stdout?.trim()) {
+          lines.push(`          stdout: ${error.stdout.trim()}`);
+        }
       }
     }
   }

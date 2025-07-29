@@ -103,7 +103,7 @@ export class Slupe {
               results: [],
               parseErrors: [],
               hookErrors: {
-                before: beforeResult.errors?.map(e => `${e.command}: ${e.error.trim()}`) || ['Unknown before hook error']
+                before: beforeResult.errors || [{command: 'unknown', error: 'Unknown before hook error'}]
               },
               fatalError: 'Before hooks failed - aborting execution'
             };
@@ -172,7 +172,7 @@ export class Slupe {
           const afterResult = await this.hooksManager.runAfter(afterContext);
           if (!afterResult.success) {
             // After hook failure affects overall success
-            hookErrors.after = afterResult.errors?.map(e => `${e.command}: ${e.error}`) || ['Unknown after hook error'];
+            hookErrors.after = afterResult.errors || [{command: 'unknown', error: 'Unknown after hook error'}];
           }
         } catch (error) {
           // After hook unexpected errors also affect success

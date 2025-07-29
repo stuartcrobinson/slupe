@@ -30,6 +30,8 @@ export interface HookResult {
   errors?: Array<{
     command: string;
     error: string;
+    stdout?: string;
+    stderr?: string;
   }>;
 }
 
