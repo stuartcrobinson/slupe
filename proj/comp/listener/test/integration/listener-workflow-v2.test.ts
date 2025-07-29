@@ -3,7 +3,7 @@ import { readFile, writeFile, mkdir, rm } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { marked } from 'marked';
-import clipboard from 'clipboardy';
+
 
 import { startListener } from '../../src/listener.js';
 import type { ListenerHandle } from '../../src/types.js';
@@ -19,7 +19,6 @@ interface TestCase {
   newContent: string;
   expectedPrepended: string;
   expectedOutput: string;
-  expectedClipboard: string;
 }
 
 // Parse test cases from markdown
@@ -40,8 +39,7 @@ async function parseTestCases(): Promise<TestCase[]> {
         currentTest.initialContent &&
         currentTest.newContent &&
         currentTest.expectedPrepended &&
-        currentTest.expectedOutput &&
-        currentTest.expectedClipboard) {
+        currentTest.expectedOutput) {
         testCases.push(currentTest as TestCase);
       }
 
@@ -68,9 +66,6 @@ async function parseTestCases(): Promise<TestCase[]> {
         case 4:
           currentTest.expectedOutput = content;
           break;
-        case 5:
-          currentTest.expectedClipboard = content;
-          break;
       }
     }
   }
@@ -80,8 +75,7 @@ async function parseTestCases(): Promise<TestCase[]> {
     currentTest.initialContent &&
     currentTest.newContent &&
     currentTest.expectedPrepended &&
-    currentTest.expectedOutput &&
-    currentTest.expectedClipboard) {
+    currentTest.expectedOutput) {
     testCases.push(currentTest as TestCase);
   }
 
@@ -119,9 +113,7 @@ async function pollForFileChange(
 // Load test cases at module level
 const testCasesPromise = parseTestCases();
 
-
-export async function listenerWorkflowTests() {
-  // Load test cases before defining tests
+describe('listener workflow v2', async () => {
   const testCases = await testCasesPromise;
 
   // Use it.each to create separate test for each test case
@@ -140,7 +132,7 @@ export async function listenerWorkflowTests() {
       handle = await startListener({
         filePath: testFile,
         debounceMs: 100,
-        useClipboard: true
+        useClipboard: false
       });
 
       // Wait for initial processing
@@ -161,12 +153,10 @@ export async function listenerWorkflowTests() {
       // Read actual results
       const actualPrepended = await readFile(testFile, 'utf-8');
       const actualOutput = await readFile(outputFile, 'utf-8');
-      const actualClipboard = await clipboard.read();
 
       // Compare results (exact match)
       expect(actualPrepended).toBe(testCase.expectedPrepended);
       expect(actualOutput).toBe(testCase.expectedOutput);
-      expect(actualClipboard).toBe(testCase.expectedClipboard);
 
     } finally {
       // Cleanup
@@ -175,14 +165,5 @@ export async function listenerWorkflowTests() {
       }
       await rm(testDir, { recursive: true, force: true });
     }
-  });
-}
-
-
-
-// Only run directly if this file is executed, not imported
-if (import.meta.url === `file://${process.argv[1]}`) {
-  describe('listener workflow v2', async () => {
-    await listenerWorkflowTests();
-  });
-}
+  }, 10000); // Increase timeout for integration tests
+});

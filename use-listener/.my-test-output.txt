@@ -1,6 +1,5 @@
 === SLUPE RESULTS ===
-fix ✅ file_replace_text /Users/stuart/repos/slupe/proj/test-cases/integration/entry.cases.md
-fg1 ✅ file_replace_text /Users/stuart/repos/slupe/proj/test/integration/debug-fsguard.test.ts
+fx4 ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/test/integration/listener-workflow-v2.test.ts
 === END ===
 
 === OUTPUTS ===

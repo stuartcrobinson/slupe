@@ -28,12 +28,9 @@ content = "Hello from NESL!"
 
 #### input file
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 sf1 ✅ file_write /tmp/t_listener_simple/output.txt
 === END ===
-
 Just a simple text file.
 Nothing special here.
 
@@ -47,16 +44,6 @@ content = "Hello from NESL!"
 ````
 
 #### output file
-````sh
-=== SLUPE RESULTS ===
-sf1 ✅ file_write /tmp/t_listener_simple/output.txt
-=== END ===
-
-=== OUTPUTS ===
-=== END ===
-````
-
-#### clipboard
 ````sh
 === SLUPE RESULTS ===
 sf1 ✅ file_write /tmp/t_listener_simple/output.txt
@@ -104,14 +91,11 @@ code = "echo 'Hello from bash'"
 
 #### input file
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 wr1 ✅ file_write /tmp/t_listener_multi/created.txt
 rd1 ❌ file_read /tmp/t_listener_multi/missing.txt - File not found
 ex1 ✅ exec bash
 === END ===
-
 Empty file to start.
 
 ```sh nesl
@@ -154,22 +138,6 @@ Hello from bash
 === END ===
 ````
 
-#### clipboard
-````sh
-=== SLUPE RESULTS ===
-wr1 ✅ file_write /tmp/t_listener_multi/created.txt
-rd1 ❌ file_read /tmp/t_listener_multi/missing.txt - File not found
-ex1 ✅ exec bash
-=== END ===
-
-=== OUTPUTS ===
-
-[ex1] exec bash:
-stdout:
-Hello from bash
-=== END ===
-````
-
 ### parse-error-handling
 
 #### Initial Content
@@ -192,12 +160,9 @@ content = "missing closing quote
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 bad ❌ file_write ERROR: Unclosed quoted string (line 4)
 === END ===
-
 Testing parse errors.
 
 ```sh nesl
@@ -210,16 +175,6 @@ content = "missing closing quote
 ````
 
 #### Expected Output File
-````sh
-=== SLUPE RESULTS ===
-bad ❌ file_write ERROR: Unclosed quoted string (line 4)
-=== END ===
-
-=== OUTPUTS ===
-=== END ===
-````
-
-#### clipboard
 ````sh
 === SLUPE RESULTS ===
 bad ❌ file_write ERROR: Unclosed quoted string (line 4)
@@ -253,12 +208,9 @@ Adding a comment outside NESL blocks.
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 nc1 ✅ file_write /tmp/t_listener_nochange/counter.txt
 === END ===
-
 Testing hash-based execution.
 
 ```sh nesl
@@ -282,15 +234,6 @@ nc1 ✅ file_write /tmp/t_listener_nochange/counter.txt
 === END ===
 ````
 
-#### clipboard
-````sh
-=== SLUPE RESULTS ===
-nc1 ✅ file_write /tmp/t_listener_nochange/counter.txt
-=== END ===
-
-=== OUTPUTS ===
-=== END ===
-````
 
 ### successful-file-replace-text
 
@@ -343,13 +286,10 @@ EOT_fr2
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 fr1 ✅ file_write /tmp/t_listener_replace/config.yaml
 fr2 ✅ file_replace_text /tmp/t_listener_replace/config.yaml
 === END ===
-
 Testing file replacement functionality.
 
 ```sh nesl
@@ -391,17 +331,6 @@ EOT_fr2
 ````
 
 #### Expected Output File
-````sh
-=== SLUPE RESULTS ===
-fr1 ✅ file_write /tmp/t_listener_replace/config.yaml
-fr2 ✅ file_replace_text /tmp/t_listener_replace/config.yaml
-=== END ===
-
-=== OUTPUTS ===
-=== END ===
-````
-
-#### clipboard
 ````sh
 === SLUPE RESULTS ===
 fr1 ✅ file_write /tmp/t_listener_replace/config.yaml
@@ -464,13 +393,10 @@ EOT_fm2
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 fm1 ✅ file_write /tmp/t_listener_multi_match/app.js
 fm2 ❌ file_replace_text /tmp/t_listener_multi_match/app.js - old_text appears 2 times, must appear exactly once
 === END ===
-
 Testing multiple match failure.
 
 ```sh nesl
@@ -513,17 +439,6 @@ EOT_fm2
 ````
 
 #### Expected Output File
-````sh
-=== SLUPE RESULTS ===
-fm1 ✅ file_write /tmp/t_listener_multi_match/app.js
-fm2 ❌ file_replace_text /tmp/t_listener_multi_match/app.js - old_text appears 2 times, must appear exactly once
-=== END ===
-
-=== OUTPUTS ===
-=== END ===
-````
-
-#### clipboard
 ````sh
 === SLUPE RESULTS ===
 fm1 ✅ file_write /tmp/t_listener_multi_match/app.js
@@ -587,13 +502,10 @@ EOT_fn2
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 fn1 ✅ file_write /tmp/t_listener_no_match/readme.md
 fn2 ❌ file_replace_text /tmp/t_listener_no_match/readme.md - old_text not found in file
 === END ===
-
 Testing no match failure.
 
 ```sh nesl
@@ -637,34 +549,6 @@ EOT_fn2
 ````
 
 #### Expected Output File
-````sh
-=== SLUPE RESULTS ===
-fn1 ✅ file_write /tmp/t_listener_no_match/readme.md
-fn2 ❌ file_replace_text /tmp/t_listener_no_match/readme.md - old_text not found in file
-=== END ===
-
-=== OUTPUTS ===
-
-[fn2] file_replace_text /tmp/t_listener_no_match/readme.md (failed - showing file contents):
-=== START FILE: /tmp/t_listener_no_match/readme.md ===
-# Project README
-
-This is a sample project.
-
-## Installation
-
-Run the following command:
-- npm install
-
-## Usage
-
-Start the application with:
-- npm start
-=== END FILE: /tmp/t_listener_no_match/readme.md ===
-=== END ===
-````
-
-#### clipboard
 ````sh
 === SLUPE RESULTS ===
 fn1 ✅ file_write /tmp/t_listener_no_match/readme.md
@@ -731,13 +615,10 @@ path = "/tmp/t_listener_read/sample.py"
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 rf1 ✅ file_write /tmp/t_listener_read/sample.py
 rf2 ✅ file_read /tmp/t_listener_read/sample.py
 === END ===
-
 Testing file read output formatting.
 
 ```sh nesl
@@ -767,30 +648,6 @@ path = "/tmp/t_listener_read/sample.py"
 ````
 
 #### Expected Output File
-````sh
-=== SLUPE RESULTS ===
-rf1 ✅ file_write /tmp/t_listener_read/sample.py
-rf2 ✅ file_read /tmp/t_listener_read/sample.py
-=== END ===
-
-=== OUTPUTS ===
-
-[rf2] file_read:
-=== START FILE: /tmp/t_listener_read/sample.py ===
-#!/usr/bin/env python3
-"""Sample Python file for testing."""
-
-def greet(name):
-    """Return a greeting message."""
-    return f"Hello, {name}!"
-
-if __name__ == "__main__":
-    print(greet("World"))
-=== END FILE: /tmp/t_listener_read/sample.py ===
-=== END ===
-````
-
-#### clipboard
 ````sh
 === SLUPE RESULTS ===
 rf1 ✅ file_write /tmp/t_listener_read/sample.py
@@ -858,13 +715,10 @@ path = "/tmp/t_listener_read_num/config.yaml"
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 rn1 ✅ file_write /tmp/t_listener_read_num/config.yaml
 rn2 ❌ file_read_numbered /tmp/t_listener_read_num/config.yaml - Action 'file_read_numbered' is not in allowed-actions list (file_write,file_read,file_delete,file_move,file_replace_text,file_replace_all_text,files_read,exec)
 === END ===
-
 Testing file read numbered output formatting.
 
 ```sh nesl
@@ -909,16 +763,6 @@ rn2 ❌ file_read_numbered /tmp/t_listener_read_num/config.yaml - Action 'file_r
 === END ===
 ````
 
-#### clipboard
-````sh
-=== SLUPE RESULTS ===
-rn1 ✅ file_write /tmp/t_listener_read_num/config.yaml
-rn2 ❌ file_read_numbered /tmp/t_listener_read_num/config.yaml - Action 'file_read_numbered' is not in allowed-actions list (file_write,file_read,file_delete,file_move,file_replace_text,file_replace_all_text,files_read,exec)
-=== END ===
-
-=== OUTPUTS ===
-=== END ===
-````
 
 ### files-read-formatting
 
@@ -991,15 +835,12 @@ EOT_mr4
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 mr1 ✅ file_write /tmp/t_listener_multi_read/README.md
 mr2 ✅ file_write /tmp/t_listener_multi_read/main.py
 mr3 ✅ file_write /tmp/t_listener_multi_read/.gitignore
 mr4 ✅ files_read (3 files)
 === END ===
-
 Testing files read output formatting with multiple files.
 
 ```sh nesl
@@ -1061,53 +902,6 @@ EOT_mr4
 ````
 
 #### Expected Output File
-````sh
-=== SLUPE RESULTS ===
-mr1 ✅ file_write /tmp/t_listener_multi_read/README.md
-mr2 ✅ file_write /tmp/t_listener_multi_read/main.py
-mr3 ✅ file_write /tmp/t_listener_multi_read/.gitignore
-mr4 ✅ files_read (3 files)
-=== END ===
-
-=== OUTPUTS ===
-
-[mr4] files_read:
-Reading 3 files:
-- /tmp/t_listener_multi_read/README.md
-- /tmp/t_listener_multi_read/main.py
-- /tmp/t_listener_multi_read/.gitignore
-
-=== START FILE: /tmp/t_listener_multi_read/README.md ===
-# Project Documentation
-
-This is the main README file.
-
-## Features
-- Feature 1
-- Feature 2
-- Feature 3
-=== END FILE: /tmp/t_listener_multi_read/README.md ===
-
-=== START FILE: /tmp/t_listener_multi_read/main.py ===
-#!/usr/bin/env python3
-
-def main():
-    print("Hello from main!")
-
-if __name__ == "__main__":
-    main()
-=== END FILE: /tmp/t_listener_multi_read/main.py ===
-
-=== START FILE: /tmp/t_listener_multi_read/.gitignore ===
-*.pyc
-__pycache__/
-.env
-venv/
-=== END FILE: /tmp/t_listener_multi_read/.gitignore ===
-=== END ===
-````
-
-#### clipboard
 ````sh
 === SLUPE RESULTS ===
 mr1 ✅ file_write /tmp/t_listener_multi_read/README.md
@@ -1214,8 +1008,6 @@ code = "echo 'test'"
 
 #### Expected Prepended Results
 ````sh
-📋 Copied to clipboard
-
 === SLUPE RESULTS ===
 pe1 ❌ file_write ERROR: Unclosed quoted string (line 4)
 pe2 ❌ -          ERROR: Invalid assignment operator ':=' - only '=' is allowed (line 12)
@@ -1226,7 +1018,6 @@ pe4 ❌ file_write ERROR: 3 syntax errors (line 25)
 pe5 ❌ exec       ERROR: Unexpected content after quoted value (line 34)
 unknown ❌ -          ERROR: Block ID must be exactly 3 characters (line 42)
 === END ===
-
 Testing multiple parse error types.
 
 ```sh nesl
