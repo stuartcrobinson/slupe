@@ -81,9 +81,6 @@ export function stopListenerTests() {
   });
 }
 
-// Only run directly if this file is executed, not imported
-if (import.meta.url === `file://${process.argv[1]}`) {
-  describe('stopListener', () => {
-    stopListenerTests();
-  });
-}
+describe('stopListener', () => {
+  stopListenerTests();
+});

@@ -20,6 +20,10 @@ export interface ListenerState {
   actionSchema?: Map<string, ActionDefinition>;
   debug?: boolean;
   useClipboard: boolean;
+  clipboardMonitor?: {
+    lastEntry: { content: string; timestamp: number } | null;
+    interval: NodeJS.Timeout | null;
+  };
 }
 
 export interface ActionDefinition {

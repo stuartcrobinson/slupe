@@ -18,9 +18,6 @@ interface ClipboardEntry {
   timestamp: number;
 }
 
-let lastClipboard: ClipboardEntry | null = null;
-let clipboardMonitorInterval: NodeJS.Timeout | null = null;
-
 // Strip prepended summary section if present
 function stripSummarySection(content: string): string {
   const marker = '=== END ===';
@@ -28,25 +25,42 @@ function stripSummarySection(content: string): string {
   return i === -1 ? content : content.slice(i + marker.length).trimStart();
 }
 
-// Extract NESL SHA IDs from content
-function extractNeslShas(content: string): Set<string> {
-  const shaPattern = /#!nesl\s*\[@[^:]+:\s*([a-zA-Z0-9]+)\]/g;
-  const shas = new Set<string>();
+// Extract NESL end delimiters from content
+function extractEndDelimiters(content: string): Set<string> {
+  const endPattern = /#!end_([a-zA-Z0-9_-]+)\b/g;
+  const delimiters = new Set<string>();
   let match;
-  while ((match = shaPattern.exec(content)) !== null) {
+  while ((match = endPattern.exec(content)) !== null) {
     if (match[1]) {
-      shas.add(match[1]);
+      delimiters.add(match[1]);
     }
   }
-  return shas;
+  return delimiters;
 }
 
 
 
 // Check clipboard for input trigger pattern
 async function checkClipboardTrigger(current: ClipboardEntry, state: ListenerState): Promise<void> {
+  const lastClipboard = state.clipboardMonitor?.lastEntry;
+  
+  console.log('[CLIP-TRIGGER] Entry:', {
+    hasLastClipboard: !!lastClipboard,
+    timeDiff: lastClipboard ? current.timestamp - lastClipboard.timestamp : 0,
+    currentLen: current.content.length,
+    lastLen: lastClipboard?.content.length,
+    currentPreview: current.content.substring(0, 50).replace(/\n/g, '\\n')
+  });
+
   if (!lastClipboard || current.timestamp - lastClipboard.timestamp > 1800) {
-    lastClipboard = current;
+    console.log('[CLIP-TRIGGER] Exit: timeout or no lastClipboard', {
+      lastClipTimestamp: lastClipboard?.timestamp,
+      currentTimestamp: current.timestamp,
+      diff: lastClipboard ? current.timestamp - lastClipboard.timestamp : 'N/A'
+    });
+    if (state.clipboardMonitor) {
+      state.clipboardMonitor.lastEntry = current;
+    }
     return;
   }
 
@@ -55,41 +69,89 @@ async function checkClipboardTrigger(current: ClipboardEntry, state: ListenerSta
     ? [current.content, lastClipboard.content]
     : [lastClipboard.content, current.content];
 
-  // Try to extract SHAs from smaller
-  const shas = extractNeslShas(smaller);
-  if (shas.size === 0) {
-    lastClipboard = current;
+  console.log('[CLIP-TRIGGER] Size comparison:', {
+    smallerLen: smaller.length,
+    largerLen: larger.length,
+    smallerPreview: smaller.substring(0, 100).replace(/\n/g, '\\n')
+  });
+
+  // Extract end delimiters from both
+  const smallerDelimiters = extractEndDelimiters(smaller);
+  const largerDelimiters = extractEndDelimiters(larger);
+  
+  console.log('[CLIP-TRIGGER] Smaller delimiters:', Array.from(smallerDelimiters));
+  console.log('[CLIP-TRIGGER] Larger delimiters:', Array.from(largerDelimiters));
+  
+  // Find common delimiters
+  const commonDelimiters = [...smallerDelimiters].filter(d => largerDelimiters.has(d));
+  console.log('[CLIP-TRIGGER] Common delimiters:', commonDelimiters);
+  
+  if (commonDelimiters.length === 0) {
+    console.log('[CLIP-TRIGGER] Exit: no common end delimiters');
+    if (state.clipboardMonitor) {
+      state.clipboardMonitor.lastEntry = current;
+    }
     return;
   }
 
-  // Check if all SHA end delimiters exist in larger
-  const allFound = [...shas].every(sha => {
-    const endPattern = new RegExp(`#!end_${sha}\\b`, 'i');
-    return endPattern.test(larger);
-  });
-
-  if (allFound) {
-    await writeFile(state.inputPath, smaller);
-    if (state.debug) {
-      console.log(`Clipboard trigger: wrote ${smaller.length} chars to input file`);
+  // Check if smaller content contains NESL
+  const hasNesl = smaller.includes('#!nesl');
+  console.log('[CLIP-TRIGGER] Smaller content has NESL:', hasNesl);
+  
+  if (!hasNesl) {
+    console.log('[CLIP-TRIGGER] Exit: no NESL in smaller content');
+    if (state.clipboardMonitor) {
+      state.clipboardMonitor.lastEntry = current;
     }
+    return;
   }
+  
+  // Found matching delimiters and NESL - trigger processing
+  console.log('[CLIP-TRIGGER] Writing to file and processing');
+  await writeFile(state.inputPath, smaller);
+  if (state.debug) {
+    console.log(`Clipboard trigger: wrote ${smaller.length} chars to input file`);
+  }
+  // Immediately process the file change instead of waiting for file watcher
+  await processFileChange(state.inputPath, state);
 
-  lastClipboard = current;
+  if (state.clipboardMonitor) {
+    state.clipboardMonitor.lastEntry = current;
+  }
 }
 
 // Monitor clipboard for input patterns
 async function monitorClipboard(state: ListenerState): Promise<void> {
+  if (!state.clipboardMonitor) return;
+  
   try {
     const content = await clipboard.read();
     const current = { content, timestamp: Date.now() };
+    const lastClipboard = state.clipboardMonitor.lastEntry;
 
     if (lastClipboard && current.content !== lastClipboard.content) {
+      console.log('[CLIP-MONITOR] Change detected, calling trigger check');
+      console.log('[CLIP-MONITOR] Old length:', lastClipboard.content.length, 'New length:', current.content.length);
+      
+      // Skip empty clipboard states - they're often intermediate states during copy operations
+      if (current.content.length === 0) {
+        console.log('[CLIP-MONITOR] Skipping empty clipboard state');
+        // Don't update lastEntry for empty states - keep the previous non-empty content
+        return;
+      }
+      
       await checkClipboardTrigger(current, state);
     } else if (!lastClipboard) {
-      lastClipboard = current;
+      console.log('[CLIP-MONITOR] Setting initial clipboard');
+      state.clipboardMonitor.lastEntry = current;
+    } else {
+      // Log every N checks to verify monitor is running
+      if (Math.random() < 0.01) {
+        console.log('[CLIP-MONITOR] Still monitoring, no changes');
+      }
     }
   } catch (error) {
+    console.error('[CLIP-MONITOR] Error:', error);
     if (state.debug) {
       console.error('Clipboard monitor error:', error);
     }
@@ -133,11 +195,21 @@ function formatClipboardStatus(success: boolean): string {
 
 // Process file changes
 async function processFileChange(filePath: string, state: ListenerState): Promise<void> {
+  console.log('[PROCESS-CHANGE] Entry:', {
+    filePath,
+    isProcessing: state.isProcessing,
+    caller: new Error().stack?.split('\n')[2]
+  });
+  
   // Check not already processing
-  if (state.isProcessing) return;
+  if (state.isProcessing) {
+    console.log('[PROCESS-CHANGE] Already processing, skipping');
+    return;
+  }
 
   try {
     state.isProcessing = true;
+    console.log('[PROCESS-CHANGE] Lock acquired');
 
     // Read file
     const fullContent = await readFile(filePath, 'utf-8');
@@ -169,8 +241,19 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     }
 
     // Execute via orchestrator with full file content
+    console.log('[PROCESS-CHANGE] Executing content length:', fullContent.length);
+    console.log('[PROCESS-CHANGE] Content preview:', fullContent.substring(0, 200).replace(/\n/g, '\\n'));
+    
     const slupe = await Slupe.create({ gitCommit: false });
     const orchResult = await slupe.execute(fullContent);
+    
+    console.log('[PROCESS-CHANGE] Execution complete:', {
+      hasResults: !!orchResult.results,
+      resultCount: orchResult.results?.length || 0,
+      hasErrors: !!orchResult.parseErrors,
+      errorCount: orchResult.parseErrors?.length || 0,
+      executedActions: orchResult.executedActions
+    });
 
     // Debug logging
     if (state.debug) {
@@ -201,15 +284,26 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     // Format outputs
     const summary = formatSummary(orchResult);
     const fullOutput = await formatFullOutput(orchResult);
+    
+    console.log('[PROCESS-CHANGE] Formatted output:', {
+      summaryLength: summary.length,
+      summaryPreview: summary.substring(0, 100).replace(/\n/g, '\\n'),
+      fullOutputLength: fullOutput.length,
+      fullOutputPreview: fullOutput.substring(0, 200).replace(/\n/g, '\\n'),
+      containsExpected: fullOutput.includes('✅ file_write')
+    });
 
     // Copy to clipboard if enabled
     let clipboardSuccess = false;
     let clipboardStatus = '';
 
     if (state.useClipboard) {
+      console.log('[PROCESS] Writing to clipboard, length:', fullOutput.length);
+      console.log('[PROCESS] Output preview:', fullOutput.substring(0, 200).replace(/\n/g, '\\n'));
       try {
         await clipboard.write(fullOutput);
         clipboardSuccess = true;
+        console.log('[PROCESS] Clipboard write successful');
       } catch (error) {
         console.error('listener: Clipboard write failed:', error);
       }
@@ -292,9 +386,14 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
 
   // Start clipboard monitoring if enabled
   if (config.useClipboard) {
-    clipboardMonitorInterval = setInterval(() => {
-      monitorClipboard(state);
-    }, 50);
+    console.log('[START] Clipboard monitoring enabled');
+    // Initialize clipboard monitor for this listener instance
+    state.clipboardMonitor = {
+      lastEntry: null,
+      interval: setInterval(() => {
+        monitorClipboard(state);
+      }, 50)
+    };
   }
 
   // Create handle
@@ -304,9 +403,9 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
     stop: async () => {
       unwatchFile(config.filePath);
       debouncedProcess.cancel();
-      if (clipboardMonitorInterval) {
-        clearInterval(clipboardMonitorInterval);
-        clipboardMonitorInterval = null;
+      if (state.clipboardMonitor?.interval) {
+        clearInterval(state.clipboardMonitor.interval);
+        state.clipboardMonitor.interval = null;
       }
       activeListeners.delete(config.filePath);
     }

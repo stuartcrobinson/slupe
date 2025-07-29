@@ -110,14 +110,58 @@ async function pollForFileChange(
   throw new Error(`Timeout waiting for file change after ${timeoutMs}ms`);
 }
 
-// Load test cases at module level
-const testCasesPromise = parseTestCases();
+// Load test cases synchronously for parallel execution
+import { readFileSync } from 'fs';
+const testDataPath = join(__dirname, '../../test-data/integration/listener-workflow-v2.cases.md');
+const markdown = readFileSync(testDataPath, 'utf-8');
+const testCases = parseTestCasesSync(markdown);
 
-describe('listener workflow v2', async () => {
-  const testCases = await testCasesPromise;
+function parseTestCasesSync(markdown: string): TestCase[] {
+  const tokens = marked.lexer(markdown);
+  const testCases: TestCase[] = [];
+  let currentTest: Partial<TestCase> | null = null;
+  let codeBlockCount = 0;
+
+  for (const token of tokens) {
+    if (token.type === 'heading' && token.depth === 3) {
+      if (currentTest && currentTest.name &&
+        currentTest.initialContent &&
+        currentTest.newContent &&
+        currentTest.expectedPrepended &&
+        currentTest.expectedOutput) {
+        testCases.push(currentTest as TestCase);
+      }
+      currentTest = { name: token.text };
+      codeBlockCount = 0;
+    }
+
+    if (token.type === 'code' && currentTest) {
+      const content = token.text;
+      codeBlockCount++;
+      switch (codeBlockCount) {
+        case 1: currentTest.initialContent = content; break;
+        case 2: currentTest.newContent = content; break;
+        case 3: currentTest.expectedPrepended = content; break;
+        case 4: currentTest.expectedOutput = content; break;
+      }
+    }
+  }
+
+  if (currentTest && currentTest.name &&
+    currentTest.initialContent &&
+    currentTest.newContent &&
+    currentTest.expectedPrepended &&
+    currentTest.expectedOutput) {
+    testCases.push(currentTest as TestCase);
+  }
+
+  return testCases;
+}
+
+describe('listener workflow v2', () => {
 
   // Use it.each to create separate test for each test case
-  it.each(testCases)('$name', async (testCase) => {
+  it.concurrent.each(testCases)('$name', async (testCase) => {
     let handle: ListenerHandle | null = null;
     const testDir = getTestDir(testCase.name);
     const testFile = join(testDir, 'test.txt');
