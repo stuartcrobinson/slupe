@@ -43,7 +43,7 @@ hooks:
       continueOnError: false
       timeout: 10000  # 10s for slow networks
   
-  # after:
+  after:
     - run: git add -A
     - run: git commit -m "after ${COMMIT_MSG}"
       continueOnError: false
