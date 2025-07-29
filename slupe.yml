@@ -31,21 +31,25 @@ fs-guard:
 
 # Git hooks configuration
 hooks:
-  before: []
-  after: []
+  # before: []
+  # after: []
   
   # Example hooks
-  # before:
-  #   - run: git stash --include-untracked
-  #     continueOnError: false
+  before:
+    - run: git add -A
+    - run: git commit -m "${COMMIT_MSG}"
+      continueOnError: false
+    - run: git push
+      continueOnError: false
+      timeout: 10000  # 10s for slow networks
   
   # after:
-  #   - run: git add -A
-  #   - run: git commit -m "${COMMIT_MSG}"
-  #     continueOnError: false
-  #   - run: git push
-  #     continueOnError: true
-  #     timeout: 10000  # 10s for slow networks
+    - run: git add -A
+    - run: git commit -m "${COMMIT_MSG}"
+      continueOnError: false
+    - run: git push
+      continueOnError: false
+      timeout: 10000  # 10s for slow networks
 
 # Variables available in commands
 vars:
@@ -53,6 +57,6 @@ vars:
   # Add more variables as needed
 
 # Listener configuration
-clipboard: true  # Enable clipboard copy on execution
+clipboard: false  # Enable clipboard copy on execution
 input_file: slupe_input.md
 output_file: .slupe_output.md

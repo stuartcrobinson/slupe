@@ -1,9 +1,6 @@
 === SLUPE RESULTS ===
-x9z ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
-y7k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
-z3m ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
-w4p ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
-q8r ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
+x9k ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
+m7p ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
 === END ===
 
 === OUTPUTS ===
