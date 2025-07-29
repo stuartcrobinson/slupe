@@ -14,7 +14,9 @@ export function formatHookResult(results: CommandResult[]): HookResult {
       allSuccess = false;
       errors.push({
         command: result.command,
-        error: result.error || 'Command failed'
+        error: result.error || 'Command failed',
+        stdout: result.stdout,
+        stderr: result.stderr
       });
     }
   }
