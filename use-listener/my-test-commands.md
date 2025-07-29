@@ -1,94 +1,51 @@
 
 === SLUPE RESULTS ===
-k4p ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
+h9k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
 === END ===
 
-The issue is clear from the logs. The clipboard is going through an intermediate empty state:
+Now I see the problem. The test shows clipboard transitions: 10→0→145 and 145→229. With the current code, both transitions involving empty states are skipped, so the trigger check never sees two non-empty states to compare.
 
-1. "helicopter" (10) → empty (0) → first NESL (145)
-2. First NESL (145) → second content (229)
+The test expects:
+1. Copy NESL block (145 chars)
+2. Copy larger content with same delimiter (229 chars)
+3. System detects and processes the NESL (145 chars)
 
-The empty state consumes the comparison, so when the real comparison should happen (145→229), it's comparing against the wrong previous state.
+But we're seeing:
+- 10→0: Skip (empty state)
+- 0→145: Skip (empty state)
+- 145→229: Never happens because we never update lastEntry
 
-The test is using `clipboard.write()` which appears to clear the clipboard before writing. This is realistic behavior - many clipboard managers do this.
-
-The fix is to skip empty clipboard states in the comparison logic:
+The fix: Update lastEntry for non-empty states even when we skip the comparison:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: k4p]
+#!nesl [@three-char-SHA-256: h9k]
 action = "file_replace_text"
 path = "/Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts"
-old_text = <<'EOT_k4p'
-// Monitor clipboard for input patterns
-async function monitorClipboard(state: ListenerState): Promise<void> {
-  if (!state.clipboardMonitor) return;
-  
-  try {
-    const content = await clipboard.read();
-    const current = { content, timestamp: Date.now() };
-    const lastClipboard = state.clipboardMonitor.lastEntry;
-
-    if (lastClipboard && current.content !== lastClipboard.content) {
-      console.log('[CLIP-MONITOR] Change detected, calling trigger check');
-      console.log('[CLIP-MONITOR] Old length:', lastClipboard.content.length, 'New length:', current.content.length);
-      await checkClipboardTrigger(current, state);
-    } else if (!lastClipboard) {
-      console.log('[CLIP-MONITOR] Setting initial clipboard');
+old_text = <<'EOT_h9k'
+  // Skip if either clipboard is empty - these are intermediate states
+  if (current.content.length === 0 || lastClipboard?.content.length === 0) {
+    console.log('[CLIP-TRIGGER] Exit: empty clipboard state');
+    if (state.clipboardMonitor) {
       state.clipboardMonitor.lastEntry = current;
-    } else {
-      // Log every N checks to verify monitor is running
-      if (Math.random() < 0.01) {
-        console.log('[CLIP-MONITOR] Still monitoring, no changes');
-      }
     }
-  } catch (error) {
-    console.error('[CLIP-MONITOR] Error:', error);
-    if (state.debug) {
-      console.error('Clipboard monitor error:', error);
-    }
+    return;
   }
-}
-EOT_k4p
-new_text = <<'EOT_k4p'
-// Monitor clipboard for input patterns
-async function monitorClipboard(state: ListenerState): Promise<void> {
-  if (!state.clipboardMonitor) return;
-  
-  try {
-    const content = await clipboard.read();
-    const current = { content, timestamp: Date.now() };
-    const lastClipboard = state.clipboardMonitor.lastEntry;
-
-    if (lastClipboard && current.content !== lastClipboard.content) {
-      console.log('[CLIP-MONITOR] Change detected, calling trigger check');
-      console.log('[CLIP-MONITOR] Old length:', lastClipboard.content.length, 'New length:', current.content.length);
-      
-      // Skip empty clipboard states - they're often intermediate states during copy operations
-      if (current.content.length === 0) {
-        console.log('[CLIP-MONITOR] Skipping empty clipboard state');
-        // Don't update lastEntry for empty states - keep the previous non-empty content
-        return;
-      }
-      
-      await checkClipboardTrigger(current, state);
-    } else if (!lastClipboard) {
-      console.log('[CLIP-MONITOR] Setting initial clipboard');
+EOT_h9k
+new_text = <<'EOT_h9k'
+  // Skip comparison if either clipboard is empty - these are intermediate states
+  if (current.content.length === 0 || lastClipboard?.content.length === 0) {
+    console.log('[CLIP-TRIGGER] Exit: empty clipboard state');
+    // Only update lastEntry if current is non-empty
+    if (state.clipboardMonitor && current.content.length > 0) {
       state.clipboardMonitor.lastEntry = current;
-    } else {
-      // Log every N checks to verify monitor is running
-      if (Math.random() < 0.01) {
-        console.log('[CLIP-MONITOR] Still monitoring, no changes');
-      }
     }
-  } catch (error) {
-    console.error('[CLIP-MONITOR] Error:', error);
-    if (state.debug) {
-      console.error('Clipboard monitor error:', error);
-    }
+    return;
   }
-}
-EOT_k4p
-#!end_k4p
+EOT_h9k
+#!end_h9k
 ```
 
-This preserves the previous non-empty clipboard content when an empty state is detected, allowing the proper comparison to happen when the next non-empty content arrives.
+This ensures:
+- Empty states don't overwrite good clipboard data
+- Non-empty states are always tracked
+- Next non-empty state can compare against previous non-empty state

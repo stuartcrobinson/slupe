@@ -18,6 +18,12 @@ interface ClipboardEntry {
   timestamp: number;
 }
 
+interface ClipboardMonitorState {
+  lastEntry: ClipboardEntry | null;
+  previousNonEmpty: ClipboardEntry | null;  // Track the last non-empty content
+  interval: NodeJS.Timeout | null;
+}
+
 // Strip prepended summary section if present
 function stripSummarySection(content: string): string {
   const marker = '=== END ===';
@@ -51,6 +57,16 @@ async function checkClipboardTrigger(current: ClipboardEntry, state: ListenerSta
     lastLen: lastClipboard?.content.length,
     currentPreview: current.content.substring(0, 50).replace(/\n/g, '\\n')
   });
+
+  // Skip comparison if either clipboard is empty - these are intermediate states
+  if (current.content.length === 0 || lastClipboard?.content.length === 0) {
+    console.log('[CLIP-TRIGGER] Exit: empty clipboard state');
+    // Only update lastEntry if current is non-empty
+    if (state.clipboardMonitor && current.content.length > 0) {
+      state.clipboardMonitor.lastEntry = current;
+    }
+    return;
+  }
 
   if (!lastClipboard || current.timestamp - lastClipboard.timestamp > 1800) {
     console.log('[CLIP-TRIGGER] Exit: timeout or no lastClipboard', {
@@ -132,14 +148,6 @@ async function monitorClipboard(state: ListenerState): Promise<void> {
     if (lastClipboard && current.content !== lastClipboard.content) {
       console.log('[CLIP-MONITOR] Change detected, calling trigger check');
       console.log('[CLIP-MONITOR] Old length:', lastClipboard.content.length, 'New length:', current.content.length);
-      
-      // Skip empty clipboard states - they're often intermediate states during copy operations
-      if (current.content.length === 0) {
-        console.log('[CLIP-MONITOR] Skipping empty clipboard state');
-        // Don't update lastEntry for empty states - keep the previous non-empty content
-        return;
-      }
-      
       await checkClipboardTrigger(current, state);
     } else if (!lastClipboard) {
       console.log('[CLIP-MONITOR] Setting initial clipboard');
