@@ -1,3 +1,6 @@
+=== SLUPE RESULTS ===
+def ❌ -          ERROR: Hook 'git commit -m "after ${COMMIT_MSG}"' failed: Command failed: git commit -m "after AI-assisted changes"
+=== END ===
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: v7r]
