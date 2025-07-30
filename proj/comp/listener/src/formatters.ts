@@ -4,6 +4,11 @@ import { readFileSync } from 'fs';
 
 export function formatSummary(orchResult: OrchestratorResult): string {
   const lines = ['=== SLUPE RESULTS ==='];
+  
+  // If no actions and no errors, indicate that
+  if (!orchResult.results?.length && !orchResult.parseErrors?.length && !orchResult.hookErrors?.before?.length) {
+    lines.push('No NESL blocks found');
+  }
 
 
 
