@@ -105,6 +105,21 @@ describe('clipboard integration', async () => {
       console.log(`[TEST ${testCase.name}] Writing unique content before monitor start:`, uniqueContent);
       await clipboard.write(uniqueContent);
       
+      // Poll to ensure clipboard write completed
+      let writeVerified = false;
+      for (let i = 0; i < 50; i++) { // max 500ms
+        const current = await clipboard.read();
+        if (current === uniqueContent) {
+          writeVerified = true;
+          console.log(`[TEST ${testCase.name}] Clipboard write verified after ${i * 10}ms`);
+          break;
+        }
+        await new Promise(resolve => setTimeout(resolve, 10));
+      }
+      if (!writeVerified) {
+        throw new Error(`Failed to verify clipboard write of unique content`);
+      }
+      
       try {
         await mkdir(testDir, { recursive: true });
         await writeFile(inputFile, '');
