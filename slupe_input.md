@@ -1,3 +1,7 @@
+=== SLUPE RESULTS ===
+fix ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
+dbg ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/output-writer.ts
+=== END ===
 You're right! Looking at the test, I can see the issue now. The test waits 700ms after starting the listener, but from the debug output, we can see that the `processContent` is being called but the results show:
 
 ```
