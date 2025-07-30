@@ -1,71 +1,98 @@
-You're right, let's make all clipboard writes properly synchronous by polling for verification after each write. Here's the update to ensure every clipboard write is verified through polling:
+Yes, I think we should implement the earlier suggestion. The intermittent failures suggest a race condition where the clipboard monitor from one test is still active when another test runs.
+
+Looking at the logs, I can see that `simple_fails` is finding a match when it shouldn't - the second clipboard entry has `x#!end_b8fw34t` which should NOT match because the delimiter isn't at a word boundary.
+
+Let me implement both fixes:
+
+1. First, fix the delimiter matching to require word boundaries:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: n2k]
+#!nesl [@three-char-SHA-256: k9p]
 action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/clipboard.test.ts"
-old_text = <<'EOT_n2k'
-          await clipboard.write(input.content);
-          
-          // Verify the write
-          const written = await clipboard.read();
-          console.log(`  Verified write - length: ${written.length}, matches: ${written === input.content}`);
-EOT_n2k
-new_text = <<'EOT_n2k'
-          await clipboard.write(input.content);
-          
-          // Poll to verify the write
-          let writeVerified = false;
-          for (let i = 0; i < 50; i++) { // max 500ms
-            const written = await clipboard.read();
-            if (written === input.content) {
-              writeVerified = true;
-              console.log(`  Verified write after ${i * 10}ms - length: ${written.length}`);
-              break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 10));
-          }
-          if (!writeVerified) {
-            throw new Error(`Failed to verify clipboard write for input ${idx + 1}`);
-          }
-EOT_n2k
-#!end_n2k
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
+old_text = <<'EOT_k9p'
+        // Extract delimiter from entries (looking for #!end_xxx)
+        const endMatch1 = entry1.content.match(/#!end_([a-zA-Z0-9]+)/);
+        const endMatch2 = entry2.content.match(/#!end_([a-zA-Z0-9]+)/);
+EOT_k9p
+new_text = <<'EOT_k9p'
+        // Extract delimiter from entries (looking for #!end_xxx)
+        // Must be at a word boundary (not preceded by alphanumeric)
+        const endMatch1 = entry1.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
+        const endMatch2 = entry2.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
+EOT_k9p
+#!end_k9p
 ```
 
-And let's also add the same polling verification when writing the unique content at the end of each test:
+2. Update the delimiter extraction to use the correct capture group (since we now have a non-capturing group):
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: r5m]
+#!nesl [@three-char-SHA-256: m3x]
 action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/clipboard.test.ts"
-old_text = <<'EOT_r5m'
-        // Rewrite unique content before stopping monitor
-        if (handle) {
-          console.log(`[TEST ${testCase.name}] Rewriting unique content before cleanup:`, uniqueContent);
-          await clipboard.write(uniqueContent);
-EOT_r5m
-new_text = <<'EOT_r5m'
-        // Rewrite unique content before stopping monitor
-        if (handle) {
-          console.log(`[TEST ${testCase.name}] Rewriting unique content before cleanup:`, uniqueContent);
-          await clipboard.write(uniqueContent);
-          
-          // Poll to verify cleanup write
-          let cleanupVerified = false;
-          for (let i = 0; i < 50; i++) { // max 500ms
-            const current = await clipboard.read();
-            if (current === uniqueContent) {
-              cleanupVerified = true;
-              console.log(`[TEST ${testCase.name}] Cleanup write verified after ${i * 10}ms`);
-              break;
-            }
-            await new Promise(resolve => setTimeout(resolve, 10));
-          }
-          if (!cleanupVerified) {
-            console.log(`[TEST ${testCase.name}] Warning: Failed to verify cleanup clipboard write`);
-          }
-EOT_r5m
-#!end_r5m
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
+old_text = <<'EOT_m3x'
+          const delimiter1 = endMatch1[1];
+          const delimiter2 = endMatch2[1];
+EOT_m3x
+new_text = <<'EOT_m3x'
+          const delimiter1 = endMatch1[1];
+          const delimiter2 = endMatch2[1];
+EOT_m3x
+#!end_m3x
 ```
 
-This should make all clipboard operations properly synchronous and eliminate any race conditions between tests.
+3. Clear the recent changes array when stopping:
+
+```sh nesl
+#!nesl [@three-char-SHA-256: v8r]
+action = "file_replace_text"
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
+old_text = <<'EOT_v8r'
+  stop(): void {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  }
+EOT_v8r
+new_text = <<'EOT_v8r'
+  stop(): void {
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+    // Clear recent changes to prevent any pending matches
+    this.recentChanges = [];
+    this.isInitialized = false;
+  }
+EOT_v8r
+#!end_v8r
+```
+
+4. Also update the logging to show the correct delimiter when using the new regex:
+
+```sh nesl
+#!nesl [@three-char-SHA-256: w2k]
+action = "file_replace_text"
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
+old_text = <<'EOT_w2k'
+        console.log(`[ClipboardMonitor] Current entries:`);
+        this.recentChanges.forEach((entry, i) => {
+          const endMatch = entry.content.match(/#!end_([a-zA-Z0-9]+)/);
+          console.log(`  [${i}] timestamp: ${entry.timestamp === null ? 'null' : entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
+        });
+EOT_w2k
+new_text = <<'EOT_w2k'
+        console.log(`[ClipboardMonitor] Current entries:`);
+        this.recentChanges.forEach((entry, i) => {
+          const endMatch = entry.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
+          console.log(`  [${i}] timestamp: ${entry.timestamp === null ? 'null' : entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
+        });
+EOT_w2k
+#!end_w2k
+```
+
+These changes should fix the issue by:
+1. Ensuring `x#!end_b8fw34t` doesn't match (the 'x' prevents it)
+2. Ensuring ` #!end_as7` still matches (space is not alphanumeric)
+3. Preventing any state from bleeding between tests
