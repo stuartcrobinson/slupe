@@ -1,62 +1,71 @@
-Good questions! Let me address both:
-
-## About Vitest and beforeEach/afterEach
-
-In Vitest (and most test frameworks), `beforeEach` and `afterEach` hooks **always run** regardless of whether you're running:
-- A single test with `-t="simple_fails"`
-- All tests in the file
-- The entire test suite
-
-So the setup/cleanup code is definitely running in all cases. The test structure ensures each test gets its own:
-- Fresh `testRepoPath` (from `beforeEach`)
-- Cleanup of that path (from `afterEach`)
-
-## About ensuring clipboard write completes
-
-Yes, I think you're absolutely right! The clipboard write might be async, and we're not verifying it completed before starting the monitor. This could cause race conditions where:
-1. We call `clipboard.write(uniqueContent)`
-2. We immediately start the monitor (which reads clipboard)
-3. The monitor might read the old clipboard content if the write hasn't completed yet
-
-Let's add a polling verification after writing the unique content:
+You're right, let's make all clipboard writes properly synchronous by polling for verification after each write. Here's the update to ensure every clipboard write is verified through polling:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: w2z]
+#!nesl [@three-char-SHA-256: n2k]
 action = "file_replace_text"
 path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/clipboard.test.ts"
-old_text = <<'EOT_w2z'
-      // Write unique content BEFORE starting monitor
-      const uniqueContent = `unique-${testCase.name}-${Date.now()}`;
-      console.log(`[TEST ${testCase.name}] Writing unique content before monitor start:`, uniqueContent);
-      await clipboard.write(uniqueContent);
-EOT_w2z
-new_text = <<'EOT_w2z'
-      // Write unique content BEFORE starting monitor
-      const uniqueContent = `unique-${testCase.name}-${Date.now()}`;
-      console.log(`[TEST ${testCase.name}] Writing unique content before monitor start:`, uniqueContent);
-      await clipboard.write(uniqueContent);
-      
-      // Poll to ensure clipboard write completed
-      let writeVerified = false;
-      for (let i = 0; i < 50; i++) { // max 500ms
-        const current = await clipboard.read();
-        if (current === uniqueContent) {
-          writeVerified = true;
-          console.log(`[TEST ${testCase.name}] Clipboard write verified after ${i * 10}ms`);
-          break;
-        }
-        await new Promise(resolve => setTimeout(resolve, 10));
-      }
-      if (!writeVerified) {
-        throw new Error(`Failed to verify clipboard write of unique content`);
-      }
-EOT_w2z
-#!end_w2z
+old_text = <<'EOT_n2k'
+          await clipboard.write(input.content);
+          
+          // Verify the write
+          const written = await clipboard.read();
+          console.log(`  Verified write - length: ${written.length}, matches: ${written === input.content}`);
+EOT_n2k
+new_text = <<'EOT_n2k'
+          await clipboard.write(input.content);
+          
+          // Poll to verify the write
+          let writeVerified = false;
+          for (let i = 0; i < 50; i++) { // max 500ms
+            const written = await clipboard.read();
+            if (written === input.content) {
+              writeVerified = true;
+              console.log(`  Verified write after ${i * 10}ms - length: ${written.length}`);
+              break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+          if (!writeVerified) {
+            throw new Error(`Failed to verify clipboard write for input ${idx + 1}`);
+          }
+EOT_n2k
+#!end_n2k
 ```
 
-This polling approach ensures:
-1. The clipboard write has actually completed
-2. The monitor will see the unique content as pre-existing when it starts
-3. We have clear logging to debug any issues
+And let's also add the same polling verification when writing the unique content at the end of each test:
 
-This should eliminate any race condition between writing the unique content and starting the monitor.
+```sh nesl
+#!nesl [@three-char-SHA-256: r5m]
+action = "file_replace_text"
+path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/clipboard.test.ts"
+old_text = <<'EOT_r5m'
+        // Rewrite unique content before stopping monitor
+        if (handle) {
+          console.log(`[TEST ${testCase.name}] Rewriting unique content before cleanup:`, uniqueContent);
+          await clipboard.write(uniqueContent);
+EOT_r5m
+new_text = <<'EOT_r5m'
+        // Rewrite unique content before stopping monitor
+        if (handle) {
+          console.log(`[TEST ${testCase.name}] Rewriting unique content before cleanup:`, uniqueContent);
+          await clipboard.write(uniqueContent);
+          
+          // Poll to verify cleanup write
+          let cleanupVerified = false;
+          for (let i = 0; i < 50; i++) { // max 500ms
+            const current = await clipboard.read();
+            if (current === uniqueContent) {
+              cleanupVerified = true;
+              console.log(`[TEST ${testCase.name}] Cleanup write verified after ${i * 10}ms`);
+              break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+          if (!cleanupVerified) {
+            console.log(`[TEST ${testCase.name}] Warning: Failed to verify cleanup clipboard write`);
+          }
+EOT_r5m
+#!end_r5m
+```
+
+This should make all clipboard operations properly synchronous and eliminate any race conditions between tests.
