@@ -1,96 +1,3 @@
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 94)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 91)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 88)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 85)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 82)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 79)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 76)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 73)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 70)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 67)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 64)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 61)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 58)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 55)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 52)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 49)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 46)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 43)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 40)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 37)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 34)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 31)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 28)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 25)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 22)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 19)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 16)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 13)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 10)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 7)
-=== END ===
-=== SLUPE RESULTS ===
-x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 4)
-=== END ===
 You're right, let me add debugging to the clipboard monitor code using NESL:
 
 ```sh nesl
@@ -113,7 +20,7 @@ export class ClipboardMonitor {
   start(): void {
     this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
   }
-EOT_ x9k
+EOT_x9k
 new_text = <<'EOT_x9k'
 export class ClipboardMonitor {
   private recentChanges: ClipboardEntry[] = [];
@@ -132,7 +39,7 @@ export class ClipboardMonitor {
     console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
     this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
   }
-EOT_ x9k
+EOT_x9k
 #!end_x9k
 ```
 
@@ -169,7 +76,7 @@ old_text = <<'EOT_m2p'
       console.error('Clipboard error:', error);
     }
   }
-EOT_ m2p
+EOT_m2p
 new_text = <<'EOT_m2p'
   private async checkClipboard(): Promise<void> {
     this.checkCount++;
@@ -213,7 +120,7 @@ new_text = <<'EOT_m2p'
       console.error('[ClipboardMonitor] Error:', error);
     }
   }
-EOT_ m2p
+EOT_m2p
 #!end_m2p
 ```
 
@@ -254,7 +161,7 @@ old_text = <<'EOT_q7v'
     console.log('No matching pairs found');
     return null;
   }
-EOT_ q7v
+EOT_q7v
 new_text = <<'EOT_q7v'
   private findMatchingPair(): string | null {
     console.log('[ClipboardMonitor] Checking for matching pairs, entries:', this.recentChanges.length);
@@ -296,7 +203,7 @@ new_text = <<'EOT_q7v'
     console.log('[ClipboardMonitor] No matching pairs found');
     return null;
   }
-EOT_ q7v
+EOT_q7v
 #!end_q7v
 ```
 
@@ -319,7 +226,7 @@ old_text = <<'EOT_h3f'
             await new Promise(resolve => setTimeout(resolve, input.delay));
           }
         }
-EOT_ h3f
+EOT_h3f
 new_text = <<'EOT_h3f'
         await new Promise(resolve => setTimeout(resolve, 50));
         
@@ -346,7 +253,7 @@ new_text = <<'EOT_h3f'
             await new Promise(resolve => setTimeout(resolve, 50));
           }
         }
-EOT_ h3f
+EOT_h3f
 #!end_h3f
 ```
 
@@ -376,7 +283,8 @@ old_text = <<'EOT_k9m'
             await new Promise(resolve => setTimeout(resolve, 25));
           }
           
-          expect(found).toBe(true);EOT_k9m
+          expect(found).toBe(true);
+EOT_k9m
 new_text = <<'EOT_k9m'
         console.log(`[TEST ${testCase.name}] Waiting 100ms for processing...`);
         await new Promise(resolve => setTimeout(resolve, 100));
@@ -416,7 +324,8 @@ new_text = <<'EOT_k9m'
             }
           }
           
-          expect(found).toBe(true);EOT_k9m
+          expect(found).toBe(true);
+EOT_k9m
 #!end_k9m
 ```
 
