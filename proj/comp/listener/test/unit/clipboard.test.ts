@@ -90,6 +90,12 @@ describe('clipboard integration', async () => {
   
   for (const testCase of cases) {
     it(testCase.name, async () => {
+      console.log(`[TEST ${testCase.name}] Test case:`, {
+        name: testCase.name,
+        inputsCount: testCase.inputs.length,
+        expectedOutput: testCase.expectedOutput
+      });
+      
       const testDir = `/tmp/t_${testCase.name}`;
       const inputFile = join(testRepoPath, 'input.md');
       const outputFile = join(testRepoPath, '.slupe-output-latest.txt');
@@ -111,6 +117,8 @@ describe('clipboard integration', async () => {
         console.log(`\n[TEST ${testCase.name}] Writing init content:`, initContent);
         await clipboard.write(initContent);
         await new Promise(resolve => setTimeout(resolve, 30));
+        
+        console.log(`[TEST ${testCase.name}] Starting to write ${testCase.inputs.length} test inputs`);
         
         for (let idx = 0; idx < testCase.inputs.length; idx++) {
           const input = testCase.inputs[idx];
