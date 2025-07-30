@@ -53,6 +53,9 @@ z8v ✅ file_write /Users/stuart/repos/slupe/proj/comp/listener/test/unit/clipbo
 z8v ✅ file_write /Users/stuart/repos/slupe/proj/comp/listener/test/unit/clipboard.test.ts
 === END ===
 === SLUPE RESULTS ===
+z8v ✅ file_write /Users/stuart/repos/slupe/proj/comp/listener/test/unit/clipboard.test.ts
+=== END ===
+=== SLUPE RESULTS ===
 z8v ❌ file_write ERROR: Heredoc 'EOT_z8v' not closed before EOF (line 2)
 === END ===
 ```sh nesl
