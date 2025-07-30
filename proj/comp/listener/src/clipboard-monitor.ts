@@ -39,53 +39,67 @@ export class ClipboardMonitor {
       
       // Only process if clipboard changed
       if (current !== this.lastClipboardContent) {
+        console.log('Clipboard changed, content length:', current.length);
+        console.log('Content preview:', current.substring(0, 100));
+        
         this.lastClipboardContent = current;
         this.recentChanges.push({ content: current, timestamp: now });
         
         // Check for matching delimiter pairs
         const match = this.findMatchingPair();
         if (match) {
+          console.log('Match found! Writing to file:', this.filePath);
           await writeFile(this.filePath, match);
           this.recentChanges = [];
         }
       }
     } catch (error) {
-      // Silently ignore clipboard errors
+      console.error('Clipboard error:', error);
     }
   }
 
   private findMatchingPair(): string | null {
+    console.log('Checking for matching pairs, entries:', this.recentChanges.length);
+    
     // Look for pairs with matching delimiters
     for (let i = 0; i < this.recentChanges.length; i++) {
-      for (let j = i + 1; j < this.recentChanges.length; j++) {
+      for (let j = 0; j < this.recentChanges.length; j++) {
+        if (i === j) continue;
+        
         const entry1 = this.recentChanges[i];
         const entry2 = this.recentChanges[j];
         
-        // Extract delimiter from first entry (looking for #!end_xxx)
-        const endMatch = entry1.content.match(/#!end_([a-zA-Z0-9]+)/);
-        if (!endMatch) continue;
+        // Extract delimiter from entries (looking for #!end_xxx)
+        const endMatch1 = entry1.content.match(/#!end_([a-zA-Z0-9]+)/);
+        const endMatch2 = entry2.content.match(/#!end_([a-zA-Z0-9]+)/);
         
-        const delimiter = endMatch[1];
-        
-        // Check if second entry has matching start delimiter
-        const startPattern = new RegExp(`#!nesl \\[@three-char-SHA-256: ${delimiter}\\]`);
-        if (entry2.content.includes(startPattern.source.replace(/\\/g, ''))) {
-          // Return the smaller content (actual NESL command)
-          return entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
+        if (endMatch1) {
+          const delimiter = endMatch1[1];
+          console.log('Found end delimiter in entry', i, ':', delimiter);
+          
+          // Check if other entry has matching start delimiter
+          if (entry2.content.includes(`#!nesl [@three-char-SHA-256: ${delimiter}]`)) {
+            console.log('Found matching start in entry', j);
+            // Return the smaller content (actual NESL command)
+            return entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
+          }
         }
         
-        // Also check reverse order
-        const endMatch2 = entry2.content.match(/#!end_([a-zA-Z0-9]+)/);
         if (endMatch2) {
-          const delimiter2 = endMatch2[1];
-          const startPattern2 = new RegExp(`#!nesl \\[@three-char-SHA-256: ${delimiter2}\\]`);
-          if (entry1.content.includes(startPattern2.source.replace(/\\/g, ''))) {
+          const delimiter = endMatch2[1];
+          console.log('Found end delimiter in entry', j, ':', delimiter);
+          
+          // Check if other entry has matching start delimiter
+          if (entry1.content.includes(`#!nesl [@three-char-SHA-256: ${delimiter}]`)) {
+            console.log('Found matching start in entry', i);
+            // Return the smaller content (actual NESL command)
             return entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
           }
         }
       }
     }
     
+    console.log('No matching pairs found');
     return null;
   }
 }
