@@ -1,3 +1,6 @@
+=== SLUPE RESULTS ===
+x8j ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts
+=== END ===
 Excellent! Now I can see the real issue. The debug output shows:
 
 1. For the first test ("stops watching and cleans up"):
