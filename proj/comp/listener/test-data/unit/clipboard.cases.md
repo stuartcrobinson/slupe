@@ -337,6 +337,8 @@ null
 
 ## valid_target_content_separated_by_empty_clipboard_1
 
+### inputs
+
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: 34g]
@@ -377,7 +379,7 @@ this clipboard content gets ignored because its the bigger one
 
 ## valid_target_content_separated_by_empty_clipboard_2
 
-
+### inputs
 
 ```sh nesl
 lalala
@@ -424,6 +426,8 @@ EOT_abc
 
 
 ## invalid_target_content_separated_by_empty_clipboard_timeout
+
+### inputs
 
 ```sh nesl
 lalala
