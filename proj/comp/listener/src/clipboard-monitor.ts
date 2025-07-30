@@ -13,14 +13,26 @@ export class ClipboardMonitor {
   private filePath: string;
   private pollInterval: number;
   private checkCount: number = 0;
+  private isInitialized: boolean = false;
 
   constructor(filePath: string, pollInterval: number = 20) {
     this.filePath = filePath;
     this.pollInterval = pollInterval;
   }
 
-  start(): void {
+  async start(): Promise<void> {
     console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
+    
+    // Initialize with current clipboard content to ignore pre-existing content
+    try {
+      this.lastClipboardContent = await clipboard.read();
+      console.log('[ClipboardMonitor] Initialized with existing clipboard content length:', this.lastClipboardContent.length);
+    } catch (error) {
+      console.log('[ClipboardMonitor] Could not read initial clipboard:', error);
+      this.lastClipboardContent = '';
+    }
+    
+    this.isInitialized = true;
     this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
   }
 
@@ -32,6 +44,8 @@ export class ClipboardMonitor {
   }
 
   private async checkClipboard(): Promise<void> {
+    if (!this.isInitialized) return;
+    
     this.checkCount++;
     try {
       const current = await clipboard.read();

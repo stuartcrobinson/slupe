@@ -115,7 +115,7 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
   let clipboardMonitor: ClipboardMonitor | undefined;
   if (config.useClipboard) {
     clipboardMonitor = new ClipboardMonitor(config.filePath);
-    clipboardMonitor.start();
+    await clipboardMonitor.start();
   }
 
   const handle: ListenerHandle = {
