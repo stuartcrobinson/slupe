@@ -37,7 +37,14 @@ export async function processContent(
   lastHash: string,
   debug?: boolean
 ): Promise<ProcessResult | null> {
+  console.log('DEBUG processContent called with:', { 
+    contentLength: content.length, 
+    lastHash,
+    contentPreview: content.substring(0, 50)
+  });
+  
   if (content.trim() === '') {
+    console.log('DEBUG: Empty content, returning null');
     return null;
   }
 
@@ -49,8 +56,11 @@ export async function processContent(
     return null;
   }
 
+  console.log('DEBUG: Creating Slupe instance...');
   const slupe = await Slupe.create({ gitCommit: false });
+  console.log('DEBUG: Executing content...');
   const orchResult = await slupe.execute(content);
+  console.log('DEBUG: Execution complete, hookErrors:', orchResult.hookErrors);
 
   if (debug) {
     console.log('\n=== DEBUG: Orchestrator Result ===');
