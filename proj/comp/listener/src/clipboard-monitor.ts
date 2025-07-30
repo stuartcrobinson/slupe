@@ -73,25 +73,13 @@ export class ClipboardMonitor {
         const endMatch1 = entry1.content.match(/#!end_([a-zA-Z0-9]+)/);
         const endMatch2 = entry2.content.match(/#!end_([a-zA-Z0-9]+)/);
         
-        if (endMatch1) {
-          const delimiter = endMatch1[1];
-          console.log('Found end delimiter in entry', i, ':', delimiter);
+        if (endMatch1 && endMatch2) {
+          const delimiter1 = endMatch1[1];
+          const delimiter2 = endMatch2[1];
           
-          // Check if other entry has matching start delimiter
-          if (entry2.content.includes(`#!nesl [@three-char-SHA-256: ${delimiter}]`)) {
-            console.log('Found matching start in entry', j);
-            // Return the smaller content (actual NESL command)
-            return entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
-          }
-        }
-        
-        if (endMatch2) {
-          const delimiter = endMatch2[1];
-          console.log('Found end delimiter in entry', j, ':', delimiter);
-          
-          // Check if other entry has matching start delimiter
-          if (entry1.content.includes(`#!nesl [@three-char-SHA-256: ${delimiter}]`)) {
-            console.log('Found matching start in entry', i);
+          // If both entries have the same end delimiter, they match
+          if (delimiter1 === delimiter2) {
+            console.log('Found matching delimiters:', delimiter1);
             // Return the smaller content (actual NESL command)
             return entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
           }
