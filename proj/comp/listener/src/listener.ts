@@ -1,12 +1,12 @@
 import { readFile } from 'fs/promises';
 import { dirname, join } from 'path';
-// import clipboard from 'clipboardy';
 
 import type { ListenerConfig, ListenerHandle, ListenerState } from './types.js';
 import { ListenerError } from './errors.js';
 import { processContent } from './content-processor.js';
 import { FileWatcher } from './file-watcher.js';
 import { writeOutputs } from './output-writer.js';
+import { ClipboardMonitor } from './clipboard-monitor.js';
 
 // possible design issue/problem: we're passing the full content through multiple layers just to write it back. The stripped content would be better, but processContent doesn't return it.
 
@@ -111,11 +111,21 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
   await processHandler();
   // console.log('DEBUG: Initial processing complete');
 
+  // Start clipboard monitoring if enabled
+  let clipboardMonitor: ClipboardMonitor | undefined;
+  if (config.useClipboard) {
+    clipboardMonitor = new ClipboardMonitor(config.filePath);
+    clipboardMonitor.start();
+  }
+
   const handle: ListenerHandle = {
     id: generateId(),
     filePath: config.filePath,
     stop: async () => {
       watchHandle.stop();
+      if (clipboardMonitor) {
+        clipboardMonitor.stop();
+      }
       activeListeners.delete(config.filePath);
     }
   };
