@@ -42,14 +42,14 @@ The system monitors clipboard changes and looks for paired clipboard entries tha
 ### inputs
 
 ```sh
-#!end_a
+#!end_aa
 ```
 
 110
 
 ```sh
 X
-#!end_a
+#!end_aa
 ```
 
 ### output contains
@@ -64,14 +64,14 @@ X
 ### inputs
 
 ```sh
-#!end_a
+#!end_aa
 ```
 
 110
 
 ```sh
 X
-#!end_b
+#!end_bb
 ```
 
 ### output contains
@@ -84,14 +84,14 @@ null
 ### inputs
 
 ```sh
-#!end_a
+#!end_aa
 ```
 
 110
 
 ```sh
 X
-#!end_ab
+#!end_aab
 ```
 
 ### output contains
@@ -105,7 +105,7 @@ null
 ```sh
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-#!end_qx7737fhsid838ww8f9sd723f
+#!end_d748f3s
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
@@ -113,11 +113,11 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 110
 
 ```sh
-#!nesl [@three-char-SHA-256: qx7737fhsid838ww8f9sd723f]
+#!nesl [@three-char-SHA-256: d748f3s]
 action = "file_write"
 path = "/tmp/t_simple_works/2.txt"
 content = "hi"
-#!end_qx7737fhsid838ww8f9sd723f
+#!end_d748f3s
 ```
 
 
@@ -186,23 +186,23 @@ null
 ### inputs
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: n6bgew9849w3]
+#!nesl [@three-char-SHA-256: f73js6]
 action = "file_write"
 path = "/tmp/t_target_copied_first/out.txt"
-content = <<'EOT_n6bgew9849w3'
+content = <<'EOT_f73js6'
 hello
-EOT_n6bgew9849w3
-#!end_n6bgew9849w3
+EOT_f73js6
+#!end_f73js6
 ```
 
 110
 
 ```sh nesl
 lalala
-#!nesl [@three-char-SHA-256: n6bgew9849w3]
+#!nesl [@three-char-SHA-256: f73js6]
 action = "file_read"
 path = "/tmp/t_target_copied_first/out.txt"
-#!end_n6bgew9849w3
+#!end_f73js6
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
