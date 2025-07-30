@@ -1,71 +1,106 @@
-=== SLUPE RESULTS ===
-m9k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts
-n7x ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts
-=== END ===
-Now I see the pattern clearly! Looking at the debug output:
+You're right! Looking at the test, I can see the issue now. The test waits 700ms after starting the listener, but from the debug output, we can see that the `processContent` is being called but the results show:
 
-1. **First test ("stops watching and cleans up")**: Only shows "DEBUG: Read content: initial content" but NO processContent result
-2. **Second test ("allows watching again after stop")**: Shows processContent result with git hook failures
+```
+DEBUG: processContent result: {
+  summary: '=== SLUPE RESULTS ===\ndef ❌ - Hook failed: git commit -m "before ${COMMIT_MSG}"\n...',
+  fullOutput: '=== SLUPE RESULTS ===\n...',
+  ...
+}
+DEBUG: Writing outputs...
+DEBUG: Outputs written
+```
 
-The difference is that the second test is somehow getting git hooks to run, while the first test isn't. This tells me that the two tests are creating `Slupe` instances differently.
+But then the test fails because the file still contains `'initial content'` instead of the expected SLUPE results.
 
-Let me check if there's a difference in how the tests are set up. The issue might be that `Slupe.create()` is picking up a `slupe.yml` config file with git hooks from the project directory in one test but not the other.
+The issue is that `writeOutputs` is being called, but the test is reading the file and finding the original content unchanged. This suggests that either:
 
-Let's add more debug info to see what's happening in processContent:
+1. The write operation hasn't completed when the test reads the file
+2. There's an error in the write operation that's being silently swallowed
+
+Let me fix this by adding better error handling and ensuring the write completes:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: m9k]
+#!nesl [@three-char-SHA-256: fix]
 action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts"
-old_text = <<'EOT_m9k'
-export async function processContent(
-  content: string,
-  lastHash: string,
-  debug?: boolean
-): Promise<ProcessResult | null> {
-  if (content.trim() === '') {
-    return null;
-  }
-EOT_m9k
-new_text = <<'EOT_m9k'
-export async function processContent(
-  content: string,
-  lastHash: string,
-  debug?: boolean
-): Promise<ProcessResult | null> {
-  console.log('DEBUG processContent called with:', { 
-    contentLength: content.length, 
-    lastHash,
-    contentPreview: content.substring(0, 50)
-  });
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts"
+old_text = <<'EOT_fix'
+    console.log('DEBUG: Writing outputs...');
+    await writeOutputs(
+      {
+        inputPath: filePath,
+        outputPath: state.outputPath
+      },
+      result.summary,
+      result.fullOutput,
+      result.originalContent
+    );
+    console.log('DEBUG: Outputs written');
+EOT_fix
+new_text = <<'EOT_fix'
+    console.log('DEBUG: Writing outputs...');
+    try {
+      await writeOutputs(
+        {
+          inputPath: filePath,
+          outputPath: state.outputPath
+        },
+        result.summary,
+        result.fullOutput,
+        result.originalContent
+      );
+      console.log('DEBUG: Outputs written successfully');
+      
+      // Verify the write actually happened
+      const verifyContent = await readFile(filePath, 'utf-8');
+      console.log('DEBUG: Verified file content starts with:', verifyContent.substring(0, 50));
+    } catch (writeError) {
+      console.error('DEBUG: Error writing outputs:', writeError);
+      throw writeError;
+    }
+EOT_fix
+#!end_fix
+```
+
+Now let's also add some debugging to the output-writer to ensure it's actually writing:
+
+```sh nesl
+#!nesl [@three-char-SHA-256: dbg]
+action = "file_replace_text"
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/output-writer.ts"
+old_text = <<'EOT_dbg'
+export async function writeOutputs(
+  paths: OutputPaths,
+  summary: string,
+  fullOutput: string,
+  originalContent: string
+): Promise<void> {
+  await writeFile(paths.outputPath, fullOutput);
   
-  if (content.trim() === '') {
-    console.log('DEBUG: Empty content, returning null');
-    return null;
-  }
-EOT_m9k
-#!end_m9k
+  const updatedContent = summary + '\n' + originalContent;
+  await writeFile(paths.inputPath, updatedContent);
+}
+EOT_dbg
+new_text = <<'EOT_dbg'
+export async function writeOutputs(
+  paths: OutputPaths,
+  summary: string,
+  fullOutput: string,
+  originalContent: string
+): Promise<void> {
+  console.log('DEBUG writeOutputs: Writing to outputPath:', paths.outputPath);
+  await writeFile(paths.outputPath, fullOutput);
+  
+  const updatedContent = summary + '\n' + originalContent;
+  console.log('DEBUG writeOutputs: Writing to inputPath:', paths.inputPath);
+  console.log('DEBUG writeOutputs: Updated content preview:', updatedContent.substring(0, 100));
+  await writeFile(paths.inputPath, updatedContent);
+  console.log('DEBUG writeOutputs: Both writes completed');
+}
+EOT_dbg
+#!end_dbg
 ```
 
-```sh nesl
-#!nesl [@three-char-SHA-256: n7x]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts"
-old_text = <<'EOT_n7x'
-  const slupe = await Slupe.create({ gitCommit: false });
-  const orchResult = await slupe.execute(content);
-EOT_n7x
-new_text = <<'EOT_n7x'
-  console.log('DEBUG: Creating Slupe instance...');
-  const slupe = await Slupe.create({ gitCommit: false });
-  console.log('DEBUG: Executing content...');
-  const orchResult = await slupe.execute(content);
-  console.log('DEBUG: Execution complete, hookErrors:', orchResult.hookErrors);
-EOT_n7x
-#!end_n7x
-```
-
-Now run the test again:
+Now run the test again to see what's happening:
 
 ```bash
 cd /Users/stuart/repos/slupe && npm test -- /Users/stuart/repos/slupe/proj/comp/listener/test/unit/stopListener.test.ts
