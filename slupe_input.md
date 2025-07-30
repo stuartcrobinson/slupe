@@ -1,3 +1,8 @@
+=== SLUPE RESULTS ===
+fix ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
+rev ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/test/unit/stopListener.test.ts
+tst ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/test/unit/stopListener.test.ts
+=== END ===
 You're absolutely right! Increasing wait times is a band-aid solution. Let's look at the core issue.
 
 From the debug output, I can see that for the first test, the file processing isn't happening at all. The key insight is that we're calling `processHandler()` but not awaiting it, so the test might be reading the file before the processing completes.
