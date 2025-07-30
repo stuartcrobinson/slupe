@@ -8,20 +8,60 @@ the following test cases show a series of fenced code blocks separated by number
 ### inputs
 
 ```sh
-#!end_abc
+#!end_a
 ```
 
 110
 
 ```sh
 X
-#!end_abc
+#!end_a
 ```
 
 ### output contains
 ```
-No NESL blocks found
+=== SLUPE RESULTS ===
 ```
+
+
+
+## simplest_fail_1
+
+### inputs
+
+```sh
+#!end_a
+```
+
+110
+
+```sh
+X
+#!end_b
+```
+
+### output contains
+null
+
+
+
+## simplest_fail_2
+
+### inputs
+
+```sh
+#!end_a
+```
+
+110
+
+```sh
+X
+#!end_ab
+```
+
+### output contains
+null
 
 
 ## simple_works
@@ -29,27 +69,27 @@ No NESL blocks found
 ### inputs
 
 ```sh
-#!nesl [@three-char-SHA-256: qx7]
-action = "file_write"
-path = "/tmp/t_simple_works/1.txt"
-content = "hi"
-#!end_qx7
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#!end_qx7737fhsid838ww8f9sd723f
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
 110
 
 ```sh
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-#!end_qx7
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-
+#!nesl [@three-char-SHA-256: qx7737fhsid838ww8f9sd723f]
+action = "file_write"
+path = "/tmp/t_simple_works/2.txt"
+content = "hi"
+#!end_qx7737fhsid838ww8f9sd723f
 ```
+
 
 ### output contains
 ```
-✅ file_write /tmp/t_simple_works/1.txt
+✅ file_write /tmp/t_simple_works/2.txt
 ```
 
 
@@ -58,11 +98,11 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ### inputs
 
 ```sh
-#!nesl [@three-char-SHA-256: b8f]
+#!nesl [@three-char-SHA-256: b8fw34t]
 action = "file_write"
 path = "/tmp/t_simple_fails/1.txt"
 content = "hi"
-#!end_b8f
+#!end_b8fw34t
 ```
 
 110
@@ -70,7 +110,7 @@ content = "hi"
 ```sh
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
-x#!end_b8f
+x#!end_b8fw34t
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
@@ -112,23 +152,23 @@ null
 ### inputs
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: n6b]
+#!nesl [@three-char-SHA-256: n6bgew9849w3]
 action = "file_write"
 path = "/tmp/t_target_copied_first/out.txt"
-content = <<'EOT_n6b'
+content = <<'EOT_n6bgew9849w3'
 hello
-EOT_n6b
-#!end_n6b
+EOT_n6bgew9849w3
+#!end_n6bgew9849w3
 ```
 
 110
 
 ```sh nesl
 lalala
-#!nesl [@three-char-SHA-256: n6b]
+#!nesl [@three-char-SHA-256: n6bgew9849w3]
 action = "file_read"
 path = "/tmp/t_target_copied_first/out.txt"
-#!end_n6b
+#!end_n6bgew9849w3
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
@@ -278,6 +318,7 @@ EOT_34g
 
 
 ```sh nesl
+hey hey hey hey hey hey hey hey 
 ```
 
 197
