@@ -100,6 +100,11 @@ describe('clipboard integration', async () => {
       const inputFile = join(testRepoPath, 'input.md');
       const outputFile = join(testRepoPath, '.slupe-output-latest.txt');
       
+      // Write unique content BEFORE starting monitor
+      const uniqueContent = `unique-${testCase.name}-${Date.now()}`;
+      console.log(`[TEST ${testCase.name}] Writing unique content before monitor start:`, uniqueContent);
+      await clipboard.write(uniqueContent);
+      
       try {
         await mkdir(testDir, { recursive: true });
         await writeFile(inputFile, '');
@@ -109,14 +114,6 @@ describe('clipboard integration', async () => {
           useClipboard: true,
           debounceMs: 100
         });
-        
-        await new Promise(resolve => setTimeout(resolve, 50));
-        
-        // Write unique content to ensure clipboard monitor detects changes
-        const initContent = `init-${testCase.name}-${Date.now()}`;
-        console.log(`\n[TEST ${testCase.name}] Writing init content:`, initContent);
-        await clipboard.write(initContent);
-        await new Promise(resolve => setTimeout(resolve, 30));
         
         console.log(`[TEST ${testCase.name}] Starting to write ${testCase.inputs.length} test inputs`);
         
@@ -194,6 +191,14 @@ describe('clipboard integration', async () => {
           expect(outputExists).toBe(false);
         }
       } finally {
+        // Rewrite unique content before stopping monitor
+        if (handle) {
+          console.log(`[TEST ${testCase.name}] Rewriting unique content before cleanup:`, uniqueContent);
+          await clipboard.write(uniqueContent);
+          await handle.stop();
+          handle = null;
+        }
+        
         await rm(testDir, { recursive: true, force: true }).catch(() => {});
       }
     });

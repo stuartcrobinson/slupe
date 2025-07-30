@@ -3,7 +3,7 @@ import { writeFile } from 'fs/promises';
 
 interface ClipboardEntry {
   content: string;
-  timestamp: number;
+  timestamp: number | null;
 }
 
 export class ClipboardMonitor {
@@ -23,10 +23,16 @@ export class ClipboardMonitor {
   async start(): Promise<void> {
     console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
     
-    // Initialize with current clipboard content to ignore pre-existing content
+    // Initialize with current clipboard content and mark it with null timestamp
     try {
       this.lastClipboardContent = await clipboard.read();
       console.log('[ClipboardMonitor] Initialized with existing clipboard content length:', this.lastClipboardContent.length);
+      
+      // Add pre-existing content with null timestamp
+      if (this.lastClipboardContent) {
+        this.recentChanges.push({ content: this.lastClipboardContent, timestamp: null });
+        console.log('[ClipboardMonitor] Added pre-existing content with null timestamp');
+      }
     } catch (error) {
       console.log('[ClipboardMonitor] Could not read initial clipboard:', error);
       this.lastClipboardContent = '';
@@ -57,9 +63,9 @@ export class ClipboardMonitor {
       const current = await clipboard.read();
       const now = Date.now();
       
-      // Clean old entries (>1800ms)
+      // Clean old entries (>1800ms) but keep null timestamp entries
       const beforeClean = this.recentChanges.length;
-      this.recentChanges = this.recentChanges.filter(e => now - e.timestamp <= 1800);
+      this.recentChanges = this.recentChanges.filter(e => e.timestamp === null || now - e.timestamp <= 1800);
       if (beforeClean !== this.recentChanges.length) {
         console.log(`[ClipboardMonitor] Cleaned ${beforeClean - this.recentChanges.length} old entries`);
       }
@@ -78,7 +84,7 @@ export class ClipboardMonitor {
         console.log(`[ClipboardMonitor] Current entries:`);
         this.recentChanges.forEach((entry, i) => {
           const endMatch = entry.content.match(/#!end_([a-zA-Z0-9]+)/);
-          console.log(`  [${i}] timestamp: ${entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
+          console.log(`  [${i}] timestamp: ${entry.timestamp === null ? 'null' : entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
         });
         
         // Check for matching delimiter pairs
@@ -97,13 +103,18 @@ export class ClipboardMonitor {
   private findMatchingPair(): string | null {
     console.log('[ClipboardMonitor] Checking for matching pairs, entries:', this.recentChanges.length);
     
-    // Look for pairs with matching delimiters
+    // Look for pairs with matching delimiters, skip null timestamp entries
     for (let i = 0; i < this.recentChanges.length; i++) {
       for (let j = 0; j < this.recentChanges.length; j++) {
         if (i === j) continue;
         
         const entry1 = this.recentChanges[i];
         const entry2 = this.recentChanges[j];
+        
+        // Skip entries with null timestamps
+        if (entry1.timestamp === null || entry2.timestamp === null) {
+          continue;
+        }
         
         // Extract delimiter from entries (looking for #!end_xxx)
         const endMatch1 = entry1.content.match(/#!end_([a-zA-Z0-9]+)/);
