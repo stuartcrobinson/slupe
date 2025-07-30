@@ -1,3 +1,6 @@
+=== SLUPE RESULTS ===
+d7g ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts
+=== END ===
 You're absolutely right. Let me diagnose the issue properly. The test is still failing with the same error - the file still contains "initial content" instead of being updated with SLUPE results.
 
 Let me trace through what should happen:
