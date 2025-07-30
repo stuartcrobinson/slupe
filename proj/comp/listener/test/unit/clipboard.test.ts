@@ -106,6 +106,10 @@ describe('clipboard integration', async () => {
         
         await new Promise(resolve => setTimeout(resolve, 50));
         
+        // Write unique content to ensure clipboard monitor detects changes
+        await clipboard.write(`init-${testCase.name}-${Date.now()}`);
+        await new Promise(resolve => setTimeout(resolve, 30));
+        
         for (const input of testCase.inputs) {
           await clipboard.write(input.content);
           if (input.delay) {
