@@ -1,145 +1,99 @@
-You're absolutely right! The issue is that the clipboard monitor is picking up content that was already in the clipboard before the test started. Looking at the code, I can see that `ClipboardMonitor` does track timestamps when it detects changes:
+Good progress! The pre-existing clipboard content is now being ignored (5200 bytes). However, I notice that the test is only detecting the init content but not the actual test clipboard entries. Looking at the logs:
 
-```typescript
-this.recentChanges.push({ content: current, timestamp: now });
-```
+1. ClipboardMonitor initialized and ignored 5200 bytes of pre-existing content ✓
+2. Test writes init content and it's detected ✓
+3. But we don't see any logs for the actual test clipboard entries (the NESL commands)
 
-But it doesn't have any mechanism to mark or ignore pre-existing clipboard content. When the monitor starts, it should:
+The issue might be that the test is writing the clipboard entries too quickly or the polling interval is missing them. Let me check the test timing:
 
-1. Read the current clipboard content
-2. Mark it as "pre-existing" (maybe with a null timestamp or a flag)
-3. Only process content that was copied AFTER the monitor started
+Looking at the test case `valid_target_content_separated_by_empty_clipboard_1`:
+- First NESL content with `#!end_34g`
+- Wait 243ms
+- Copy "hey hey hey hey..."
+- Wait 197ms  
+- Copy second NESL content with `#!end_34g`
 
-Here's how we can fix this:
-
-```sh nesl
-#!nesl [@three-char-SHA-256: p7x]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
-old_text = <<'EOT_p7x'
-export class ClipboardMonitor {
-  private recentChanges: ClipboardEntry[] = [];
-  private lastClipboardContent: string = '';
-  private interval: NodeJS.Timeout | null = null;
-  private filePath: string;
-  private pollInterval: number;
-  private checkCount: number = 0;
-
-  constructor(filePath: string, pollInterval: number = 20) {
-    this.filePath = filePath;
-    this.pollInterval = pollInterval;
-  }
-
-  start(): void {
-    console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
-    this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
-  }
-EOT_p7x
-new_text = <<'EOT_p7x'
-export class ClipboardMonitor {
-  private recentChanges: ClipboardEntry[] = [];
-  private lastClipboardContent: string = '';
-  private interval: NodeJS.Timeout | null = null;
-  private filePath: string;
-  private pollInterval: number;
-  private checkCount: number = 0;
-  private isInitialized: boolean = false;
-
-  constructor(filePath: string, pollInterval: number = 20) {
-    this.filePath = filePath;
-    this.pollInterval = pollInterval;
-  }
-
-  async start(): Promise<void> {
-    console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
-    
-    // Initialize with current clipboard content to ignore pre-existing content
-    try {
-      this.lastClipboardContent = await clipboard.read();
-      console.log('[ClipboardMonitor] Initialized with existing clipboard content length:', this.lastClipboardContent.length);
-    } catch (error) {
-      console.log('[ClipboardMonitor] Could not read initial clipboard:', error);
-      this.lastClipboardContent = '';
-    }
-    
-    this.isInitialized = true;
-    this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
-  }
-EOT_p7x
-#!end_p7x
-```
+But I only see one clipboard change detected after the init content. This suggests the clipboard writes aren't being detected. Let me add more debugging to see what's happening:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: q2m]
+#!nesl [@three-char-SHA-256: v2k]
+action = "file_replace_text"
+path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/clipboard.test.ts"
+old_text = <<'EOT_v2k'
+        for (let idx = 0; idx < testCase.inputs.length; idx++) {
+          const input = testCase.inputs[idx];
+          console.log(`[TEST ${testCase.name}] Writing input ${idx + 1}/${testCase.inputs.length}:`);
+          console.log(`  Length: ${input.content.length}`);
+          console.log(`  Preview: ${input.content.substring(0, 60).replace(/\n/g, '\\n')}...`);
+          console.log(`  Has #!end_: ${input.content.includes('#!end_') ? 'YES' : 'NO'}`);
+          
+          await clipboard.write(input.content);
+          
+          if (input.delay) {
+            console.log(`  Waiting ${input.delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, input.delay));
+          } else {
+            console.log(`  No delay specified, waiting 50ms default...`);
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+        }
+EOT_v2k
+new_text = <<'EOT_v2k'
+        for (let idx = 0; idx < testCase.inputs.length; idx++) {
+          const input = testCase.inputs[idx];
+          console.log(`[TEST ${testCase.name}] Writing input ${idx + 1}/${testCase.inputs.length}:`);
+          console.log(`  Length: ${input.content.length}`);
+          console.log(`  Preview: ${input.content.substring(0, 60).replace(/\n/g, '\\n')}...`);
+          console.log(`  Has #!end_: ${input.content.includes('#!end_') ? 'YES' : 'NO'}`);
+          
+          await clipboard.write(input.content);
+          
+          // Verify the write
+          const written = await clipboard.read();
+          console.log(`  Verified write - length: ${written.length}, matches: ${written === input.content}`);
+          
+          if (input.delay) {
+            console.log(`  Waiting ${input.delay}ms...`);
+            await new Promise(resolve => setTimeout(resolve, input.delay));
+          } else {
+            console.log(`  No delay specified, waiting 50ms default...`);
+            await new Promise(resolve => setTimeout(resolve, 50));
+          }
+        }
+EOT_v2k
+#!end_v2k
+```
+
+Also, I notice the ClipboardMonitor is only logging "Check #6" for the first change. With a 20ms poll interval, it should have done many more checks during the test. Let me add a periodic log to see if it's actually polling:
+
+```sh nesl
+#!nesl [@three-char-SHA-256: w3m]
 action = "file_replace_text"
 path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
-old_text = <<'EOT_q2m'
-  private async checkClipboard(): Promise<void> {
-    this.checkCount++;
-    try {
-      const current = await clipboard.read();
-      const now = Date.now();
-      
-      // Clean old entries (>1800ms)
-      const beforeClean = this.recentChanges.length;
-      this.recentChanges = this.recentChanges.filter(e => now - e.timestamp <= 1800);
-      if (beforeClean !== this.recentChanges.length) {
-        console.log(`[ClipboardMonitor] Cleaned ${beforeClean - this.recentChanges.length} old entries`);
-      }
-      
-      // Only process if clipboard changed
-      if (current !== this.lastClipboardContent) {
-EOT_q2m
-new_text = <<'EOT_q2m'
+old_text = <<'EOT_w3m'
   private async checkClipboard(): Promise<void> {
     if (!this.isInitialized) return;
     
     this.checkCount++;
     try {
-      const current = await clipboard.read();
-      const now = Date.now();
-      
-      // Clean old entries (>1800ms)
-      const beforeClean = this.recentChanges.length;
-      this.recentChanges = this.recentChanges.filter(e => now - e.timestamp <= 1800);
-      if (beforeClean !== this.recentChanges.length) {
-        console.log(`[ClipboardMonitor] Cleaned ${beforeClean - this.recentChanges.length} old entries`);
-      }
-      
-      // Only process if clipboard changed
-      if (current !== this.lastClipboardContent) {
-EOT_q2m
-#!end_q2m
+EOT_w3m
+new_text = <<'EOT_w3m'
+  private async checkClipboard(): Promise<void> {
+    if (!this.isInitialized) return;
+    
+    this.checkCount++;
+    
+    // Log every 10th check to verify polling is happening
+    if (this.checkCount % 10 === 0) {
+      console.log(`[ClipboardMonitor] Polling check #${this.checkCount}`);
+    }
+    
+    try {
+EOT_w3m
+#!end_w3m
 ```
 
-Now we need to update the listener to await the clipboard monitor start:
-
-```sh nesl
-#!nesl [@three-char-SHA-256: r8k]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts"
-old_text = <<'EOT_r8k'
-  // Start clipboard monitoring if enabled
-  let clipboardMonitor: ClipboardMonitor | undefined;
-  if (config.useClipboard) {
-    clipboardMonitor = new ClipboardMonitor(config.filePath);
-    clipboardMonitor.start();
-  }
-EOT_r8k
-new_text = <<'EOT_r8k'
-  // Start clipboard monitoring if enabled
-  let clipboardMonitor: ClipboardMonitor | undefined;
-  if (config.useClipboard) {
-    clipboardMonitor = new ClipboardMonitor(config.filePath);
-    await clipboardMonitor.start();
-  }
-EOT_r8k
-#!end_r8k
-```
-
-This should fix the issue by:
-1. Reading the current clipboard content when the monitor starts
-2. Only processing changes that happen AFTER initialization
-3. Ignoring any pre-existing clipboard content that might contain old NESL commands
-
-The test should now work correctly because the old LLM response with delimiter "x9k" will be ignored as pre-existing content.
+This will help us understand if:
+1. The clipboard writes are actually happening
+2. The monitor is actively polling
+3. Why the changes aren't being detected
