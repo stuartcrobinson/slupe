@@ -141,9 +141,20 @@ describe('clipboard integration', async () => {
           
           await clipboard.write(input.content);
           
-          // Verify the write
-          const written = await clipboard.read();
-          console.log(`  Verified write - length: ${written.length}, matches: ${written === input.content}`);
+          // Poll to verify the write
+          let writeVerified = false;
+          for (let i = 0; i < 50; i++) { // max 500ms
+            const written = await clipboard.read();
+            if (written === input.content) {
+              writeVerified = true;
+              console.log(`  Verified write after ${i * 10}ms - length: ${written.length}`);
+              break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+          if (!writeVerified) {
+            throw new Error(`Failed to verify clipboard write for input ${idx + 1}`);
+          }
           
           if (input.delay) {
             console.log(`  Waiting ${input.delay}ms...`);
@@ -210,6 +221,21 @@ describe('clipboard integration', async () => {
         if (handle) {
           console.log(`[TEST ${testCase.name}] Rewriting unique content before cleanup:`, uniqueContent);
           await clipboard.write(uniqueContent);
+          
+          // Poll to verify cleanup write
+          let cleanupVerified = false;
+          for (let i = 0; i < 50; i++) { // max 500ms
+            const current = await clipboard.read();
+            if (current === uniqueContent) {
+              cleanupVerified = true;
+              console.log(`[TEST ${testCase.name}] Cleanup write verified after ${i * 10}ms`);
+              break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 10));
+          }
+          if (!cleanupVerified) {
+            console.log(`[TEST ${testCase.name}] Warning: Failed to verify cleanup clipboard write`);
+          }
           await handle.stop();
           handle = null;
         }
