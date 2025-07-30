@@ -1,3 +1,7 @@
+=== SLUPE RESULTS ===
+m9k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts
+n7x ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts
+=== END ===
 Now I see the pattern clearly! Looking at the debug output:
 
 1. **First test ("stops watching and cleans up")**: Only shows "DEBUG: Read content: initial content" but NO processContent result
