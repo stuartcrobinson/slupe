@@ -1,4 +1,7 @@
 === SLUPE RESULTS ===
+x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 67)
+=== END ===
+=== SLUPE RESULTS ===
 x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 64)
 === END ===
 === SLUPE RESULTS ===
