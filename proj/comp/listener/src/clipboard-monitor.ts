@@ -47,6 +47,9 @@ export class ClipboardMonitor {
       clearInterval(this.interval);
       this.interval = null;
     }
+    // Clear recent changes to prevent any pending matches
+    this.recentChanges = [];
+    this.isInitialized = false;
   }
 
   private async checkClipboard(): Promise<void> {
@@ -83,7 +86,7 @@ export class ClipboardMonitor {
         // Log all entries with their delimiters
         console.log(`[ClipboardMonitor] Current entries:`);
         this.recentChanges.forEach((entry, i) => {
-          const endMatch = entry.content.match(/#!end_([a-zA-Z0-9]+)/);
+          const endMatch = entry.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
           console.log(`  [${i}] timestamp: ${entry.timestamp === null ? 'null' : entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
         });
         
@@ -117,8 +120,9 @@ export class ClipboardMonitor {
         }
         
         // Extract delimiter from entries (looking for #!end_xxx)
-        const endMatch1 = entry1.content.match(/#!end_([a-zA-Z0-9]+)/);
-        const endMatch2 = entry2.content.match(/#!end_([a-zA-Z0-9]+)/);
+        // Must be at a word boundary (not preceded by alphanumeric)
+        const endMatch1 = entry1.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
+        const endMatch2 = entry2.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
         
         console.log(`[ClipboardMonitor]   Comparing [${i}] and [${j}]:`);
         console.log(`    [${i}] delimiter: ${endMatch1 ? endMatch1[1] : 'none'}`);
