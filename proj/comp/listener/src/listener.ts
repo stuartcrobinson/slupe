@@ -33,7 +33,8 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     const result = await processContent(
       fullContent,
       state.lastExecutedHash,
-      state.debug
+      state.debug,
+      dirname(filePath)
     );
 
     console.log('DEBUG: processContent result:', result);

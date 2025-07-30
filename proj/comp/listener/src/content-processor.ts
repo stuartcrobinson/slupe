@@ -35,7 +35,8 @@ export function stripSummarySection(content: string): string {
 export async function processContent(
   content: string,
   lastHash: string,
-  debug?: boolean
+  debug?: boolean,
+  repoPath?: string
 ): Promise<ProcessResult | null> {
   console.log('DEBUG processContent called with:', { 
     contentLength: content.length, 
@@ -57,7 +58,10 @@ export async function processContent(
   }
 
   console.log('DEBUG: Creating Slupe instance...');
-  const slupe = await Slupe.create({ gitCommit: false });
+  const slupe = await Slupe.create({ 
+    gitCommit: false,
+    repoPath 
+  });
   console.log('DEBUG: Executing content...');
   const orchResult = await slupe.execute(content);
   console.log('DEBUG: Execution complete, hookErrors:', orchResult.hookErrors);
