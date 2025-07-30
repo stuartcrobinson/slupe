@@ -3,6 +3,7 @@ import { readFile, writeFile, mkdir, rm } from 'fs/promises';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { marked } from 'marked';
+import { DEFAULT_SLUPE_YAML } from '../../../config/src/index.js';
 
 
 import { startListener } from '../../src/listener.js';
@@ -170,6 +171,8 @@ describe('listener workflow v2', () => {
     try {
       // Setup
       await mkdir(testDir, { recursive: true });
+      // Write default config to ensure test isolation
+      await writeFile(join(testDir, 'slupe.yml'), DEFAULT_SLUPE_YAML);
       await writeFile(testFile, testCase.initialContent);
 
       // Start listener
