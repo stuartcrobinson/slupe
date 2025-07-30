@@ -38,14 +38,14 @@ export async function processContent(
   debug?: boolean,
   repoPath?: string
 ): Promise<ProcessResult | null> {
-  console.log('DEBUG processContent called with:', { 
-    contentLength: content.length, 
-    lastHash,
-    contentPreview: content.substring(0, 50)
-  });
+  // console.log('DEBUG processContent called with:', { 
+  //   contentLength: content.length, 
+  //   lastHash,
+  //   contentPreview: content.substring(0, 50)
+  // });
   
   if (content.trim() === '') {
-    console.log('DEBUG: Empty content, returning null');
+    // console.log('DEBUG: Empty content, returning null');
     return null;
   }
 
@@ -53,18 +53,18 @@ export async function processContent(
   const hash = computeContentHash(stripped.trim());
 
   if (hash === lastHash) {
-    console.log('DEBUG: Hash unchanged, skipping processing', { hash, lastHash });
+    // console.log('DEBUG: Hash unchanged, skipping processing', { hash, lastHash });
     return null;
   }
 
-  console.log('DEBUG: Creating Slupe instance...');
+  // console.log('DEBUG: Creating Slupe instance...');
   const slupe = await Slupe.create({ 
     gitCommit: false,
     repoPath 
   });
-  console.log('DEBUG: Executing content...');
+  // console.log('DEBUG: Executing content...');
   const orchResult = await slupe.execute(content);
-  console.log('DEBUG: Execution complete, hookErrors:', orchResult.hookErrors);
+  // console.log('DEBUG: Execution complete, hookErrors:', orchResult.hookErrors);
 
   if (debug) {
     console.log('\n=== DEBUG: Orchestrator Result ===');

@@ -1,8 +1,43 @@
 # Clipboard Integration Tests
 
+the following test cases show a series of fenced code blocks separated by numbers.  each block is text that gets added to clipboard, and the numbers are the amount of time in milliseconds before the next item is added to the clipboard ("copied")
+
+
+## simplest
+
+### inputs
+
+```sh nesl
+#!nesl [@three-char-SHA-256: abc]
+action = "file_write"
+path = "/tmp/t_target_copied_first/out.txt"
+content = "hi"
+#!end_abc
+```
+
+110
+
+```sh nesl
+lalala
+#!nesl [@three-char-SHA-256: abc]
+action = "file_read"
+path = "/tmp/t_target_copied_first/out.txt"
+#!end_abc
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+```
+
+### expected
+```
+✅ file_write /tmp/t_target_copied_first/out.txt
+```
+
+
 ## target_copied_first
 
-### first
+### inputs
+
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
 action = "file_write"
@@ -13,20 +48,18 @@ EOT_abc
 #!end_abc
 ```
 
-### second
+110
+
 ```sh nesl
 lalala
 #!nesl [@three-char-SHA-256: abc]
 action = "file_read"
 path = "/tmp/t_target_copied_first/out.txt"
 #!end_abc
-this is the bigger one. gets ignored.
-this is the bigger one. gets ignored.
-this is the bigger one. gets ignored.
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
 ```
-
-### delay
-110
 
 ### expected
 ```
@@ -35,9 +68,11 @@ this is the bigger one. gets ignored.
 
 ## target_copied_second_fast
 
-### first
+### inputs
+
 ```sh nesl
-lalalalala this one is bigger
+lalala
+this clipboard content gets ignored because its the bigger one
 #!nesl [@three-char-SHA-256: xyz]
 action = "file_write"
 path = "/tmp/t_target_copied_second_fast/first.txt"
@@ -47,7 +82,8 @@ EOT_xyz
 #!end_xyz
 ```
 
-### second
+110
+
 ```sh nesl
 #!nesl [@three-char-SHA-256: xyz]
 action = "file_write"
@@ -58,9 +94,6 @@ EOT_xyz
 #!end_xyz
 ```
 
-### delay
-110
-
 ### expected
 ```
 ✅ file_write /tmp/t_target_copied_second_fast/second.txt
@@ -68,7 +101,7 @@ EOT_xyz
 
 ## near_timeout_boundary
 
-### first
+### inputs
 ```sh nesl
 #!nesl [@three-char-SHA-256: def]
 action = "file_write"
@@ -79,9 +112,10 @@ EOT_def
 #!end_def
 ```
 
-### second
+1700
+
 ```sh nesl
-bigger this gets ignored
+this clipboard content gets ignored because its the bigger one
 #!nesl [@three-char-SHA-256: def]
 action = "file_write"
 path = "/tmp/t_near_timeout_boundary/second.txt"
@@ -91,9 +125,6 @@ EOT_def
 #!end_def
 ```
 
-### delay
-1700
-
 ### expected
 ```
 ✅ file_write /tmp/t_near_timeout_boundary/first.txt
@@ -101,7 +132,7 @@ EOT_def
 
 ## exceeds_timeout_no_trigger
 
-### first
+### inputs
 ```sh nesl
 #!nesl [@three-char-SHA-256: ghi]
 action = "file_write"
@@ -112,7 +143,8 @@ EOT_ghi
 #!end_ghi
 ```
 
-### second
+2000
+
 ```sh nesl
 asdifasdfkasdf
 #!nesl [@three-char-SHA-256: ghi]
@@ -124,15 +156,12 @@ EOT_ghi
 #!end_ghi
 ```
 
-### delay
-2000
-
 ### expected
 null
 
 ## mismatched_delimiters_no_trigger
 
-### first
+### inputs
 ```sh nesl
 #!nesl [@three-char-SHA-256: jkl]
 action = "file_write"
@@ -143,7 +172,8 @@ EOT_jkl
 #!end_jkl
 ```
 
-### second
+110
+
 ```sh nesl
 as;doifjsodfij
 #!nesl [@three-char-SHA-256: xyz]
@@ -155,8 +185,137 @@ EOT_xyz
 #!end_xyz
 ```
 
-### delay
-110
+### expected
+null
+
+## valid_target_content_separated_by_empty_clipboard_1
+
+
+```sh nesl
+#!nesl [@three-char-SHA-256: abc]
+action = "file_write"
+path = "/tmp/t_target_copied_first/out.txt"
+content = <<'EOT_abc'
+hello
+EOT_abc
+#!end_abc
+```
+
+243
+
+
+```sh nesl
+```
+
+197
+
+
+```sh nesl
+lalala
+#!nesl [@three-char-SHA-256: abc]
+action = "file_read"
+path = "/tmp/t_target_copied_first/out.txt"
+#!end_abc
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+```
+
+### expected
+```
+✅ file_write /tmp/t_target_copied_first/out.txt
+```
+
+
+## valid_target_content_separated_by_empty_clipboard_2
+
+
+
+```sh nesl
+lalala
+#!nesl [@three-char-SHA-256: abc]
+action = "file_read"
+path = "/tmp/t_target_copied_first/out.txt"
+#!end_abc
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+```
+
+78
+
+
+```sh nesl
+```
+
+87
+
+
+```sh nesl
+hi
+```
+
+124
+
+
+```sh nesl
+#!nesl [@three-char-SHA-256: abc]
+action = "file_write"
+path = "/tmp/t_target_copied_fourth/out.txt"
+content = <<'EOT_abc'
+hello
+EOT_abc
+#!end_abc
+```
+
+
+### expected
+```
+✅ file_write /tmp/t_target_copied_fourth/out.txt
+```
+
+
+## invalid_target_content_separated_by_empty_clipboard_timeout
+
+
+
+```sh nesl
+lalala
+#!nesl [@three-char-SHA-256: abc]
+action = "file_read"
+path = "/tmp/t_target_copied_first/out.txt"
+#!end_abc
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+this clipboard content gets ignored because its the bigger one
+```
+
+700
+
+
+```sh nesl
+```
+
+700
+
+
+```sh nesl
+hi
+```
+
+700
+
+
+```sh nesl
+#!nesl [@three-char-SHA-256: abc]
+action = "file_write"
+path = "/tmp/t_target_copied_fourth/out.txt"
+content = <<'EOT_abc'
+hello
+EOT_abc
+#!end_abc
+```
+
 
 ### expected
 null

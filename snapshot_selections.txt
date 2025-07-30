@@ -1,912 +1,508 @@
-=== START FILE: /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts ===
-import type { ExecutionResult as OrchestratorResult } from '../../orch/src/index.js';
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/listener/test/integration/listener-workflow-v2.test.ts ===
+import { describe, it, expect, beforeAll } from 'vitest';
+import { readFile, writeFile, mkdir, rm } from 'fs/promises';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { marked } from 'marked';
+import { DEFAULT_SLUPE_YAML } from '../../../config/src/index.js';
+
+
+import { startListener } from '../../src/listener.js';
+import type { ListenerHandle } from '../../src/types.js';
+// // At the top of your test file
+// import { test } from 'vitest';
+// test.concurrent = false;
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+interface TestCase {
+  name: string;
+  initialContent: string;
+  newContent: string;
+  expectedPrepended: string;
+  expectedOutput: string;
+}
+
+// Parse test cases from markdown
+async function parseTestCases(): Promise<TestCase[]> {
+  const testDataPath = join(__dirname, '../../test-data/integration/listener-workflow-v2.cases.md');
+  const markdown = await readFile(testDataPath, 'utf-8');
+
+  const tokens = marked.lexer(markdown);
+  const testCases: TestCase[] = [];
+  let currentTest: Partial<TestCase> | null = null;
+  let codeBlockCount = 0;
+
+  for (const token of tokens) {
+    // Test case name (h3)
+    if (token.type === 'heading' && token.depth === 3) {
+      // Save previous test if complete
+      if (currentTest && currentTest.name &&
+        currentTest.initialContent &&
+        currentTest.newContent &&
+        currentTest.expectedPrepended &&
+        currentTest.expectedOutput) {
+        testCases.push(currentTest as TestCase);
+      }
+
+      // Start new test
+      currentTest = { name: token.text };
+      codeBlockCount = 0;
+    }
+
+    // Code blocks - just take them in order, ignoring h4 headers
+    if (token.type === 'code' && currentTest) {
+      const content = token.text;
+      codeBlockCount++;
+
+      switch (codeBlockCount) {
+        case 1:
+          currentTest.initialContent = content;
+          break;
+        case 2:
+          currentTest.newContent = content;
+          break;
+        case 3:
+          currentTest.expectedPrepended = content;
+          break;
+        case 4:
+          currentTest.expectedOutput = content;
+          break;
+      }
+    }
+  }
+
+  // Don't forget the last test case
+  if (currentTest && currentTest.name &&
+    currentTest.initialContent &&
+    currentTest.newContent &&
+    currentTest.expectedPrepended &&
+    currentTest.expectedOutput) {
+    testCases.push(currentTest as TestCase);
+  }
+
+  return testCases;
+}
+
+// Helper to extract test directory name from test case
+function getTestDir(testCaseName: string): string {
+  const safeName = testCaseName.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  return `/tmp/t_listener_${safeName}`;
+}
+
+// Helper to poll for file content change
+async function pollForFileChange(
+  filePath: string,
+  initialContent: string,
+  timeoutMs: number = 1000
+): Promise<string> {
+  const startTime = Date.now();
+  let lastContent = initialContent;
+
+  while (Date.now() - startTime < timeoutMs) {
+    try {
+      const content = await readFile(filePath, 'utf-8');
+      if (content !== lastContent && content.includes('=== SLUPE RESULTS ===')) {
+        return content;
+      }
+      lastContent = content;
+    } catch { }
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
+  throw new Error(`Timeout waiting for file change after ${timeoutMs}ms`);
+}
+
+// Load test cases synchronously for parallel execution
 import { readFileSync } from 'fs';
+const testDataPath = join(__dirname, '../../test-data/integration/listener-workflow-v2.cases.md');
+const markdown = readFileSync(testDataPath, 'utf-8');
+const testCases = parseTestCasesSync(markdown);
 
+function parseTestCasesSync(markdown: string): TestCase[] {
+  const tokens = marked.lexer(markdown);
+  const testCases: TestCase[] = [];
+  let currentTest: Partial<TestCase> | null = null;
+  let codeBlockCount = 0;
 
-export function formatSummary(orchResult: OrchestratorResult): string {
-  const lines = ['=== SLUPE RESULTS ==='];
-
-
-
-  // DEBUG: Log raw orchestrator result for parse errors
-  if (orchResult.parseErrors && orchResult.parseErrors.length > 0) {
-    // console.log('DEBUG: Raw parseErrors:', JSON.stringify(orchResult.parseErrors, null, 2));
-  }
-
-  // Handle hook errors first
-  if (orchResult.hookErrors?.before) {
-    for (const error of orchResult.hookErrors.before) {
-      lines.push(`def ❌ - Hook failed: ${error.command}`);
-      lines.push(`          Error: ${error.error}`);
-      if (error.stderr?.trim()) {
-        lines.push(`          stderr: ${error.stderr.trim()}`);
+  for (const token of tokens) {
+    if (token.type === 'heading' && token.depth === 3) {
+      if (currentTest && currentTest.name &&
+        currentTest.initialContent &&
+        currentTest.newContent &&
+        currentTest.expectedPrepended &&
+        currentTest.expectedOutput) {
+        testCases.push(currentTest as TestCase);
       }
-      if (error.stdout?.trim()) {
-        lines.push(`          stdout: ${error.stdout.trim()}`);
+      currentTest = { name: token.text };
+      codeBlockCount = 0;
+    }
+
+    if (token.type === 'code' && currentTest) {
+      const content = token.text;
+      codeBlockCount++;
+      switch (codeBlockCount) {
+        case 1: currentTest.initialContent = content; break;
+        case 2: currentTest.newContent = content; break;
+        case 3: currentTest.expectedPrepended = content; break;
+        case 4: currentTest.expectedOutput = content; break;
       }
     }
   }
 
-  // Add execution results
-  if (orchResult.results) {
-    for (const result of orchResult.results) {
-      const icon = result.success ? '✅' : '❌';
-      const primaryParam = getPrimaryParamFromResult(result);
-
-      if (result.success) {
-        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam}`.trim());
-      } else {
-        // Debug log for exec failures
-        if (result.action === 'exec' && !result.error) {
-          console.log('DEBUG: Exec failed but no error field:', JSON.stringify(result, null, 2));
-        }
-        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam} - ${getErrorSummary(result.error, result)}`.trim());
-      }
-    }
+  if (currentTest && currentTest.name &&
+    currentTest.initialContent &&
+    currentTest.newContent &&
+    currentTest.expectedPrepended &&
+    currentTest.expectedOutput) {
+    testCases.push(currentTest as TestCase);
   }
 
-  // Add parse errors - group by blockId
-  if (orchResult.parseErrors) {
-    const errorsByBlock = new Map<string, any[]>();
-
-    // Group errors by blockId
-    for (const error of orchResult.parseErrors) {
-      const blockId = error.blockId || 'unknown';
-      if (!errorsByBlock.has(blockId)) {
-        errorsByBlock.set(blockId, []);
-      }
-      errorsByBlock.get(blockId)!.push(error);
-    }
-
-    // Format grouped errors
-    for (const [blockId, errors] of errorsByBlock) {
-      const firstError = errors[0];
-      const action = firstError.action || '-';
-      const lineInfo = firstError.blockStartLine ? ` (line ${firstError.blockStartLine})` : '';
-
-      // Pad action to 10 characters for alignment
-      const paddedAction = action.padEnd(10);
-
-      if (errors.length === 1) {
-        // Single error
-        lines.push(`${blockId} ❌ ${paddedAction} ERROR: ${firstError.message}${lineInfo}`);
-      } else {
-        // Multiple errors - count unique messages
-        const messageCount = new Map<string, number>();
-        for (const error of errors) {
-          const msg = error.message;
-          messageCount.set(msg, (messageCount.get(msg) || 0) + 1);
-        }
-
-        // First line shows total count
-        lines.push(`${blockId} ❌ ${paddedAction} ERROR: ${errors.length} syntax errors${lineInfo}`);
-
-        // Sub-bullets for each unique error type
-        const indent = ' '.repeat(20); // Align with ERROR: column
-        for (const [msg, count] of messageCount) {
-          if (count > 1) {
-            lines.push(`${indent}- ${msg} (${count} occurrences)`);
-          } else {
-            lines.push(`${indent}- ${msg}`);
-          }
-        }
-      }
-    }
-  }
-
-  lines.push('=== END ===');
-  return lines.join('\n');
+  return testCases;
 }
 
-function getPrimaryParamFromResult(result: any): string {
-  if (!result.params) return '';
-  if (result.params.path) return result.params.path;
-  if (result.params.paths) {
-    const paths = result.params.paths.trim().split('\n').filter((p: string) => p.trim());
-    return `(${paths.length} files)`;
-  }
-  if (result.params.pattern) return result.params.pattern;
-  if (result.params.lang) return result.params.lang;
-  if (result.params.old_path) return result.params.old_path;
-  return '';
-}
+describe('listener workflow v2', () => {
 
-function getErrorSummary(error?: string, result?: any): string {
-  // Special handling for exec failures
-  if (result?.action === 'exec' && result?.data?.stderr) {
-    const stderr = result.data.stderr.trim();
-    const lines = stderr.split('\n').filter((l: string) => l.trim());
-    if (lines.length > 0) {
-      // Get last non-empty line as likely error message
-      return lines[lines.length - 1];
-    }
-    if (result.data.exit_code !== undefined) {
-      return `Exit code ${result.data.exit_code}`;
-    }
-  }
-
-  if (!error) return 'Unknown error';
-
-  // Handle non-string errors
-  if (typeof error !== 'string') {
-    return 'Unknown error (non-string)';
-  }
-
-  // Extract key error info
-  if (error.includes('File not found')) return 'File not found';
-  if (error.includes('no such file or directory')) return 'File not found';
-  if (error.includes('Permission denied')) return 'Permission denied';
-  if (error.includes('Output too large')) return error; // Keep full message
-  if (error.includes('TIMEOUT')) return error; // Keep timeout messages
-  if (error.includes('ENOENT')) return error; // Keep command not found
-
-  // For other errors, take first part before details
-  const match = error.match(/^[^:]+:\s*([^'(]+)/);
-  if (match) return match[1]!.trim();
-
-  return error?.split('\n')[0] || 'Unknown error'; // First line only
-}
-
-/**
- * Format file read output in a human-readable way
- */
-function formatFileReadOutput(result: any): string[] {
-  const lines: string[] = [];
-
-  if (result.action === 'file_read') {
-    // Simple file read - data contains { path, content }
-    const path = result.data.path || result.params?.path || 'unknown';
-    lines.push(`=== START FILE: ${path} ===`);
-    lines.push((result.data.content !== undefined ? result.data.content : result.data) || '[empty file]');
-    lines.push(`=== END FILE: ${path} ===`);
-  } else if (result.action === 'file_read_numbered') {
-    // Numbered file read - data contains { path, content } where content has line numbers
-    const path = result.data.path || result.params?.path || 'unknown';
-    lines.push(`=== START FILE: [numbered] ${path} ===`);
-    lines.push((result.data.content !== undefined ? result.data.content : result.data) || '[empty file]');
-    lines.push(`=== END FILE: [numbered] ${path} ===`);
-  } else if (result.action === 'files_read') {
-    // Multiple files read - data contains { paths: string[], content: string[] }
-    // Each element in content array corresponds to the file at the same index in paths
-    if (result.data.paths && result.data.content) {
-      lines.push(`Reading ${result.data.paths.length} files:`);
-
-      // List all files first
-      for (const path of result.data.paths) {
-        lines.push(`- ${path}`);
-      }
-
-      // Add blank line before file contents
-      lines.push('');
-
-      // Format each file's content with START/END markers
-      for (let i = 0; i < result.data.paths.length; i++) {
-        const path = result.data.paths[i];
-        const content = result.data.content[i];
-
-        lines.push(`=== START FILE: ${path} ===`);
-        lines.push(content || '[empty file]');
-        lines.push(`=== END FILE: ${path} ===`);
-
-        // Add blank line between files (except after the last one)
-        if (i < result.data.paths.length - 1) {
-          lines.push('');
-        }
-      }
-    } else {
-      // Fallback for unexpected format
-      lines.push(`Reading 0 files:`);
-    }
-  }
-
-  return lines;
-}
-
-export function formatFullOutput(orchResult: OrchestratorResult): string {
-  const lines = ['=== SLUPE RESULTS ==='];
-
-  // Handle hook errors first
-  if (orchResult.hookErrors?.before) {
-    for (const error of orchResult.hookErrors.before) {
-      // Extract hook command from error message
-      // Format is "command: error message"
-      const match = error.match(/^(.+?):\s*(.+)$/);
-      if (match) {
-        const [, cmd, errorMsg] = match;
-        // Check if errorMsg contains "exit code"
-        if (errorMsg.includes('exit code')) {
-          lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed with ${errorMsg}`);
-        } else {
-          lines.push(`def ❌ -          ERROR: Hook '${cmd}' failed: ${errorMsg}`);
-        }
-      } else {
-        lines.push(`def ❌ -          ERROR: ${error}`);
-      }
-    }
-  }
-
-  // Add execution results
-  if (orchResult.results) {
-    for (const result of orchResult.results) {
-      const icon = result.success ? '✅' : '❌';
-      const primaryParam = getPrimaryParamFromResult(result);
-
-      if (result.success) {
-        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam}`.trim());
-      } else {
-        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam} - ${getErrorSummary(result.error, result)}`.trim());
-      }
-    }
-  }
-
-  // Add parse errors - group by blockId
-  if (orchResult.parseErrors) {
-    const errorsByBlock = new Map<string, any[]>();
-
-    // Group errors by blockId
-    for (const error of orchResult.parseErrors) {
-      const blockId = error.blockId || 'unknown';
-      if (!errorsByBlock.has(blockId)) {
-        errorsByBlock.set(blockId, []);
-      }
-      errorsByBlock.get(blockId)!.push(error);
-    }
-
-    // Format grouped errors
-    for (const [blockId, errors] of errorsByBlock) {
-      const firstError = errors[0];
-      const action = firstError.action || '-';
-      const lineInfo = firstError.blockStartLine ? ` (line ${firstError.blockStartLine})` : '';
-
-      // Pad action to 10 characters for alignment
-      const paddedAction = action.padEnd(10);
-
-      if (errors.length === 1) {
-        // Single error
-        lines.push(`${blockId} ❌ ${paddedAction} ERROR: ${firstError.message}${lineInfo}`);
-      } else {
-        // Multiple errors - count unique messages
-        const messageCount = new Map<string, number>();
-        for (const error of errors) {
-          const msg = error.message;
-          messageCount.set(msg, (messageCount.get(msg) || 0) + 1);
-        }
-
-        // First line shows total count
-        lines.push(`${blockId} ❌ ${paddedAction} ERROR: ${errors.length} syntax errors${lineInfo}`);
-
-        // Sub-bullets for each unique error type
-        const indent = ' '.repeat(20); // Align with ERROR: column
-        for (const [msg, count] of messageCount) {
-          if (count > 1) {
-            lines.push(`${indent}- ${msg} (${count} occurrences)`);
-          } else {
-            lines.push(`${indent}- ${msg}`);
-          }
-        }
-      }
-    }
-  }
-
-  lines.push('=== END ===', '', '=== OUTPUTS ===');
-
-  // Add outputs for successful actions based on output_display rules
-  if (orchResult.results) {
-    for (const result of orchResult.results) {
-      // Special case: show file contents for failed text replacements
-      if (!result.success &&
-        ['file_replace_text', 'file_replace_all_text'].includes(result.action) &&
-        result.error?.includes('not found in file') &&
-        result.params?.path) {
-        lines.push('', `[${result.blockId}] ${result.action} ${result.params.path} (failed - showing file contents):`);
-        try {
-          const content = readFileSync(result.params.path, 'utf-8');
-          lines.push(`=== START FILE: ${result.params.path} ===`);
-          lines.push(content);
-          lines.push(`=== END FILE: ${result.params.path} ===`);
-        } catch (err: any) {
-          lines.push(`[Error reading file: ${err.message}]`);
-        }
-        continue;
-      }
-
-      if (result.data && shouldShowOutput(result.action)) {
-        // Special formatting for failed exec commands
-        if (result.action === 'exec' && !result.success) {
-          lines.push('', `[${result.blockId}] exec ${result.params.lang || 'bash'} (failed):`);
-          lines.push('command:');
-          lines.push(result.data.command || result.params.code || '[command not available]');
-          lines.push('');
-
-          if (result.data.stdout) {
-            lines.push('stdout:');
-            lines.push(result.data.stdout.trimEnd());
-            lines.push('');
-          }
-
-          if (result.data.stderr) {
-            lines.push('stderr:');
-            // Indent stderr content for clarity
-            const stderrLines = result.data.stderr.trimEnd().split('\n');
-            lines.push(...stderrLines.map((line: string) => '  ' + line));
-            lines.push('');
-          }
-
-          if (result.data.exit_code !== undefined) {
-            lines.push(`exit code: ${result.data.exit_code}`);
-          }
-          continue;
-        }
-
-        // Normal formatting for successful actions
-        const primaryParam = getPrimaryParamFromResult(result);
-        // For file read operations, don't include path in header since it's shown in the formatted output
-        const includeParam = !['file_read', 'file_read_numbered', 'files_read'].includes(result.action);
-        const header = (primaryParam && includeParam)
-          ? `[${result.blockId}] ${result.action} ${primaryParam}:`
-          : `[${result.blockId}] ${result.action}:`;
-        lines.push('', header);
-
-        // Special formatting for file read operations
-        if (['file_read', 'file_read_numbered', 'files_read'].includes(result.action)) {
-          const formattedOutput = formatFileReadOutput(result);
-          lines.push(...formattedOutput);
-        } else if (typeof result.data === 'string') {
-          lines.push(result.data.trimEnd());
-        } else if (result.data.stdout !== undefined || result.data.stderr !== undefined) {
-          if (result.data.stdout) {
-            lines.push(`stdout:\n${result.data.stdout.trimEnd()}`);
-          }
-          if (result.data.stderr) {
-            lines.push(`stderr:\n${result.data.stderr.trimEnd()}`);
-          }
-        } else {
-          lines.push(JSON.stringify(result.data, null, 2));
-        }
-      }
-    }
-  }
-
-  lines.push('=== END ===');
-  return lines.join('\n');
-}
-
-function shouldShowOutput(action: string): boolean {
-  // Actions with output_display: never
-  const neverShowOutput = ['file_write', 'file_replace_text', 'file_replace_all_text', 'file_append', 'file_delete', 'file_move', 'dir_create', 'dir_delete'];
-  if (neverShowOutput.includes(action)) {
-    return false;
-  }
-
-  // Actions with output_display: always
-  const alwaysShowOutput = ['file_read', 'file_read_numbered', 'files_read', 'ls', 'grep', 'glob'];
-  if (alwaysShowOutput.includes(action)) {
-    return true;
-  }
-
-  // Actions with output_display: conditional
-  if (action === 'exec') {
-    // Always show output for debugging failed commands
-    return true;
-  }
-
-  // Default to showing output for unknown actions
-  return true;
-}
-
-
-=== END FILE: /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts ===
-
-=== START FILE: /Users/stuart/repos/slupe/proj/comp/orch/src/index.ts ===
-import type { SlupeAction, ParseError } from '../../nesl-action-parser/src/index.js';
-import { parseNeslResponse } from '../../nesl-action-parser/src/index.js';
-import type { FileOpResult } from '../../fs-ops/src/index.js';
-import { FsOpsExecutor } from '../../fs-ops/src/index.js';
-import type { HooksConfig, HookContext, HookError } from '../../hooks/src/index.js';
-import { HooksManager } from '../../hooks/src/index.js';
-import { FsGuard } from '../../fs-guard/src/index.js';
-import { ExecExecutor } from '../../exec/src/index.js';
-
-
-import { loadConfig } from '../../config/src/index.js';
-import type { SlupeConfig } from '../../config/src/index.js';
-import { updateInstructions } from '../../instruct-gen/src/index.js';
-import { ActionDefinitions } from '../../../src/unified-design.js';
-
-export interface ExecutionResult {
-  success: boolean;
-  totalBlocks: number;
-  executedActions: number;
-  results: ActionResult[];
-  parseErrors: ParseError[];
-  fatalError?: string;
-  hookErrors?: {
-    before?: HookError[];
-    after?: HookError[];
-  };
-  debug?: {
-    parseDebug?: any;
-  };
-}
-
-export interface ActionResult {
-  seq: number;
-  blockId: string;
-  action: string;
-  params: Record<string, any>;
-  success: boolean;
-  error?: string;
-  data?: any;
-}
-
-export interface SlupeOptions {
-  repoPath?: string;
-  gitCommit?: boolean;
-  hooks?: HooksConfig;
-  enableHooks?: boolean;
-}
-
-export class Slupe {
-  private constructor(
-    private config: SlupeConfig,
-    private executors: Map<string, (action: SlupeAction) => Promise<FileOpResult>>,
-    private hooksManager: HooksManager | undefined,
-    private repoPath: string
-  ) { }
-
-  static async create(options: SlupeOptions = {}): Promise<Slupe> {
-    const repoPath = options.repoPath || process.cwd();
-
-    // Load configuration
-    const config = await loadConfig(repoPath);
-
-    // Update instructions file if needed
-    await updateInstructions(repoPath, config['allowed-actions']);
-
-    // Initialize executors
-    const executors = await Slupe.initializeExecutors(config, repoPath);
-
-    // Initialize hooks if enabled
-    let hooksManager: HooksManager | undefined;
-    if (options.enableHooks !== false) {
-      if (options.hooks) {
-        // Use provided hooks configuration
-        hooksManager = new HooksManager(options.hooks, undefined, repoPath);
-      } else if (config.hooks) {
-        // Use hooks from loaded config
-        hooksManager = new HooksManager(config.hooks, config.vars, repoPath);
-      }
-    }
-
-    return new Slupe(config, executors, hooksManager, repoPath);
-  }
-
-  /**
-   * Parse and execute all NESL blocks in LLM output
-   * Executes all valid actions sequentially, collecting both successes and failures
-   */
-  async execute(llmOutput: string): Promise<ExecutionResult> {
-    const hookErrors: ExecutionResult['hookErrors'] = {};
+  // Use it.each to create separate test for each test case
+  it.concurrent.each(testCases)('$name', async (testCase) => {
+    let handle: ListenerHandle | null = null;
+    const testDir = getTestDir(testCase.name);
+    const testFile = join(testDir, 'test.txt');
+    const outputFile = join(testDir, '.slupe-output-latest.txt');
 
     try {
+      // Setup
+      await mkdir(testDir, { recursive: true });
+      // Write default config to ensure test isolation
+      await writeFile(join(testDir, 'slupe.yml'), DEFAULT_SLUPE_YAML);
+      await writeFile(testFile, testCase.initialContent);
 
-      // Run before hooks
-      if (this.hooksManager) {
-        try {
-          const beforeResult = await this.hooksManager.runBefore();
-          if (!beforeResult.success) {
-            // Before hook failure is fatal
-            return {
-              success: false,
-              totalBlocks: 0,
-              executedActions: 0,
-              results: [],
-              parseErrors: [],
-              hookErrors: {
-                before: beforeResult.errors || [{command: 'unknown', error: 'Unknown before hook error'}]
-              },
-              fatalError: 'Before hooks failed - aborting execution'
-            };
-          }
-        } catch (error) {
-          return {
-            success: false,
-            totalBlocks: 0,
-            executedActions: 0,
-            results: [],
-            parseErrors: [],
-            fatalError: `Before hooks threw unexpected error: ${error instanceof Error ? error.message : String(error)}`
-          };
-        }
+      // Start listener
+      handle = await startListener({
+        filePath: testFile,
+        debounceMs: 100,
+        useClipboard: false
+      });
+
+      // Wait for initial processing
+      await pollForFileChange(testFile, testCase.initialContent);
+
+      // Wait for debounce to settle
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Write new content
+      await writeFile(testFile, testCase.newContent);
+
+      // Wait for processing to complete
+      await pollForFileChange(testFile, testCase.newContent);
+
+      // Wait a bit more for clipboard and output file writes
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      // Read actual results
+      const actualPrepended = await readFile(testFile, 'utf-8');
+      const actualOutput = await readFile(outputFile, 'utf-8');
+
+      // Compare results (exact match)
+      expect(actualPrepended).toBe(testCase.expectedPrepended);
+      expect(actualOutput).toBe(testCase.expectedOutput);
+
+    } finally {
+      // Cleanup
+      if (handle) {
+        await handle.stop();
       }
-
-      // Parse NESL blocks
-      const parseResult = await parseNeslResponse(llmOutput);
-
-      // Debug info captured in parseResult.debug
-
-      // Execute each valid action sequentially
-      const results: ActionResult[] = [];
-      let seq = 1;
-
-      for (const action of parseResult.actions) {
-        const result = await this.executeAction(action, seq++);
-        results.push(result);
-      }
-
-      // Calculate execution success (before considering after hooks)
-      const allActionsSucceeded = results.every(r => r.success);
-      const noParseErrors = parseResult.errors.length === 0;
-      const executionSuccess = allActionsSucceeded && noParseErrors;
-
-      // Run after hooks with context
-      if (this.hooksManager) {
-        try {
-          // Build rich context for hooks
-          const modifiedFiles = new Set<string>();
-          const operations: string[] = [];
-          const errors: string[] = [];
-
-          for (const result of results) {
-            if (result.action.startsWith('file_') && result.params.path) {
-              modifiedFiles.add(result.params.path);
-            }
-
-            operations.push(`${result.action}${result.success ? '' : ' (failed)'}`);
-
-            if (!result.success && result.error) {
-              errors.push(`${result.action}: ${result.error}`);
-            }
-          }
-
-          const afterContext: HookContext = {
-            success: executionSuccess,
-            executedActions: results.length,
-            totalBlocks: parseResult.summary.totalBlocks,
-            modifiedFiles: Array.from(modifiedFiles).join(','),
-            operations: operations.join(','),
-            errors: errors.join('; '),
-            errorCount: errors.length
-          };
-
-          const afterResult = await this.hooksManager.runAfter(afterContext);
-          if (!afterResult.success) {
-            // After hook failure affects overall success
-            hookErrors.after = afterResult.errors || [{command: 'unknown', error: 'Unknown after hook error'}];
-          }
-        } catch (error) {
-          // After hook unexpected errors also affect success
-          hookErrors.after = [{
-            command: 'after hooks',
-            error: `After hooks threw unexpected error: ${error instanceof Error ? error.message : String(error)}`
-          }];
-        }
-      }
-
-      return {
-        success: executionSuccess && !hookErrors.after, // After hook errors affect overall success
-        totalBlocks: parseResult.summary.totalBlocks,
-        executedActions: results.length,
-        results,
-        parseErrors: parseResult.errors,
-        ...(Object.keys(hookErrors).length > 0 && { hookErrors }),
-        debug: {
-          parseDebug: parseResult.debug
-        }
-      };
-
-    } catch (error) {
-      // Only truly unexpected errors should reach here
-      return {
-        success: false,
-        totalBlocks: 0,
-        executedActions: 0,
-        results: [],
-        parseErrors: [],
-        fatalError: `Unexpected error in execute: ${error instanceof Error ? error.message : String(error)}`
-      };
+      await rm(testDir, { recursive: true, force: true });
     }
+  }, 10000); // Increase timeout for integration tests
+});
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/listener/test/integration/listener-workflow-v2.test.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts ===
+import { Slupe } from '../../orch/src/index.js';
+import { formatSummary, formatFullOutput } from './formatters.js';
+import { computeContentHash } from './utils.js';
+
+export interface ProcessResult {
+  summary: string;
+  fullOutput: string;
+  hash: string;
+  originalContent: string;
+  executedActions?: number;
+  errors?: any[];
+}
+
+export function stripSummarySection(content: string): string {
+  const startMarker = '=== SLUPE RESULTS ===';
+  const endMarker = '=== END ===';
+  
+  // Check if content starts with a SLUPE results section (with some tolerance for leading content)
+  const startIndex = content.indexOf(startMarker);
+  if (startIndex === -1 || startIndex > 100) {
+    // No SLUPE section at the beginning of file
+    return content;
   }
-
-
-
-  /**
-   * Initialize action executors with configuration
-   */
-  private static async initializeExecutors(config: SlupeConfig, repoPath: string): Promise<Map<string, (action: SlupeAction) => Promise<FileOpResult>>> {
-
-    // Create fs-guard with config (loadConfig ensures fs-guard section always exists)
-    const fsGuard = new FsGuard(config['fs-guard'], repoPath);
-
-    // Create executors
-    const fsOps = new FsOpsExecutor(fsGuard);
-    const exec = new ExecExecutor();
-
-    // Build routing table from TypeScript definitions
-    const executors = new Map<string, (action: SlupeAction) => Promise<FileOpResult>>();
-    const validActions = new Set<string>();
-
-    for (const [actionName, actionDef] of Object.entries(ActionDefinitions)) {
-      validActions.add(actionName);
-      const executorName = (actionDef as any).executor || Slupe.inferExecutor(actionName, actionDef);
-
-      switch (executorName) {
-        case 'fs-ops':
-          executors.set(actionName, (action) => fsOps.execute(action));
-          break;
-        case 'exec':
-          executors.set(actionName, (action) => exec.execute(action));
-          break;
-        // Skip unimplemented executors
-        case 'context':
-        case 'git':
-          break;
-        default:
-          console.warn(`Unknown executor: ${executorName} for action: ${actionName}`);
-      }
-    }
-
-    // Validate allowed-actions against actual available tools
-    for (const tool of config['allowed-actions']) {
-      if (!validActions.has(tool)) {
-        throw new Error(`Invalid action in allowed-actions: '${tool}'. Valid actions: ${Array.from(validActions).join(', ')}`);
-      }
-    }
-
-    return executors;
+  
+  // Find the corresponding END marker after the start
+  const endIndex = content.indexOf(endMarker, startIndex);
+  if (endIndex === -1) {
+    return content; // Malformed section, keep content as-is
   }
+  
+  // Return content after the END marker, trimming leading whitespace
+  return content.slice(endIndex + endMarker.length).trimStart();
+}
 
-  /**
-   * Infer executor from action name/type when not explicitly defined
-   * Temporary fallback until all YAML entries have executor field
-   */
-  private static inferExecutor(actionName: string, _actionDef: any): string | null {
-    // File/dir operations go to fs-ops
-    if (actionName.startsWith('file_') || actionName.startsWith('files_') ||
-      actionName.startsWith('dir_') || ['ls', 'grep', 'glob'].includes(actionName)) {
-      return 'fs-ops';
-    }
-
-    // Exec operations
-    if (actionName === 'exec') {
-      return 'exec';
-    }
-
-    // Context operations (future)
-    if (actionName.startsWith('context_')) {
-      return 'context';
-    }
-
-    // Git operations (future)
-    if (actionName.startsWith('git_') || actionName === 'undo') {
-      return 'git';
-    }
-
+export async function processContent(
+  content: string,
+  lastHash: string,
+  debug?: boolean,
+  repoPath?: string
+): Promise<ProcessResult | null> {
+  console.log('DEBUG processContent called with:', { 
+    contentLength: content.length, 
+    lastHash,
+    contentPreview: content.substring(0, 50)
+  });
+  
+  if (content.trim() === '') {
+    console.log('DEBUG: Empty content, returning null');
     return null;
   }
 
-  /**
-   * Execute a single action and format the result
-   * Never throws - all errors returned in ActionResult
-   */
-  private async executeAction(action: SlupeAction, seq: number): Promise<ActionResult> {
-    if (!this.config['allowed-actions'].includes(action.action)) {
-      return {
-        seq,
-        blockId: action.metadata.blockId,
-        action: action.action,
-        params: action.parameters,
-        success: false,
-        error: `Action '${action.action}' is not in allowed-actions list (${this.config['allowed-actions']})`
-      };
+  const stripped = stripSummarySection(content);
+  const hash = computeContentHash(stripped.trim());
+
+  if (hash === lastHash) {
+    console.log('DEBUG: Hash unchanged, skipping processing', { hash, lastHash });
+    return null;
+  }
+
+  console.log('DEBUG: Creating Slupe instance...');
+  const slupe = await Slupe.create({ 
+    gitCommit: false,
+    repoPath 
+  });
+  console.log('DEBUG: Executing content...');
+  const orchResult = await slupe.execute(content);
+  console.log('DEBUG: Execution complete, hookErrors:', orchResult.hookErrors);
+
+  if (debug) {
+    console.log('\n=== DEBUG: Orchestrator Result ===');
+    console.log('Executed actions:', orchResult.executedActions);
+    console.log('Results:', orchResult.results?.length || 0);
+    console.log('Parse errors:', orchResult.parseErrors?.length || 0);
+    if (orchResult.parseErrors && orchResult.parseErrors.length > 0) {
+      console.log('Raw parseErrors:', JSON.stringify(orchResult.parseErrors, null, 2));
     }
 
-    const executor = this.executors.get(action.action);
-
-    if (!executor) {
-      return {
-        seq,
-        blockId: action.metadata.blockId,
-        action: action.action,
-        params: action.parameters,
-        success: false,
-        error: `Unknown action: ${action.action}`
-      };
-    }
-
-    try {
-      // Add default cwd for exec actions if not specified
-      const enhancedAction = action.action === 'exec' && !action.parameters.cwd
-        ? { ...action, parameters: { ...action.parameters, cwd: this.repoPath } }
-        : action;
-
-      const result = await executor(enhancedAction);
-
-      const actionResult = {
-        seq,
-        blockId: action.metadata.blockId,
-        action: action.action,
-        params: action.parameters,
-        success: result.success,
-        ...(result.error && { error: result.error }),
-        ...(result.data !== undefined && { data: result.data }),
-        // Include exec-specific fields at top level
-        ...(action.action === 'exec' && {
-          data: {
-            stdout: (result as any).stdout,
-            stderr: (result as any).stderr,
-            exit_code: (result as any).exit_code,
-            command: action.parameters.code
-          }
-        })
-      };
-
-      // Debug exec errors
-      if (action.action === 'exec' && !result.success) {
-        console.log('DEBUG: Exec failed in orchestrator:', result);
+    if (orchResult.debug?.parseDebug) {
+      const pd = orchResult.debug.parseDebug;
+      console.log('\n--- Parse Debug ---');
+      console.log('Input:', pd.rawInput);
+      console.log('Parse result:', {
+        blocks: pd.rawParseResult?.blocks?.length || 0,
+        errors: pd.rawParseResult?.errors?.length || 0
+      });
+      if (pd.rawParseResult?.errors?.length > 0) {
+        console.log('Nesl-js errors:', JSON.stringify(pd.rawParseResult.errors, null, 2));
       }
-
-      return actionResult;
-
-    } catch (error) {
-      // Executors should never throw, but handle just in case
-      return {
-        seq,
-        blockId: action.metadata.blockId,
-        action: action.action,
-        params: action.parameters,
-        success: false,
-        error: `Unexpected executor error: ${error instanceof Error ? error.message : String(error)}`
-      };
     }
-  }
-}
-=== END FILE: /Users/stuart/repos/slupe/proj/comp/orch/src/index.ts ===
-
-=== START FILE: /Users/stuart/repos/slupe/proj/comp/hooks/src/index.ts ===
-import { promisify } from 'util';
-import { exec } from 'child_process';
-import { interpolateCommand } from './interpolateCommand.js';
-import { validateCommand } from './validateCommand.js';
-import { formatHookResult } from './formatHookResult.js';
-import type { CommandResult } from './types.js';
-
-// Public types
-export interface HooksConfig {
-  version?: number;
-  before?: Command[];
-  after?: Command[];
-  vars?: Record<string, string>;
-}
-
-export interface Command {
-  run: string;
-  continueOnError?: boolean;
-  timeout?: number;
-  cwd?: string;
-}
-
-export interface HookContext {
-  [key: string]: string | number | boolean;
-}
-
-export interface HookError {
-  command: string;
-  error: string;
-  stdout?: string;
-  stderr?: string;
-}
-
-export interface HookResult {
-  success: boolean;
-  executed: number;
-  errors?: HookError[];
-}
-
-// Promisified exec
-const execAsync = promisify(exec);
-
-// Main class
-export class HooksManager {
-  private config: HooksConfig;
-  private vars: Record<string, string>;
-  private repoPath: string;
-
-  constructor(config?: HooksConfig, vars?: Record<string, string>, repoPath?: string) {
-    this.config = config || {};
-    this.vars = vars || {};
-    this.repoPath = repoPath || process.cwd();
+    console.log('=== END DEBUG ===\n');
   }
 
-  async runBefore(context?: HookContext): Promise<HookResult> {
-    const commands = this.config.before || [];
-    return this.runCommands(commands, context);
-  }
+  const summary = formatSummary(orchResult);
+  const fullOutput = await formatFullOutput(orchResult);
 
-  async runAfter(context?: HookContext): Promise<HookResult> {
-    const commands = this.config.after || [];
-    return this.runCommands(commands, context);
-  }
+  return {
+    summary,
+    fullOutput,
+    hash,
+    originalContent: content,
+    executedActions: orchResult.executedActions,
+    errors: orchResult.parseErrors
+  };
+}
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts ===
 
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/listener/src/types.ts ===
+export interface ListenerConfig {
+  filePath: string;
+  debounceMs?: number;
+  outputFilename?: string;
+  debug?: boolean;
+  useClipboard?: boolean;
+}
 
+export interface ListenerHandle {
+  id: string;
+  filePath: string;
+  stop: () => Promise<void>;
+}
 
-  private async runCommands(commands: Command[], context?: HookContext): Promise<HookResult> {
-    const results: CommandResult[] = [];
+export interface ListenerState {
+  lastExecutedHash: string;
+  isProcessing: boolean;
+  outputPath: string;
+  inputPath: string;
+  actionSchema?: Map<string, ActionDefinition>;
+  debug?: boolean;
+  useClipboard: boolean;
+  clipboardMonitor?: {
+    lastEntry: { content: string; timestamp: number } | null;
+    interval: NodeJS.Timeout | null;
+  };
+}
 
-    for (const cmd of commands) {
+export interface ActionDefinition {
+  type: 'read' | 'write' | 'meta' | 'git' | 'dynamic';
+  description: string;
+  output_display?: 'always' | 'never' | 'conditional';
+  primary_param?: string;
+  parameters: Record<string, ParameterDef>;
+  returns: Record<string, any>;
+}
+
+export interface ParameterDef {
+  type: string;
+  required: boolean;
+  format?: string;
+  values?: string[];
+  default?: any;
+}
+
+export interface SizeCheckResult {
+  valid: boolean;
+  totalSize: number;
+  errors: any[]; // ExecutionResult[] but avoiding circular dependency
+}
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/listener/src/types.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/orch/test/execute.test.ts ===
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { readFileSync, existsSync, rmSync, mkdtempSync } from 'fs';
+import { join, dirname } from 'path';
+import { fileURLToPath } from 'url';
+import { tmpdir } from 'os';
+import { marked, Token } from 'marked';
+import { Slupe } from '../src/index.js';
+import { clearActionSchemaCache } from '../../nesl-action-parser/src/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+const testPath = join(__dirname, '../test-data/execute/basic-operations.md');
+const mdContent = readFileSync(testPath, 'utf8');
+
+const tokens = marked.lexer(mdContent);
+const codeBlocks = tokens.filter(t => t.type === 'code') as Array<Token & { type: 'code', text: string, lang?: string }>;
+const testNames = tokens
+  .filter(t => t.type === 'heading' && 'depth' in t && t.depth === 3)
+  .map(t => (t as any).text as string);
+
+const testFiles = [
+  '/tmp/test.txt',
+  '/tmp/first.txt',
+  '/tmp/second.txt',
+  '/tmp/bad.txt',
+  '/tmp/duplicate.txt',
+  '/tmp/good.txt',
+  '/tmp/does-not-exist.txt',
+  '/tmp/read-test.txt',
+  '/tmp/source-file.txt',
+  '/tmp/destination-file.txt',
+  '/tmp/replace-single.txt',
+  '/tmp/replace-all.txt',
+  '/tmp/multiline.txt',
+  '/tmp/multiple-foo.txt',
+  '/tmp/count-test.txt',
+  '/tmp/move-source.txt',
+  '/tmp/move-dest.txt',
+  '/tmp/empty-replace.txt',
+  '/tmp/parent-test.txt'
+];
+
+const testDirs = [
+  '/tmp/new',
+  '/tmp/007-file-move-success',
+  '/tmp/016-file-move-creates-parent-dirs',
+  '/tmp/017-files-read-multiple',
+  '/tmp/018-files-read-with-missing'
+];
+
+describe('Slupe.execute()', () => {
+  let slupe: Slupe;
+  let testRepoPath: string;
+
+  beforeEach(async () => {
+    // Clear the action schema cache to pick up latest definitions
+    clearActionSchemaCache();
+    
+    // Create isolated test directory
+    testRepoPath = mkdtempSync(join(tmpdir(), 'slupe-test-'));
+    
+    // Create Slupe instance with isolated repo path
+    slupe = await Slupe.create({ 
+      repoPath: testRepoPath,
+      enableHooks: false  // Explicitly disable hooks for these tests
+    });
+    
+    // Clean up files
+    for (const path of testFiles) {
       try {
-        // Interpolate variables
-        const interpolatedCmd = interpolateCommand(cmd, this.vars, context);
-
-        // Validate command
-        const validation = validateCommand(interpolatedCmd);
-        if (!validation.valid) {
-          const result: CommandResult = {
-            command: cmd.run,
-            success: false,
-            error: validation.error || 'Invalid command'
-          };
-          results.push(result);
-
-          if (!cmd.continueOnError) {
-            break;
-          }
-          continue;
-        }
-
-        // Execute command
-        const result = await this.executeCommand(interpolatedCmd);
-
-        results.push({
-          command: cmd.run,
-          ...result
-        });
-
-        if (!result.success && !cmd.continueOnError) {
-          break;
-        }
-      } catch (error: any) {
-        const result: CommandResult = {
-          command: cmd.run,
-          success: false,
-          error: error.message
-        };
-        results.push(result);
-
-        if (!cmd.continueOnError) {
-          break;
-        }
+        if (existsSync(path)) rmSync(path);
+      } catch (err) {
+        // Continue cleanup even if one fails
       }
     }
-
-    return formatHookResult(results);
-  }
-
-  private async executeCommand(cmd: Command): Promise<Omit<CommandResult, 'command'>> {
-    const timeout = cmd.timeout || 30000;
-    const options = {
-      cwd: cmd.cwd || this.repoPath,
-      timeout,
-      encoding: 'utf8' as const,
-      shell: true as any  // Ensure shell interpretation for redirects
-    };
-
-    try {
-      const { stdout, stderr } = await execAsync(cmd.run, options);
-      return {
-        success: true,
-        stdout: stdout || '',
-        stderr: stderr || ''
-      };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: error.message,
-        stdout: error.stdout || '',
-        stderr: error.stderr || ''
-      };
+    // Clean up directories
+    for (const path of testDirs) {
+      try {
+        if (existsSync(path)) rmSync(path, { recursive: true, force: true });
+      } catch (err) {
+        // Continue cleanup even if one fails
+      }
     }
-  }
-}
-=== END FILE: /Users/stuart/repos/slupe/proj/comp/hooks/src/index.ts ===
+  });
+
+  afterEach(() => {
+    // Clean up files
+    for (const path of testFiles) {
+      try {
+        if (existsSync(path)) rmSync(path);
+      } catch (err) {
+        // Continue cleanup even if one fails
+      }
+    }
+    // Clean up directories
+    for (const path of testDirs) {
+      try {
+        if (existsSync(path)) rmSync(path, { recursive: true, force: true });
+      } catch (err) {
+        // Continue cleanup even if one fails
+      }
+    }
+    // Clean up test repo directory
+    try {
+      if (existsSync(testRepoPath)) {
+        rmSync(testRepoPath, { recursive: true, force: true });
+      }
+    } catch (err) {
+      // Continue cleanup even if one fails
+    }
+  });
+
+  testNames.forEach((name, i) => {
+    const baseIndex = i * 2;
+    it(name, async () => {
+      const input = codeBlocks[baseIndex].text;
+      const expected = JSON.parse(codeBlocks[baseIndex + 1].text);
+      const result = await slupe.execute(input);
+
+      // Remove debug field for comparison since test data doesn't include it
+      const { debug, ...resultWithoutDebug } = result;
+      expect(resultWithoutDebug).toEqual(expected);
+    });
+  });
+});
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/orch/test/execute.test.ts ===
 

@@ -26,7 +26,7 @@ describe('fs-guard-debug', () => {
         metadata: { blockId: 'test' }
       });
       
-      console.log('Guard check result:', result);
+      // console.log('Guard check result:', result);
       expect(result.allowed).toBe(true);
       
       // Test with explicit base path instead of process.chdir
@@ -44,7 +44,7 @@ describe('fs-guard-debug', () => {
         metadata: { blockId: 'test' }
       });
       
-      console.log('Guard check result (with explicit base):', result2);
+      // console.log('Guard check result (with explicit base):', result2);
       
       expect(result2.allowed).toBe(true);
     } finally {

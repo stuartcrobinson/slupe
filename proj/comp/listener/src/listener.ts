@@ -4,7 +4,7 @@ import { dirname, join } from 'path';
 
 import type { ListenerConfig, ListenerHandle, ListenerState } from './types.js';
 import { ListenerError } from './errors.js';
-import { processContent, stripSummarySection } from './content-processor.js';
+import { processContent } from './content-processor.js';
 import { FileWatcher } from './file-watcher.js';
 import { writeOutputs } from './output-writer.js';
 
@@ -28,7 +28,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     state.isProcessing = true;
 
     const fullContent = await readFile(filePath, 'utf-8');
-    console.log('DEBUG: Read content:', fullContent);
+    // console.log('DEBUG: Read content:', fullContent);
     
     const result = await processContent(
       fullContent,
@@ -37,14 +37,14 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
       dirname(filePath)
     );
 
-    console.log('DEBUG: processContent result:', result);
+    // console.log('DEBUG: processContent result:', result);
 
     if (!result) {
-      console.log('DEBUG: No result from processContent');
+      // console.log('DEBUG: No result from processContent');
       return;
     }
 
-    console.log('DEBUG: Writing outputs...');
+    // console.log('DEBUG: Writing outputs...');
     try {
       await writeOutputs(
         {
@@ -55,11 +55,11 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
         result.fullOutput,
         result.originalContent
       );
-      console.log('DEBUG: Outputs written successfully');
+      // console.log('DEBUG: Outputs written successfully');
       
       // Verify the write actually happened
-      const verifyContent = await readFile(filePath, 'utf-8');
-      console.log('DEBUG: Verified file content starts with:', verifyContent.substring(0, 50));
+      // const verifyContent = await readFile(filePath, 'utf-8');
+      // console.log('DEBUG: Verified file content starts with:', verifyContent.substring(0, 50));
     } catch (writeError) {
       console.error('DEBUG: Error writing outputs:', writeError);
       throw writeError;
@@ -107,9 +107,9 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
   );
 
   // Process the file immediately and wait for completion
-  console.log('DEBUG: Processing initial file content');
+  // console.log('DEBUG: Processing initial file content');
   await processHandler();
-  console.log('DEBUG: Initial processing complete');
+  // console.log('DEBUG: Initial processing complete');
 
   const handle: ListenerHandle = {
     id: generateId(),
