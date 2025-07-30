@@ -1,3 +1,7 @@
+=== SLUPE RESULTS ===
+imp ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/test/integration/listener-workflow-v2.test.ts
+cfg ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/test/integration/listener-workflow-v2.test.ts
+=== END ===
 You're absolutely right! We can use the default config that's already defined. Let me check how we can use it:
 
 ```sh nesl
