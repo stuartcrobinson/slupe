@@ -1,3 +1,6 @@
+=== SLUPE RESULTS ===
+x9k ❌ file_replace_text ERROR: Heredoc 'EOT_x9k' not closed before EOF (line 4)
+=== END ===
 You're right, let me add debugging to the clipboard monitor code using NESL:
 
 ```sh nesl
@@ -19,7 +22,8 @@ export class ClipboardMonitor {
 
   start(): void {
     this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
-  }EOT_x9k
+  }
+EOT_ x9k
 new_text = <<'EOT_x9k'
 export class ClipboardMonitor {
   private recentChanges: ClipboardEntry[] = [];
@@ -37,7 +41,8 @@ export class ClipboardMonitor {
   start(): void {
     console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
     this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
-  }EOT_x9k
+  }
+EOT_ x9k
 #!end_x9k
 ```
 
@@ -73,7 +78,8 @@ old_text = <<'EOT_m2p'
     } catch (error) {
       console.error('Clipboard error:', error);
     }
-  }EOT_m2p
+  }
+EOT_ m2p
 new_text = <<'EOT_m2p'
   private async checkClipboard(): Promise<void> {
     this.checkCount++;
@@ -116,7 +122,8 @@ new_text = <<'EOT_m2p'
     } catch (error) {
       console.error('[ClipboardMonitor] Error:', error);
     }
-  }EOT_m2p
+  }
+EOT_ m2p
 #!end_m2p
 ```
 
@@ -156,7 +163,8 @@ old_text = <<'EOT_q7v'
     
     console.log('No matching pairs found');
     return null;
-  }EOT_q7v
+  }
+EOT_ q7v
 new_text = <<'EOT_q7v'
   private findMatchingPair(): string | null {
     console.log('[ClipboardMonitor] Checking for matching pairs, entries:', this.recentChanges.length);
@@ -197,7 +205,8 @@ new_text = <<'EOT_q7v'
     
     console.log('[ClipboardMonitor] No matching pairs found');
     return null;
-  }EOT_q7v
+  }
+EOT_ q7v
 #!end_q7v
 ```
 
@@ -219,7 +228,8 @@ old_text = <<'EOT_h3f'
           if (input.delay) {
             await new Promise(resolve => setTimeout(resolve, input.delay));
           }
-        }EOT_h3f
+        }
+EOT_ h3f
 new_text = <<'EOT_h3f'
         await new Promise(resolve => setTimeout(resolve, 50));
         
@@ -245,7 +255,8 @@ new_text = <<'EOT_h3f'
             console.log(`  No delay specified, waiting 50ms default...`);
             await new Promise(resolve => setTimeout(resolve, 50));
           }
-        }EOT_h3f
+        }
+EOT_ h3f
 #!end_h3f
 ```
 
