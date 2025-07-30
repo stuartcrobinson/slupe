@@ -1,40 +1,109 @@
-=== SLUPE RESULTS ===
-v8k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
-=== END ===
-Actually, no. I think we're fixing the symptom rather than the root cause. The test is checking if the listener processes content when started, but we're changing what "initial content" means rather than understanding why plain text isn't being processed.
+You're absolutely right. Let me diagnose the issue properly. The test is still failing with the same error - the file still contains "initial content" instead of being updated with SLUPE results.
 
-Let me understand better what the listener is supposed to do with plain text content. Looking at the code flow:
+Let me trace through what should happen:
+1. Listener starts and calls `processFileChange` immediately
+2. `processFileChange` reads the file and calls `processContent`
+3. `processContent` should return a result with summary and fullOutput
+4. `writeOutputs` should write the summary + original content back to the file
 
-1. The listener watches a file
-2. When the file changes (or on initial start), it reads the content
-3. It calls `processContent` which:
-   - Strips any existing SLUPE results section
-   - Checks if content changed (via hash)
-   - Executes the content through Slupe
-   - Formats the results
-
-The issue is that when there are no NESL blocks, the orchestrator still returns a valid result with empty actions, and the formatters should still produce a "=== SLUPE RESULTS ===" section (even if it just says no actions were found).
-
-Let me check what happens with empty content in the formatters:
+But the file isn't being updated. Let me add some debugging to understand where the flow is breaking:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: v8k]
+#!nesl [@three-char-SHA-256: d7g]
 action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts"
-old_text = <<'EOT_v8k'
-export function formatSummary(orchResult: OrchestratorResult): string {
-  const lines = ['=== SLUPE RESULTS ==='];
-EOT_v8k
-new_text = <<'EOT_v8k'
-export function formatSummary(orchResult: OrchestratorResult): string {
-  const lines = ['=== SLUPE RESULTS ==='];
-  
-  // If no actions and no errors, indicate that
-  if (!orchResult.results?.length && !orchResult.parseErrors?.length && !orchResult.hookErrors?.before?.length) {
-    lines.push('No NESL blocks found');
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts"
+old_text = <<'EOT_d7g'
+async function processFileChange(filePath: string, state: ListenerState): Promise<void> {
+  if (state.isProcessing) {
+    return;
   }
-EOT_v8k
-#!end_v8k
+
+  try {
+    state.isProcessing = true;
+
+    const fullContent = await readFile(filePath, 'utf-8');
+    
+    const result = await processContent(
+      fullContent,
+      state.lastExecutedHash,
+      state.debug
+    );
+
+    if (!result) {
+      return;
+    }
+
+    await writeOutputs(
+      {
+        inputPath: filePath,
+        outputPath: state.outputPath
+      },
+      result.summary,
+      result.fullOutput,
+      result.originalContent
+    );
+
+    state.lastExecutedHash = result.hash;
+
+  } catch (error) {
+    console.error('listener: Error processing file change:', error);
+  } finally {
+    state.isProcessing = false;
+  }
+}
+EOT_d7g
+new_text = <<'EOT_d7g'
+async function processFileChange(filePath: string, state: ListenerState): Promise<void> {
+  if (state.isProcessing) {
+    console.log('DEBUG: Already processing, skipping');
+    return;
+  }
+
+  try {
+    state.isProcessing = true;
+
+    const fullContent = await readFile(filePath, 'utf-8');
+    console.log('DEBUG: Read content:', fullContent);
+    
+    const result = await processContent(
+      fullContent,
+      state.lastExecutedHash,
+      state.debug
+    );
+
+    console.log('DEBUG: processContent result:', result);
+
+    if (!result) {
+      console.log('DEBUG: No result from processContent');
+      return;
+    }
+
+    console.log('DEBUG: Writing outputs...');
+    await writeOutputs(
+      {
+        inputPath: filePath,
+        outputPath: state.outputPath
+      },
+      result.summary,
+      result.fullOutput,
+      result.originalContent
+    );
+    console.log('DEBUG: Outputs written');
+
+    state.lastExecutedHash = result.hash;
+
+  } catch (error) {
+    console.error('listener: Error processing file change:', error);
+  } finally {
+    state.isProcessing = false;
+  }
+}
+EOT_d7g
+#!end_d7g
 ```
 
-This way, even plain text files will get a SLUPE results section indicating no blocks were found, which is more informative than changing the test data.
+Now let's run the test again to see where it's failing:
+
+```bash
+cd /Users/stuart/repos/slupe && npm test -- /Users/stuart/repos/slupe/proj/comp/listener/test/unit/stopListener.test.ts
+```
