@@ -44,16 +44,25 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     }
 
     console.log('DEBUG: Writing outputs...');
-    await writeOutputs(
-      {
-        inputPath: filePath,
-        outputPath: state.outputPath
-      },
-      result.summary,
-      result.fullOutput,
-      result.originalContent
-    );
-    console.log('DEBUG: Outputs written');
+    try {
+      await writeOutputs(
+        {
+          inputPath: filePath,
+          outputPath: state.outputPath
+        },
+        result.summary,
+        result.fullOutput,
+        result.originalContent
+      );
+      console.log('DEBUG: Outputs written successfully');
+      
+      // Verify the write actually happened
+      const verifyContent = await readFile(filePath, 'utf-8');
+      console.log('DEBUG: Verified file content starts with:', verifyContent.substring(0, 50));
+    } catch (writeError) {
+      console.error('DEBUG: Error writing outputs:', writeError);
+      throw writeError;
+    }
 
     state.lastExecutedHash = result.hash;
 
