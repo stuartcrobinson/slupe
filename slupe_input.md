@@ -1,3 +1,6 @@
+=== SLUPE RESULTS ===
+v8k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
+=== END ===
 Actually, no. I think we're fixing the symptom rather than the root cause. The test is checking if the listener processes content when started, but we're changing what "initial content" means rather than understanding why plain text isn't being processed.
 
 Let me understand better what the listener is supposed to do with plain text content. Looking at the code flow:
