@@ -12,6 +12,7 @@ export class ClipboardMonitor {
   private interval: NodeJS.Timeout | null = null;
   private filePath: string;
   private pollInterval: number;
+  private checkCount: number = 0;
 
   constructor(filePath: string, pollInterval: number = 20) {
     this.filePath = filePath;
@@ -19,6 +20,7 @@ export class ClipboardMonitor {
   }
 
   start(): void {
+    console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
     this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
   }
 
@@ -30,36 +32,50 @@ export class ClipboardMonitor {
   }
 
   private async checkClipboard(): Promise<void> {
+    this.checkCount++;
     try {
       const current = await clipboard.read();
       const now = Date.now();
       
       // Clean old entries (>1800ms)
+      const beforeClean = this.recentChanges.length;
       this.recentChanges = this.recentChanges.filter(e => now - e.timestamp <= 1800);
+      if (beforeClean !== this.recentChanges.length) {
+        console.log(`[ClipboardMonitor] Cleaned ${beforeClean - this.recentChanges.length} old entries`);
+      }
       
       // Only process if clipboard changed
       if (current !== this.lastClipboardContent) {
-        console.log('Clipboard changed, content length:', current.length);
-        console.log('Content preview:', current.substring(0, 100));
+        console.log(`[ClipboardMonitor] Check #${this.checkCount}: Clipboard changed!`);
+        console.log(`  Content length: ${current.length}`);
+        console.log(`  Content preview: ${current.substring(0, 100).replace(/\n/g, '\\n')}`);
+        console.log(`  Recent changes array size: ${this.recentChanges.length} -> ${this.recentChanges.length + 1}`);
         
         this.lastClipboardContent = current;
         this.recentChanges.push({ content: current, timestamp: now });
         
+        // Log all entries with their delimiters
+        console.log(`[ClipboardMonitor] Current entries:`);
+        this.recentChanges.forEach((entry, i) => {
+          const endMatch = entry.content.match(/#!end_([a-zA-Z0-9]+)/);
+          console.log(`  [${i}] timestamp: ${entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
+        });
+        
         // Check for matching delimiter pairs
         const match = this.findMatchingPair();
         if (match) {
-          console.log('Match found! Writing to file:', this.filePath);
+          console.log('[ClipboardMonitor] Match found! Writing to file:', this.filePath);
           await writeFile(this.filePath, match);
           this.recentChanges = [];
         }
       }
     } catch (error) {
-      console.error('Clipboard error:', error);
+      console.error('[ClipboardMonitor] Error:', error);
     }
   }
 
   private findMatchingPair(): string | null {
-    console.log('Checking for matching pairs, entries:', this.recentChanges.length);
+    console.log('[ClipboardMonitor] Checking for matching pairs, entries:', this.recentChanges.length);
     
     // Look for pairs with matching delimiters
     for (let i = 0; i < this.recentChanges.length; i++) {
@@ -73,21 +89,29 @@ export class ClipboardMonitor {
         const endMatch1 = entry1.content.match(/#!end_([a-zA-Z0-9]+)/);
         const endMatch2 = entry2.content.match(/#!end_([a-zA-Z0-9]+)/);
         
+        console.log(`[ClipboardMonitor]   Comparing [${i}] and [${j}]:`);
+        console.log(`    [${i}] delimiter: ${endMatch1 ? endMatch1[1] : 'none'}`);
+        console.log(`    [${j}] delimiter: ${endMatch2 ? endMatch2[1] : 'none'}`);
+        
         if (endMatch1 && endMatch2) {
           const delimiter1 = endMatch1[1];
           const delimiter2 = endMatch2[1];
           
           // If both entries have the same end delimiter, they match
           if (delimiter1 === delimiter2) {
-            console.log('Found matching delimiters:', delimiter1);
+            console.log(`[ClipboardMonitor] Found matching delimiters: ${delimiter1}`);
+            console.log(`  Entry [${i}] length: ${entry1.content.length}`);
+            console.log(`  Entry [${j}] length: ${entry2.content.length}`);
+            const smaller = entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
+            console.log(`  Returning the smaller entry (length ${smaller.length})`);
             // Return the smaller content (actual NESL command)
-            return entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
+            return smaller;
           }
         }
       }
     }
     
-    console.log('No matching pairs found');
+    console.log('[ClipboardMonitor] No matching pairs found');
     return null;
   }
 }

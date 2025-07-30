@@ -107,33 +107,65 @@ describe('clipboard integration', async () => {
         await new Promise(resolve => setTimeout(resolve, 50));
         
         // Write unique content to ensure clipboard monitor detects changes
-        await clipboard.write(`init-${testCase.name}-${Date.now()}`);
+        const initContent = `init-${testCase.name}-${Date.now()}`;
+        console.log(`\n[TEST ${testCase.name}] Writing init content:`, initContent);
+        await clipboard.write(initContent);
         await new Promise(resolve => setTimeout(resolve, 30));
         
-        for (const input of testCase.inputs) {
+        for (let idx = 0; idx < testCase.inputs.length; idx++) {
+          const input = testCase.inputs[idx];
+          console.log(`[TEST ${testCase.name}] Writing input ${idx + 1}/${testCase.inputs.length}:`);
+          console.log(`  Length: ${input.content.length}`);
+          console.log(`  Preview: ${input.content.substring(0, 60).replace(/\n/g, '\\n')}...`);
+          console.log(`  Has #!end_: ${input.content.includes('#!end_') ? 'YES' : 'NO'}`);
+          
           await clipboard.write(input.content);
+          
           if (input.delay) {
+            console.log(`  Waiting ${input.delay}ms...`);
             await new Promise(resolve => setTimeout(resolve, input.delay));
+          } else {
+            console.log(`  No delay specified, waiting 50ms default...`);
+            await new Promise(resolve => setTimeout(resolve, 50));
           }
         }
         
+        console.log(`[TEST ${testCase.name}] Waiting 100ms for processing...`);
         await new Promise(resolve => setTimeout(resolve, 100));
         
         if (testCase.expectedOutput) {
+          console.log(`[TEST ${testCase.name}] Expecting output to contain:`, testCase.expectedOutput);
           const startTime = Date.now();
           let found = false;
+          let lastOutputContent = '';
           
           while (Date.now() - startTime < 1000) {
             try {
               const outputContent = await readFile(outputFile, 'utf-8');
+              lastOutputContent = outputContent;
               if (outputContent.includes(testCase.expectedOutput)) {
                 found = true;
+                console.log(`[TEST ${testCase.name}] Found expected output!`);
                 break;
               }
-            } catch {
+            } catch (e) {
               // Output file might not exist yet
+              console.log(`[TEST ${testCase.name}] Output file not found yet...`);
             }
             await new Promise(resolve => setTimeout(resolve, 25));
+          }
+          
+          if (!found) {
+            console.log(`[TEST ${testCase.name}] FAILED - Expected output not found`);
+            console.log(`  Last output content:`, lastOutputContent);
+            
+            // Also check what's in the input file
+            try {
+              const inputContent = await readFile(inputFile, 'utf-8');
+              console.log(`  Input file content:`, inputContent.substring(0, 200));
+            } catch (e) {
+              console.log(`  Could not read input file:`, e);
+            }
           }
           
           expect(found).toBe(true);
