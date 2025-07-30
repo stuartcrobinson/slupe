@@ -121,6 +121,10 @@ describe('clipboard integration', async () => {
           
           await clipboard.write(input.content);
           
+          // Verify the write
+          const written = await clipboard.read();
+          console.log(`  Verified write - length: ${written.length}, matches: ${written === input.content}`);
+          
           if (input.delay) {
             console.log(`  Waiting ${input.delay}ms...`);
             await new Promise(resolve => setTimeout(resolve, input.delay));

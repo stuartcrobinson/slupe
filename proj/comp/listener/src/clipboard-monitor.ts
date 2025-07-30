@@ -47,6 +47,12 @@ export class ClipboardMonitor {
     if (!this.isInitialized) return;
     
     this.checkCount++;
+    
+    // Log every 10th check to verify polling is happening
+    if (this.checkCount % 10 === 0) {
+      console.log(`[ClipboardMonitor] Polling check #${this.checkCount}`);
+    }
+    
     try {
       const current = await clipboard.read();
       const now = Date.now();
