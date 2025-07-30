@@ -105,9 +105,10 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
     config.debounceMs || 500
   );
 
-  console.log('DEBUG: Calling processHandler for initial processing');
+  // Process the file immediately and wait for completion
+  console.log('DEBUG: Processing initial file content');
   await processHandler();
-  console.log('DEBUG: Initial processHandler complete');
+  console.log('DEBUG: Initial processing complete');
 
   const handle: ListenerHandle = {
     id: generateId(),
