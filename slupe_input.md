@@ -1,3 +1,6 @@
+=== SLUPE RESULTS ===
+z8v ❌ file_write ERROR: Heredoc 'EOT_z8v' not closed before EOF (line 2)
+=== END ===
 ```sh nesl
 #!nesl [@three-char-SHA-256: z8v]
 action = "file_write"
@@ -156,6 +159,6 @@ describe('clipboard integration', async () => {
     });
   }
 });
-EOT_z8v'
+EOT_z8v
 #!end_z8v
 ```
