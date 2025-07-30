@@ -20,6 +20,7 @@ function generateId(): string {
 
 async function processFileChange(filePath: string, state: ListenerState): Promise<void> {
   if (state.isProcessing) {
+    console.log('DEBUG: Already processing, skipping');
     return;
   }
 
@@ -27,6 +28,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     state.isProcessing = true;
 
     const fullContent = await readFile(filePath, 'utf-8');
+    console.log('DEBUG: Read content:', fullContent);
     
     const result = await processContent(
       fullContent,
@@ -34,10 +36,14 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
       state.debug
     );
 
+    console.log('DEBUG: processContent result:', result);
+
     if (!result) {
+      console.log('DEBUG: No result from processContent');
       return;
     }
 
+    console.log('DEBUG: Writing outputs...');
     await writeOutputs(
       {
         inputPath: filePath,
@@ -47,6 +53,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
       result.fullOutput,
       result.originalContent
     );
+    console.log('DEBUG: Outputs written');
 
     state.lastExecutedHash = result.hash;
 
