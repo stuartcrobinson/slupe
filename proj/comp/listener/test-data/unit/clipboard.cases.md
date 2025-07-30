@@ -3,6 +3,40 @@
 the following test cases show a series of fenced code blocks separated by numbers.  each block is text that gets added to clipboard, and the numbers are the amount of time in milliseconds before the next item is added to the clipboard ("copied")
 
 
+# Core Clipboard Monitoring System
+The system monitors clipboard changes and looks for paired clipboard entries that together form a valid NESL command:
+
+1. **Delimiter Matching**: The system looks for matching delimiters in clipboard entries:
+   - First clipboard entry contains an ending delimiter (e.g., `#!end_abc`)
+   - A subsequent clipboard entry contains the matching start delimiter (e.g., `#!nesl [@three-char-SHA-256: abc]`)
+   - The delimiters must have the same identifier (e.g., "abc")
+
+2. **Timing Constraints**: 
+   - There's a 1800ms timeout window between related clipboard entries
+   - If more than 1800ms passes between the first and second entry, no action is triggered
+   - Empty clipboard entries or unrelated content can appear between the two matching entries without breaking the pattern
+
+3. **Content Assembly**:
+   - When matching delimiters are found within the timeout window, the system combines the content
+   - The smaller clipboard entry is used as the "target" (typically contains the actual NESL command)
+   - The larger entry is treated as supplementary and ignored for execution purposes
+
+4. **NESL Execution**:
+   - Once a valid NESL command is assembled, it's executed
+   - Results are displayed with success indicators (e.g., "✅ file_write /path/to/file")
+   - The output includes "=== SLUPE RESULTS ===" header when execution occurs
+
+### Key Behaviors from Test Cases:
+
+1. **Order Independence**: The NESL command parts can be copied in either order - the system identifies which is the actual command based on size
+2. **Robustness**: The system ignores:
+   - Clipboard entries that don't contain matching delimiters
+   - Content after the timeout window
+   - Mismatched delimiter pairs
+3. **Immediate Execution**: As soon as a valid pair is detected, the command executes without waiting for additional clipboard changes
+
+
+
 ## simplest
 
 ### inputs

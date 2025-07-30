@@ -1,41 +1,10 @@
-Looking at the code structure, I'll implement the clipboard monitoring in a separate file to keep `listener.ts` clean. Here's the implementation:
+Let me debug this by adding some logging to understand what's happening. First, let's check the test case more carefully and add debug logging:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: cb1]
-action = "file_write"
+#!nesl [@three-char-SHA-256: db1]
+action = "file_replace_text"
 path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
-content = <<'EOT_cb1'
-import clipboard from 'clipboardy';
-import { writeFile } from 'fs/promises';
-
-interface ClipboardEntry {
-  content: string;
-  timestamp: number;
-}
-
-export class ClipboardMonitor {
-  private recentChanges: ClipboardEntry[] = [];
-  private lastClipboardContent: string = '';
-  private interval: NodeJS.Timeout | null = null;
-  private filePath: string;
-  private pollInterval: number;
-
-  constructor(filePath: string, pollInterval: number = 20) {
-    this.filePath = filePath;
-    this.pollInterval = pollInterval;
-  }
-
-  start(): void {
-    this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
-  }
-
-  stop(): void {
-    if (this.interval) {
-      clearInterval(this.interval);
-      this.interval = null;
-    }
-  }
-
+old_text = <<'EOT_db1'
   private async checkClipboard(): Promise<void> {
     try {
       const current = await clipboard.read();
@@ -60,7 +29,67 @@ export class ClipboardMonitor {
       // Silently ignore clipboard errors
     }
   }
+EOT_db1
+new_text = <<'EOT_db1'
+  private async checkClipboard(): Promise<void> {
+    try {
+      const current = await clipboard.read();
+      const now = Date.now();
+      
+      // Clean old entries (>1800ms)
+      this.recentChanges = this.recentChanges.filter(e => now - e.timestamp <= 1800);
+      
+      // Only process if clipboard changed
+      if (current !== this.lastClipboardContent) {
+        console.log('Clipboard changed, content length:', current.length);
+        console.log('Content preview:', current.substring(0, 100));
+        
+        this.lastClipboardContent = current;
+        this.recentChanges.push({ content: current, timestamp: now });
+        
+        // Check for matching delimiter pairs
+        const match = this.findMatchingPair();
+        if (match) {
+          console.log('Match found! Writing to file:', this.filePath);
+          await writeFile(this.filePath, match);
+          this.recentChanges = [];
+        }
+      }
+    } catch (error) {
+      console.error('Clipboard error:', error);
+    }
+  }
+EOT_db1
+#!end_db1
+```
 
+Let me also check the test case more carefully. Looking at the `simple_works` test case:
+
+First clipboard:
+```
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#!end_qx7737fhsid838ww8f9sd723f
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+```
+
+Second clipboard:
+```
+#!nesl [@three-char-SHA-256: qx7737fhsid838ww8f9sd723f]
+action = "file_write"
+path = "/tmp/t_simple_works/2.txt"
+content = "hi"
+#!end_qx7737fhsid838ww8f9sd723f
+```
+
+I see the issue - the delimiter in this test is much longer than I was expecting! Let me fix the regex pattern:
+
+```sh nesl
+#!nesl [@three-char-SHA-256: db2]
+action = "file_replace_text"
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
+old_text = <<'EOT_db2'
   private findMatchingPair(): string | null {
     // Look for pairs with matching delimiters
     for (let i = 0; i < this.recentChanges.length; i++) {
@@ -95,93 +124,54 @@ export class ClipboardMonitor {
     
     return null;
   }
-}
-EOT_cb1
-#!end_cb1
-```
-
-Now let's update the listener to use it minimally:
-
-```sh nesl
-#!nesl [@three-char-SHA-256: cb2]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts"
-old_text = <<'EOT_cb2'
-import { readFile } from 'fs/promises';
-import { dirname, join } from 'path';
-// import clipboard from 'clipboardy';
-
-import type { ListenerConfig, ListenerHandle, ListenerState } from './types.js';
-import { ListenerError } from './errors.js';
-import { processContent } from './content-processor.js';
-import { FileWatcher } from './file-watcher.js';
-import { writeOutputs } from './output-writer.js';
-EOT_cb2
-new_text = <<'EOT_cb2'
-import { readFile } from 'fs/promises';
-import { dirname, join } from 'path';
-
-import type { ListenerConfig, ListenerHandle, ListenerState } from './types.js';
-import { ListenerError } from './errors.js';
-import { processContent } from './content-processor.js';
-import { FileWatcher } from './file-watcher.js';
-import { writeOutputs } from './output-writer.js';
-import { ClipboardMonitor } from './clipboard-monitor.js';
-EOT_cb2
-#!end_cb2
-```
-
-```sh nesl
-#!nesl [@three-char-SHA-256: cb3]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/listener.ts"
-old_text = <<'EOT_cb3'
-  // Process the file immediately and wait for completion
-  // console.log('DEBUG: Processing initial file content');
-  await processHandler();
-  // console.log('DEBUG: Initial processing complete');
-
-  const handle: ListenerHandle = {
-    id: generateId(),
-    filePath: config.filePath,
-    stop: async () => {
-      watchHandle.stop();
-      activeListeners.delete(config.filePath);
-    }
-  };
-EOT_cb3
-new_text = <<'EOT_cb3'
-  // Process the file immediately and wait for completion
-  // console.log('DEBUG: Processing initial file content');
-  await processHandler();
-  // console.log('DEBUG: Initial processing complete');
-
-  // Start clipboard monitoring if enabled
-  let clipboardMonitor: ClipboardMonitor | undefined;
-  if (config.useClipboard) {
-    clipboardMonitor = new ClipboardMonitor(config.filePath);
-    clipboardMonitor.start();
-  }
-
-  const handle: ListenerHandle = {
-    id: generateId(),
-    filePath: config.filePath,
-    stop: async () => {
-      watchHandle.stop();
-      if (clipboardMonitor) {
-        clipboardMonitor.stop();
+EOT_db2
+new_text = <<'EOT_db2'
+  private findMatchingPair(): string | null {
+    console.log('Checking for matching pairs, entries:', this.recentChanges.length);
+    
+    // Look for pairs with matching delimiters
+    for (let i = 0; i < this.recentChanges.length; i++) {
+      for (let j = 0; j < this.recentChanges.length; j++) {
+        if (i === j) continue;
+        
+        const entry1 = this.recentChanges[i];
+        const entry2 = this.recentChanges[j];
+        
+        // Extract delimiter from entries (looking for #!end_xxx)
+        const endMatch1 = entry1.content.match(/#!end_([a-zA-Z0-9]+)/);
+        const endMatch2 = entry2.content.match(/#!end_([a-zA-Z0-9]+)/);
+        
+        if (endMatch1) {
+          const delimiter = endMatch1[1];
+          console.log('Found end delimiter in entry', i, ':', delimiter);
+          
+          // Check if other entry has matching start delimiter
+          if (entry2.content.includes(`#!nesl [@three-char-SHA-256: ${delimiter}]`)) {
+            console.log('Found matching start in entry', j);
+            // Return the smaller content (actual NESL command)
+            return entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
+          }
+        }
+        
+        if (endMatch2) {
+          const delimiter = endMatch2[1];
+          console.log('Found end delimiter in entry', j, ':', delimiter);
+          
+          // Check if other entry has matching start delimiter
+          if (entry1.content.includes(`#!nesl [@three-char-SHA-256: ${delimiter}]`)) {
+            console.log('Found matching start in entry', i);
+            // Return the smaller content (actual NESL command)
+            return entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
+          }
+        }
       }
-      activeListeners.delete(config.filePath);
     }
-  };
-EOT_cb3
-#!end_cb3
+    
+    console.log('No matching pairs found');
+    return null;
+  }
+EOT_db2
+#!end_db2
 ```
 
-This approach:
-- Keeps all clipboard logic in a separate file
-- Minimal changes to `listener.ts` (just create/start/stop)
-- The clipboard monitor writes directly to the input file, triggering the normal file watcher flow
-- Clean separation of concerns
-
-The only thing left is that the delimiter matching logic in `findMatchingPair` might need refinement based on the exact test case patterns, but this gives us the clean architecture to work with.
+Now run the test again to see what the debug output shows.
