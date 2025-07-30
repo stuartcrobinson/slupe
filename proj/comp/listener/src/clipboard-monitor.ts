@@ -63,9 +63,9 @@ export class ClipboardMonitor {
       const current = await clipboard.read();
       const now = Date.now();
       
-      // Clean old entries (>1800ms) but keep null timestamp entries
+      // Clean old entries (>1800ms) and null timestamp entries
       const beforeClean = this.recentChanges.length;
-      this.recentChanges = this.recentChanges.filter(e => e.timestamp === null || now - e.timestamp <= 1800);
+      this.recentChanges = this.recentChanges.filter(e => e.timestamp !== null && now - e.timestamp <= 1800);
       if (beforeClean !== this.recentChanges.length) {
         console.log(`[ClipboardMonitor] Cleaned ${beforeClean - this.recentChanges.length} old entries`);
       }
