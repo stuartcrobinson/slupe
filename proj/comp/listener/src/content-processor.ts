@@ -45,6 +45,7 @@ export async function processContent(
   const hash = computeContentHash(stripped.trim());
 
   if (hash === lastHash) {
+    console.log('DEBUG: Hash unchanged, skipping processing', { hash, lastHash });
     return null;
   }
 
