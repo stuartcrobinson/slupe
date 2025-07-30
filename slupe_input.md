@@ -1,3 +1,7 @@
+=== SLUPE RESULTS ===
+7x2 ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
+9m4 ✅ file_read /Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts
+=== END ===
 I see the issue. The error occurs because `formatters.ts` is trying to call `.match()` on the `error` property, but hooks now return error objects instead of strings. The code at line 212 expects `error` to be a string, but it's actually a `HookError` object with properties like `command`, `error`, `stdout`, and `stderr`.
 
 Let me fix the `formatFullOutput` function to handle the new hook error structure:
