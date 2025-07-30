@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, test } from 'vitest';
 import { readFile, writeFile, mkdir, rm } from 'fs/promises';
 import { dirname } from 'path';
 import { startListener, stopListener } from '../../src/listener.js';
@@ -29,11 +29,18 @@ export function stopListenerTests() {
     // Start listener
     handle = await startListener({ filePath: testFile });
 
-    // Wait for initial processing to complete
-    await new Promise(resolve => setTimeout(resolve, 700));
+    // Wait for initial processing to complete with polling
+    const startTime = Date.now();
+    let content = '';
+    while (Date.now() - startTime < 2000) {
+      content = await readFile(testFile, 'utf-8');
+      if (content.includes('=== SLUPE RESULTS ===')) {
+        break;
+      }
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
 
     // Check that initial content was processed
-    let content = await readFile(testFile, 'utf-8');
     expect(content).toContain('=== SLUPE RESULTS ===');
 
     // Stop the listener

@@ -97,7 +97,7 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
     inputPath: config.filePath
   };
 
-  const processHandler = () => processFileChange(config.filePath, state);
+  const processHandler = async () => processFileChange(config.filePath, state);
 
   const watchHandle = await fileWatcher.watch(
     config.filePath,
@@ -105,7 +105,9 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
     config.debounceMs || 500
   );
 
-  processHandler();
+  console.log('DEBUG: Calling processHandler for initial processing');
+  await processHandler();
+  console.log('DEBUG: Initial processHandler complete');
 
   const handle: ListenerHandle = {
     id: generateId(),
