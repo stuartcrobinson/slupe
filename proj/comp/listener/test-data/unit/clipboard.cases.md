@@ -7,31 +7,104 @@ the following test cases show a series of fenced code blocks separated by number
 
 ### inputs
 
-```sh nesl
-#!nesl [@three-char-SHA-256: abc]
-action = "file_write"
-path = "/tmp/t_target_copied_first/out.txt"
-content = "hi"
+```sh
 #!end_abc
 ```
 
 110
 
-```sh nesl
-lalala
-#!nesl [@three-char-SHA-256: abc]
-action = "file_read"
-path = "/tmp/t_target_copied_first/out.txt"
+```sh
+X
 #!end_abc
-this clipboard content gets ignored because its the bigger one
-this clipboard content gets ignored because its the bigger one
-this clipboard content gets ignored because its the bigger one
 ```
 
-### expected
+### output contains
 ```
-✅ file_write /tmp/t_target_copied_first/out.txt
+No NESL blocks found
 ```
+
+
+## simple_works
+
+### inputs
+
+```sh
+#!nesl [@three-char-SHA-256: qx7]
+action = "file_write"
+path = "/tmp/t_simple_works/1.txt"
+content = "hi"
+#!end_qx7
+```
+
+110
+
+```sh
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+#!end_qx7
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+```
+
+### output contains
+```
+✅ file_write /tmp/t_simple_works/1.txt
+```
+
+
+## simple_fails
+
+### inputs
+
+```sh
+#!nesl [@three-char-SHA-256: b8f]
+action = "file_write"
+path = "/tmp/t_simple_fails/1.txt"
+content = "hi"
+#!end_b8f
+```
+
+110
+
+```sh
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+x#!end_b8f
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+```
+
+### output contains
+null
+
+
+## simple_fails2
+
+### inputs
+
+```sh
+#!nesl [@three-char-SHA-256: as7]
+action = "file_write"
+path = "/tmp/t_simple_fails2/1.txt"
+content = "hi"
+#!end_as7
+```
+
+110
+
+```sh
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+ #!end_as7
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+
+```
+
+### output contains
+null
 
 
 ## target_copied_first
@@ -39,29 +112,29 @@ this clipboard content gets ignored because its the bigger one
 ### inputs
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: abc]
+#!nesl [@three-char-SHA-256: n6b]
 action = "file_write"
 path = "/tmp/t_target_copied_first/out.txt"
-content = <<'EOT_abc'
+content = <<'EOT_n6b'
 hello
-EOT_abc
-#!end_abc
+EOT_n6b
+#!end_n6b
 ```
 
 110
 
 ```sh nesl
 lalala
-#!nesl [@three-char-SHA-256: abc]
+#!nesl [@three-char-SHA-256: n6b]
 action = "file_read"
 path = "/tmp/t_target_copied_first/out.txt"
-#!end_abc
+#!end_n6b
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
 ```
 
-### expected
+### output contains
 ```
 ✅ file_write /tmp/t_target_copied_first/out.txt
 ```
@@ -94,7 +167,7 @@ EOT_xyz
 #!end_xyz
 ```
 
-### expected
+### output contains
 ```
 ✅ file_write /tmp/t_target_copied_second_fast/second.txt
 ```
@@ -125,12 +198,12 @@ EOT_def
 #!end_def
 ```
 
-### expected
+### output contains
 ```
 ✅ file_write /tmp/t_near_timeout_boundary/first.txt
 ```
 
-## exceeds_timeout_no_trigger
+## exceeds_1800_timeout_no_trigger
 
 ### inputs
 ```sh nesl
@@ -143,7 +216,7 @@ EOT_ghi
 #!end_ghi
 ```
 
-2000
+1850
 
 ```sh nesl
 asdifasdfkasdf
@@ -156,7 +229,7 @@ EOT_ghi
 #!end_ghi
 ```
 
-### expected
+### output contains
 null
 
 ## mismatched_delimiters_no_trigger
@@ -176,29 +249,29 @@ EOT_jkl
 
 ```sh nesl
 as;doifjsodfij
-#!nesl [@three-char-SHA-256: xyz]
+#!nesl [@three-char-SHA-256: 56d]
 action = "file_write"
 path = "/tmp/t_mismatched_delimiters_no_trigger/different.txt"
-content = <<'EOT_xyz'
+content = <<'EOT_56d'
 different delimiter
-EOT_xyz
-#!end_xyz
+EOT_56d
+#!end_56d
 ```
 
-### expected
+### output contains
 null
 
 ## valid_target_content_separated_by_empty_clipboard_1
 
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: abc]
+#!nesl [@three-char-SHA-256: 34g]
 action = "file_write"
-path = "/tmp/t_target_copied_first/out.txt"
-content = <<'EOT_abc'
+path = "/tmp/t_valid_target_content_separated_by_empty_clipboard_1/1st.txt"
+content = <<'EOT_34g'
 hello
-EOT_abc
-#!end_abc
+EOT_34g
+#!end_34g
 ```
 
 243
@@ -212,18 +285,18 @@ EOT_abc
 
 ```sh nesl
 lalala
-#!nesl [@three-char-SHA-256: abc]
+#!nesl [@three-char-SHA-256: 34g]
 action = "file_read"
-path = "/tmp/t_target_copied_first/out.txt"
-#!end_abc
+path = "/tmp/t_valid_target_content_separated_by_empty_clipboard_1/3rd.txt"
+#!end_34g
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
 ```
 
-### expected
+### output contains
 ```
-✅ file_write /tmp/t_target_copied_first/out.txt
+✅ file_write /tmp/t_valid_target_content_separated_by_empty_clipboard_1/1st.txt
 ```
 
 
@@ -235,7 +308,7 @@ this clipboard content gets ignored because its the bigger one
 lalala
 #!nesl [@three-char-SHA-256: abc]
 action = "file_read"
-path = "/tmp/t_target_copied_first/out.txt"
+path = "/tmp/t_valid_target_content_separated_by_empty_clipboard_2/1st.txt"
 #!end_abc
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
@@ -261,7 +334,7 @@ hi
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
 action = "file_write"
-path = "/tmp/t_target_copied_fourth/out.txt"
+path = "/tmp/t_valid_target_content_separated_by_empty_clipboard_2/4th.txt"
 content = <<'EOT_abc'
 hello
 EOT_abc
@@ -269,21 +342,19 @@ EOT_abc
 ```
 
 
-### expected
+### output contains
 ```
-✅ file_write /tmp/t_target_copied_fourth/out.txt
+✅ file_write /tmp/t_valid_target_content_separated_by_empty_clipboard_2/4th.txt
 ```
 
 
 ## invalid_target_content_separated_by_empty_clipboard_timeout
 
-
-
 ```sh nesl
 lalala
 #!nesl [@three-char-SHA-256: abc]
 action = "file_read"
-path = "/tmp/t_target_copied_first/out.txt"
+path = "/tmp/t_invalid_target_content_separated_by_empty_clipboard_timeout/1st.txt"
 #!end_abc
 this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
@@ -309,7 +380,7 @@ hi
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
 action = "file_write"
-path = "/tmp/t_target_copied_fourth/out.txt"
+path = "/tmp/t_invalid_target_content_separated_by_empty_clipboard_timeout/4th.txt"
 content = <<'EOT_abc'
 hello
 EOT_abc
@@ -317,5 +388,5 @@ EOT_abc
 ```
 
 
-### expected
+### output contains
 null
