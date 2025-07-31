@@ -60,7 +60,7 @@ async function main(): Promise<void> {
   console.log(`Starting listener on: ${filePath}`);
   console.log(`Clipboard: ${useClipboard ? 'enabled' : 'disabled'}`);
 
-  const debounceMs = config['debounce_ms'] || parseInt(process.env.SLUPE_DEBOUNCE || '200', 10);
+  const debounceMs = config['debounce_ms'] || parseInt(process.env.SLUPE_DEBOUNCE || '50', 10);
   
   const handle = await startListener({
     filePath,
