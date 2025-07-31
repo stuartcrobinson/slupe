@@ -109,7 +109,14 @@ EOT_abc
     
     const outputPath = join(testDir, '.slupe-output-latest.txt');
     const initialOutput = await readFile(outputPath, 'utf-8');
-    expect(initialOutput).toContain('Initial content');
+    // The output file contains SLUPE execution results
+    expect(initialOutput).toContain('SLUPE RESULTS');
+    expect(initialOutput).toContain('file_write /tmp/test-initial.txt');
+    
+    // The original content is written back to the input file with summary prepended
+    const inputFileContent = await readFile(testFile, 'utf-8');
+    expect(inputFileContent).toContain('Initial content');
+    expect(inputFileContent).toContain('SLUPE RESULTS');
     
     // Update the file
     await writeFile(testFile, `# Updated content
@@ -132,8 +139,13 @@ EOT_def
     
     // Check that the output was updated
     const updatedOutput = await readFile(outputPath, 'utf-8');
-    expect(updatedOutput).toContain('Updated content');
-    expect(updatedOutput).toContain('This is the new content');
+    expect(updatedOutput).toContain('SLUPE RESULTS');
+    expect(updatedOutput).toContain('file_write /tmp/test-updated.txt');
+    
+    // Check the input file has the updated content
+    const updatedInputContent = await readFile(testFile, 'utf-8');
+    expect(updatedInputContent).toContain('Updated content');
+    expect(updatedInputContent).toContain('This is the new content');
   });
 
   it('custom output filename', async () => {
