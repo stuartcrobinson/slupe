@@ -18,6 +18,7 @@ Config file options (slupe.yml):
   clipboard: boolean       Enable clipboard by default
   input_file: string       Default input file path
   output_file: string      Default output file path
+  debounce_ms: number      File watch debounce in milliseconds (default: 200)
 `);
 }
 
@@ -59,9 +60,11 @@ async function main(): Promise<void> {
   console.log(`Starting listener on: ${filePath}`);
   console.log(`Clipboard: ${useClipboard ? 'enabled' : 'disabled'}`);
 
+  const debounceMs = config['debounce_ms'] || parseInt(process.env.SLUPE_DEBOUNCE || '200', 10);
+  
   const handle = await startListener({
     filePath,
-    debounceMs: 500,
+    debounceMs,
     outputFilename: outputFile,
     useClipboard
   });
