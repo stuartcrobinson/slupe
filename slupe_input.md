@@ -1,152 +1,60 @@
-Looking at the test failure and the code, I can see what's happening. The test is expecting to find "Initial content" in the output file, but it's only finding empty SLUPE results. This suggests the content isn't being processed as expected.
+Now I understand! The `output-writer.ts` writes:
+1. The `fullOutput` to the output file (`.slupe-output-latest.txt`)
+2. The `summary + originalContent` back to the input file
 
-Let me check the issue - it seems like in `content-processor.ts`, the `processContent` function might be returning `null` for content that looks like it's just plain markdown without any NESL blocks.
+So the test is looking in the wrong place. The output file only contains the SLUPE execution results, not the original content. The original content is written back to the input file with the summary prepended.
 
-Here's what I think is happening:
-1. The test writes `# Initial content` to the file
-2. `processContent` is called but returns `null` because there are no NESL actions to execute
-3. The output file gets created with empty results
-4. The test fails because it expects "Initial content" to appear somewhere in the output
-
-Let me fix the test to match the actual behavior:
+Let's fix the test to check the correct behavior:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: x3k]
+#!nesl [@three-char-SHA-256: e8p]
 action = "file_replace_text"
 path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/startListener.test.ts"
-old_text = <<'EOT_x3k'
+old_text = <<'EOT_e8p'
     const outputPath = join(testDir, '.slupe-output-latest.txt');
     const initialOutput = await readFile(outputPath, 'utf-8');
     expect(initialOutput).toContain('Initial content');
-EOT_x3k
-new_text = <<'EOT_x3k'
+EOT_e8p
+new_text = <<'EOT_e8p'
     const outputPath = join(testDir, '.slupe-output-latest.txt');
     const initialOutput = await readFile(outputPath, 'utf-8');
+    // The output file contains SLUPE execution results
     expect(initialOutput).toContain('SLUPE RESULTS');
-    expect(initialOutput).toContain('=== END ===');
-EOT_x3k
-#!end_x3k
+    expect(initialOutput).toContain('file_write /tmp/test-initial.txt');
+    
+    // The original content is written back to the input file with summary prepended
+    const inputFileContent = await readFile(testFile, 'utf-8');
+    expect(inputFileContent).toContain('Initial content');
+    expect(inputFileContent).toContain('SLUPE RESULTS');
+EOT_e8p
+#!end_e8p
 ```
 
-Now let's also fix the part where it checks for updated content:
-
 ```sh nesl
-#!nesl [@three-char-SHA-256: y7m]
+#!nesl [@three-char-SHA-256: f9m]
 action = "file_replace_text"
 path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/startListener.test.ts"
-old_text = <<'EOT_y7m'
+old_text = <<'EOT_f9m'
     // Check that the output was updated
     const updatedOutput = await readFile(outputPath, 'utf-8');
     expect(updatedOutput).toContain('Updated content');
     expect(updatedOutput).toContain('This is the new content');
-EOT_y7m
-new_text = <<'EOT_y7m'
+EOT_f9m
+new_text = <<'EOT_f9m'
     // Check that the output was updated
     const updatedOutput = await readFile(outputPath, 'utf-8');
     expect(updatedOutput).toContain('SLUPE RESULTS');
-    // The output should still be empty results since there are no NESL blocks
-    expect(updatedOutput).toContain('=== END ===');
-EOT_y7m
-#!end_y7m
+    expect(updatedOutput).toContain('file_write /tmp/test-updated.txt');
+    
+    // Check the input file has the updated content
+    const updatedInputContent = await readFile(testFile, 'utf-8');
+    expect(updatedInputContent).toContain('Updated content');
+    expect(updatedInputContent).toContain('This is the new content');
+EOT_f9m
+#!end_f9m
 ```
 
-However, looking at the `formatters.js` file (which we don't have but is imported), it seems like the output might include the original content somewhere. Let me check if we need to add a NESL block to the test content to make it actually process something:
-
-```sh nesl
-#!nesl [@three-char-SHA-256: z2p]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/startListener.test.ts"
-old_text = <<'EOT_z2p'
-    await writeFile(testFile, '# Initial content');
-EOT_z2p
-new_text = <<'EOT_z2p'
-    await writeFile(testFile, `# Initial content
-
-\`\`\`sh nesl
-#!nesl [@three-char-SHA-256: abc]
-action = "file_write"
-path = "/tmp/test-initial.txt"
-content = <<'EOT_abc'
-Initial test file
-EOT_abc
-#!end_abc
-\`\`\`
-`);
-EOT_z2p
-#!end_z2p
-```
-
-And update the file update part too:
-
-```sh nesl
-#!nesl [@three-char-SHA-256: a9r]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/startListener.test.ts"
-old_text = <<'EOT_a9r'
-    // Update the file
-    await writeFile(testFile, '# Updated content\n\nThis is the new content');
-EOT_a9r
-new_text = <<'EOT_a9r'
-    // Update the file
-    await writeFile(testFile, `# Updated content
-
-This is the new content
-
-\`\`\`sh nesl
-#!nesl [@three-char-SHA-256: def]
-action = "file_write"
-path = "/tmp/test-updated.txt"
-content = <<'EOT_def'
-Updated test file
-EOT_def
-#!end_def
-\`\`\`
-`);
-EOT_a9r
-#!end_a9r
-```
-
-Now let's revert the expectation changes since with NESL blocks it should actually contain the content:
-
-```sh nesl
-#!nesl [@three-char-SHA-256: b3k]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/startListener.test.ts"
-old_text = <<'EOT_b3k'
-    const outputPath = join(testDir, '.slupe-output-latest.txt');
-    const initialOutput = await readFile(outputPath, 'utf-8');
-    expect(initialOutput).toContain('SLUPE RESULTS');
-    expect(initialOutput).toContain('=== END ===');
-EOT_b3k
-new_text = <<'EOT_b3k'
-    const outputPath = join(testDir, '.slupe-output-latest.txt');
-    const initialOutput = await readFile(outputPath, 'utf-8');
-    expect(initialOutput).toContain('Initial content');
-EOT_b3k
-#!end_b3k
-```
-
-```sh nesl
-#!nesl [@three-char-SHA-256: c5m]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/startListener.test.ts"
-old_text = <<'EOT_c5m'
-    // Check that the output was updated
-    const updatedOutput = await readFile(outputPath, 'utf-8');
-    expect(updatedOutput).toContain('SLUPE RESULTS');
-    // The output should still be empty results since there are no NESL blocks
-    expect(updatedOutput).toContain('=== END ===');
-EOT_c5m
-new_text = <<'EOT_c5m'
-    // Check that the output was updated
-    const updatedOutput = await readFile(outputPath, 'utf-8');
-    expect(updatedOutput).toContain('Updated content');
-    expect(updatedOutput).toContain('This is the new content');
-EOT_c5m
-#!end_c5m
-```
-
-Now run the test again to see if it passes:
+Now let's run the test again:
 
 ```bash
 npm test -- /Users/stuart/repos/slupe/proj/comp/listener/test/unit/startListener.test.ts
