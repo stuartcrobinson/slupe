@@ -83,7 +83,18 @@ describe('startListener', () => {
   });
 
   it('custom debounce time works', async () => {
-    await writeFile(testFile, '# Initial content');
+    await writeFile(testFile, `# Initial content
+
+\`\`\`sh nesl
+#!nesl [@three-char-SHA-256: abc]
+action = "file_write"
+path = "/tmp/test-initial.txt"
+content = <<'EOT_abc'
+Initial test file
+EOT_abc
+#!end_abc
+\`\`\`
+`);
 
     const config: ListenerConfig = {
       filePath: testFile,
@@ -101,7 +112,20 @@ describe('startListener', () => {
     expect(initialOutput).toContain('Initial content');
     
     // Update the file
-    await writeFile(testFile, '# Updated content\n\nThis is the new content');
+    await writeFile(testFile, `# Updated content
+
+This is the new content
+
+\`\`\`sh nesl
+#!nesl [@three-char-SHA-256: def]
+action = "file_write"
+path = "/tmp/test-updated.txt"
+content = <<'EOT_def'
+Updated test file
+EOT_def
+#!end_def
+\`\`\`
+`);
     
     // Wait longer than debounce time
     await new Promise(resolve => setTimeout(resolve, 300));
