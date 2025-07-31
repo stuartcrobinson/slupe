@@ -24,21 +24,23 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     return;
   }
 
+  console.time('total-processing');
   try {
     state.isProcessing = true;
 
+    console.time('read-file');
     const fullContent = await readFile(filePath, 'utf-8');
-    // console.log('DEBUG: Read content:', fullContent);
+    console.timeEnd('read-file');
     
-    if (state.debug) console.time('processContent-total');
+    console.time('processContent-total');
     const result = await processContent(
       fullContent,
       state.lastExecutedHash,
-      state.debug,
+      state.debug || true, // Force debug on for timing
       dirname(filePath),
       state.slupeInstance
     );
-    if (state.debug) console.timeEnd('processContent-total');
+    console.timeEnd('processContent-total');
 
     // console.log('DEBUG: processContent result:', result);
 
@@ -74,6 +76,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     console.error('listener: Error processing file change:', error);
   } finally {
     state.isProcessing = false;
+    console.timeEnd('total-processing');
   }
 }
 
@@ -106,7 +109,7 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
   const watchHandle = await fileWatcher.watch(
     config.filePath,
     processHandler,
-    config.debounceMs || 200
+    config.debounceMs || 100
   );
 
   // Process the file immediately and wait for completion

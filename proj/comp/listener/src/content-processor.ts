@@ -60,12 +60,15 @@ export async function processContent(
   const stripped = stripSummarySection(content);
   const hash = computeContentHash(stripped.trim());
 
-  if (debug) console.time('slupe-create');
-  const slupe = slupeInstance || await Slupe.create({ 
-    gitCommit: false,
-    repoPath 
-  });
-  if (debug && !slupeInstance) console.timeEnd('slupe-create');
+  let slupe = slupeInstance;
+  if (!slupe) {
+    if (debug) console.time('slupe-create');
+    slupe = await Slupe.create({ 
+      gitCommit: false,
+      repoPath 
+    });
+    if (debug) console.timeEnd('slupe-create');
+  }
   
   if (debug) console.time('slupe-execute');
   const orchResult = await slupe.execute(content);
