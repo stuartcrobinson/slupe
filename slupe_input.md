@@ -1,78 +1,123 @@
-=== SLUPE RESULTS ===
-j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-=== END ===
-=== SLUPE RESULTS ===
-j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-=== END ===
-=== SLUPE RESULTS ===
-j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-=== END ===
-=== SLUPE RESULTS ===
-j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-=== END ===
-=== SLUPE RESULTS ===
-j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-=== END ===
-=== SLUPE RESULTS ===
-j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-=== END ===
-=== SLUPE RESULTS ===
-j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-=== END ===
-=== SLUPE RESULTS ===
-j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
-=== END ===
-=== SLUPE RESULTS ===
-j7k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts
-p9m ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts
-=== END ===
-You're absolutely right! A leading space should invalidate the delimiter. The `#!end_` marker must be at the start of a line to be valid.
+I'll help you overhaul the system to check if the file starts with `=== SLUPE RESULTS` (ignoring leading whitespace) to determine whether to execute.
 
-Let's fix the regex to only match when `#!end_` is at the beginning of a line:
+Here's the NESL to make these changes:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: j7k]
+#!nesl [@three-char-SHA-256: a3f]
 action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
-old_text = <<'EOT_j7k'
-        // Extract delimiter from entries (looking for #!end_xxx)
-        // Must be at a word boundary (not preceded by alphanumeric)
-        const endMatch1 = entry1.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
-        const endMatch2 = entry2.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
-EOT_j7k
-new_text = <<'EOT_j7k'
-        // Extract delimiter from entries (looking for #!end_xxx)
-        // Must be at start of a line
-        const endMatch1 = entry1.content.match(/^#!end_([a-zA-Z0-9]+)/m);
-        const endMatch2 = entry2.content.match(/^#!end_([a-zA-Z0-9]+)/m);
-EOT_j7k
-#!end_j7k
-```
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts"
+old_text = <<'EOT_a3f'
+export function stripSummarySection(content: string): string {
+  const startMarker = '=== SLUPE RESULTS ===';
+  const endMarker = '=== END ===';
+  
+  // Check if content starts with a SLUPE results section (with some tolerance for leading content)
+  const startIndex = content.indexOf(startMarker);
+  if (startIndex === -1 || startIndex > 100) {
+    // No SLUPE section at the beginning of file
+    return content;
+  }
+  
+  // Find the corresponding END marker after the start
+  const endIndex = content.indexOf(endMarker, startIndex);
+  if (endIndex === -1) {
+    return content; // Malformed section, keep content as-is
+  }
+  
+  // Return content after the END marker, trimming leading whitespace
+  return content.slice(endIndex + endMarker.length).trimStart();
+}
+EOT_a3f
+new_text = <<'EOT_a3f'
+export function stripSummarySection(content: string): string {
+  const startMarker = '=== SLUPE RESULTS ===';
+  const endMarker = '=== END ===';
+  
+  const trimmed = content.trimStart();
+  
+  if (!trimmed.startsWith(startMarker)) {
+    return content;
+  }
+  
+  const endIndex = content.indexOf(endMarker);
+  if (endIndex === -1) {
+    return content;
+  }
+  
+  return content.slice(endIndex + endMarker.length).trimStart();
+}
 
-And update the logging regex too:
+export function hasExistingSlupeResults(content: string): boolean {
+  return content.trimStart().startsWith('=== SLUPE RESULTS');
+}
+EOT_a3f
+#!end_a3f
+```
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: p9m]
+#!nesl [@three-char-SHA-256: b7x]
 action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts"
-old_text = <<'EOT_p9m'
-          const endMatch = entry.content.match(/(?:^|[^a-zA-Z0-9])#!end_([a-zA-Z0-9]+)/);
-EOT_p9m
-new_text = <<'EOT_p9m'
-          const endMatch = entry.content.match(/^#!end_([a-zA-Z0-9]+)/m);
-EOT_p9m
-#!end_p9m
+path = "/Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts"
+old_text = <<'EOT_b7x'
+export async function processContent(
+  content: string,
+  lastHash: string,
+  debug?: boolean,
+  repoPath?: string
+): Promise<ProcessResult | null> {
+  // console.log('DEBUG processContent called with:', { 
+  //   contentLength: content.length, 
+  //   lastHash,
+  //   contentPreview: content.substring(0, 50)
+  // });
+  
+  if (content.trim() === '') {
+    // console.log('DEBUG: Empty content, returning null');
+    return null;
+  }
+
+  const stripped = stripSummarySection(content);
+  const hash = computeContentHash(stripped.trim());
+
+  if (hash === lastHash) {
+    // console.log('DEBUG: Hash unchanged, skipping processing', { hash, lastHash });
+    return null;
+  }
+EOT_b7x
+new_text = <<'EOT_b7x'
+export async function processContent(
+  content: string,
+  lastHash: string,
+  debug?: boolean,
+  repoPath?: string
+): Promise<ProcessResult | null> {
+  // console.log('DEBUG processContent called with:', { 
+  //   contentLength: content.length, 
+  //   lastHash,
+  //   contentPreview: content.substring(0, 50)
+  // });
+  
+  if (content.trim() === '') {
+    // console.log('DEBUG: Empty content, returning null');
+    return null;
+  }
+
+  if (hasExistingSlupeResults(content)) {
+    // console.log('DEBUG: File already has SLUPE results, skipping processing');
+    return null;
+  }
+
+  const stripped = stripSummarySection(content);
+  const hash = computeContentHash(stripped.trim());
+EOT_b7x
+#!end_b7x
 ```
 
-The key changes:
-- Using `^` to match start of line
-- Using the `m` flag for multiline mode so `^` matches after newlines too
-- This ensures `#!end_` must be at the beginning of a line, not preceded by any character (including spaces)
+Now let's update the test file to match the new behavior:
+
+```sh nesl
+#!nesl [@three-char-SHA-256: c9k]
+action = "file_read"
+path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/stripSummarySection.test.ts"
+#!end_c9k
+```
