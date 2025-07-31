@@ -1,3 +1,7 @@
+=== SLUPE RESULTS ===
+j7k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts
+p9m ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts
+=== END ===
 You're absolutely right! A leading space should invalidate the delimiter. The `#!end_` marker must be at the start of a line to be valid.
 
 Let's fix the regex to only match when `#!end_` is at the beginning of a line:
