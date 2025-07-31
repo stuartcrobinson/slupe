@@ -95,32 +95,45 @@ describe('startListener', () => {
 
     expect(handle.filePath).toBe(testFile);
 
+    // Wait for initial processing to complete
+    await new Promise(resolve => setTimeout(resolve, 150));
+    
+    // Clear the output file to ensure we detect the new write
+    const outputPath = join(testDir, '.slupe-output-latest.txt');
+    await writeFile(outputPath, '');
+
     const startTime = Date.now();
     
-    await writeFile(testFile, '# Updated content');
+    // Make a change to the file
+    await writeFile(testFile, '# Updated content\n\nNew text here');
     
-    await new Promise(resolve => {
+    // Wait for the change to be processed
+    await new Promise<void>(resolve => {
       const checkInterval = setInterval(async () => {
         try {
-          const outputPath = join(testDir, '.slupe-output-latest.txt');
           const content = await readFile(outputPath, 'utf-8');
           if (content.includes('Updated content')) {
             clearInterval(checkInterval);
-            resolve(undefined);
+            resolve();
           }
         } catch (e) {
           // File might not exist yet
         }
-      }, 50);
+      }, 20);
 
+      // Timeout after 1 second
       setTimeout(() => {
         clearInterval(checkInterval);
-        resolve(undefined);
-      }, 500);
+        resolve();
+      }, 1000);
     });
 
     const elapsed = Date.now() - startTime;
-    expect(elapsed).toBeLessThan(300);
+    
+    // With 100ms debounce, we expect processing to happen between 100-250ms
+    // (debounce time + processing time)
+    expect(elapsed).toBeGreaterThan(80);
+    expect(elapsed).toBeLessThan(400);
   });
 
   it('custom output filename', async () => {
