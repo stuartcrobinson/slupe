@@ -9,6 +9,7 @@ export interface ProcessResult {
   originalContent: string;
   executedActions?: number;
   errors?: any[];
+  slupeInstance?: any;
 }
 
 export function stripSummarySection(content: string): string {
@@ -37,7 +38,8 @@ export async function processContent(
   content: string,
   lastHash: string,
   debug?: boolean,
-  repoPath?: string
+  repoPath?: string,
+  slupeInstance?: any
 ): Promise<ProcessResult | null> {
   // console.log('DEBUG processContent called with:', { 
   //   contentLength: content.length, 
@@ -58,14 +60,16 @@ export async function processContent(
   const stripped = stripSummarySection(content);
   const hash = computeContentHash(stripped.trim());
 
-  // console.log('DEBUG: Creating Slupe instance...');
-  const slupe = await Slupe.create({ 
+  if (debug) console.time('slupe-create');
+  const slupe = slupeInstance || await Slupe.create({ 
     gitCommit: false,
     repoPath 
   });
-  // console.log('DEBUG: Executing content...');
+  if (debug && !slupeInstance) console.timeEnd('slupe-create');
+  
+  if (debug) console.time('slupe-execute');
   const orchResult = await slupe.execute(content);
-  // console.log('DEBUG: Execution complete, hookErrors:', orchResult.hookErrors);
+  if (debug) console.timeEnd('slupe-execute');
 
   if (debug) {
     console.log('\n=== DEBUG: Orchestrator Result ===');
@@ -100,6 +104,7 @@ export async function processContent(
     hash,
     originalContent: content,
     executedActions: orchResult.executedActions,
-    errors: orchResult.parseErrors
+    errors: orchResult.parseErrors,
+    slupeInstance: slupe
   };
 }

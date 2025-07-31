@@ -20,6 +20,7 @@ export interface ListenerState {
   actionSchema?: Map<string, ActionDefinition>;
   debug?: boolean;
   useClipboard: boolean;
+  slupeInstance?: any;
   clipboardMonitor?: {
     lastEntry: { content: string; timestamp: number } | null;
     interval: NodeJS.Timeout | null;

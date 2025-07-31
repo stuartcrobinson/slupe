@@ -30,12 +30,15 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     const fullContent = await readFile(filePath, 'utf-8');
     // console.log('DEBUG: Read content:', fullContent);
     
+    if (state.debug) console.time('processContent-total');
     const result = await processContent(
       fullContent,
       state.lastExecutedHash,
       state.debug,
-      dirname(filePath)
+      dirname(filePath),
+      state.slupeInstance
     );
+    if (state.debug) console.timeEnd('processContent-total');
 
     // console.log('DEBUG: processContent result:', result);
 
@@ -44,7 +47,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
       return;
     }
 
-    // console.log('DEBUG: Writing outputs...');
+    if (state.debug) console.time('write-outputs');
     try {
       await writeOutputs(
         {
@@ -55,17 +58,17 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
         result.fullOutput,
         result.originalContent
       );
-      // console.log('DEBUG: Outputs written successfully');
-      
-      // Verify the write actually happened
-      // const verifyContent = await readFile(filePath, 'utf-8');
-      // console.log('DEBUG: Verified file content starts with:', verifyContent.substring(0, 50));
     } catch (writeError) {
       console.error('DEBUG: Error writing outputs:', writeError);
       throw writeError;
     }
+    if (state.debug) console.timeEnd('write-outputs');
 
     state.lastExecutedHash = result.hash;
+    
+    if (result.slupeInstance && !state.slupeInstance) {
+      state.slupeInstance = result.slupeInstance;
+    }
 
   } catch (error) {
     console.error('listener: Error processing file change:', error);
@@ -103,7 +106,7 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
   const watchHandle = await fileWatcher.watch(
     config.filePath,
     processHandler,
-    config.debounceMs || 500
+    config.debounceMs || 200
   );
 
   // Process the file immediately and wait for completion

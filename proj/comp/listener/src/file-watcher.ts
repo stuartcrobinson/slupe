@@ -1,4 +1,4 @@
-import { watchFile, unwatchFile, Stats } from 'fs';
+import { watch, FSWatcher } from 'fs';
 import { access, constants } from 'fs/promises';
 import { ListenerError } from './errors.js';
 
@@ -7,12 +7,12 @@ export interface WatchHandle {
 }
 
 export class FileWatcher {
-  private activeWatches = new Map<string, WatchHandle>();
+  private activeWatches = new Map<string, { handle: WatchHandle; watcher: FSWatcher }>();
 
   async watch(
     filePath: string,
     onChange: () => void,
-    debounceMs: number = 500
+    debounceMs: number = 200
   ): Promise<WatchHandle> {
     if (this.activeWatches.has(filePath)) {
       throw new ListenerError('ALREADY_WATCHING', filePath);
@@ -26,26 +26,26 @@ export class FileWatcher {
 
     const debouncedOnChange = this.debounce(onChange, debounceMs);
 
-    watchFile(filePath, { interval: 500 }, (curr: Stats, prev: Stats) => {
-      if (curr.mtime !== prev.mtime) {
+    const watcher = watch(filePath, (eventType, filename) => {
+      if (eventType === 'change') {
         debouncedOnChange();
       }
     });
 
     const handle: WatchHandle = {
       stop: () => {
-        unwatchFile(filePath);
+        watcher.close();
         debouncedOnChange.cancel();
         this.activeWatches.delete(filePath);
       }
     };
 
-    this.activeWatches.set(filePath, handle);
+    this.activeWatches.set(filePath, { handle, watcher });
     return handle;
   }
 
   stopAll(): void {
-    for (const [_, handle] of this.activeWatches) {
+    for (const [_, { handle }] of this.activeWatches) {
       handle.stop();
     }
     this.activeWatches.clear();
