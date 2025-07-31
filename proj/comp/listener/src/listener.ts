@@ -87,8 +87,8 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
   if (!config.filePath.startsWith('/')) {
     throw new Error('listener: filePath must be absolute');
   }
-  if (config.debounceMs !== undefined && config.debounceMs < 25) {
-    throw new Error('listener: debounceMs must be at least 25');
+  if (config.debounceMs !== undefined && config.debounceMs < 15) {
+    throw new Error('listener: debounceMs must be at least 15');
   }
 
   if (activeListeners.has(config.filePath)) {

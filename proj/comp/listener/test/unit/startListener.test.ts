@@ -183,9 +183,9 @@ EOT_def
 
     const config: ListenerConfig = {
       filePath: testFile,
-      debounceMs: 50
+      debounceMs: 10
     };
 
-    await expect(startListener(config)).rejects.toThrow('debounceMs must be at least 100');
+    await expect(startListener(config)).rejects.toThrow('debounceMs must be at least 15');
   });
 });
