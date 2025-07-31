@@ -1,123 +1,106 @@
-I'll help you overhaul the system to check if the file starts with `=== SLUPE RESULTS` (ignoring leading whitespace) to determine whether to execute.
+Got it! You want a simple rule: if the file starts with `=== SLUPE RESULTS` (ignoring whitespace), don't process it at all. This prevents any re-execution once results are written.
 
-Here's the NESL to make these changes:
-
-```sh nesl
-#!nesl [@three-char-SHA-256: a3f]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts"
-old_text = <<'EOT_a3f'
-export function stripSummarySection(content: string): string {
-  const startMarker = '=== SLUPE RESULTS ===';
-  const endMarker = '=== END ===';
-  
-  // Check if content starts with a SLUPE results section (with some tolerance for leading content)
-  const startIndex = content.indexOf(startMarker);
-  if (startIndex === -1 || startIndex > 100) {
-    // No SLUPE section at the beginning of file
-    return content;
-  }
-  
-  // Find the corresponding END marker after the start
-  const endIndex = content.indexOf(endMarker, startIndex);
-  if (endIndex === -1) {
-    return content; // Malformed section, keep content as-is
-  }
-  
-  // Return content after the END marker, trimming leading whitespace
-  return content.slice(endIndex + endMarker.length).trimStart();
-}
-EOT_a3f
-new_text = <<'EOT_a3f'
-export function stripSummarySection(content: string): string {
-  const startMarker = '=== SLUPE RESULTS ===';
-  const endMarker = '=== END ===';
-  
-  const trimmed = content.trimStart();
-  
-  if (!trimmed.startsWith(startMarker)) {
-    return content;
-  }
-  
-  const endIndex = content.indexOf(endMarker);
-  if (endIndex === -1) {
-    return content;
-  }
-  
-  return content.slice(endIndex + endMarker.length).trimStart();
-}
-
-export function hasExistingSlupeResults(content: string): boolean {
-  return content.trimStart().startsWith('=== SLUPE RESULTS');
-}
-EOT_a3f
-#!end_a3f
-```
+The changes I provided look good for this behavior. Let's also update the tests to ensure they still pass with the new logic:
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: b7x]
-action = "file_replace_text"
-path = "/Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts"
-old_text = <<'EOT_b7x'
-export async function processContent(
-  content: string,
-  lastHash: string,
-  debug?: boolean,
-  repoPath?: string
-): Promise<ProcessResult | null> {
-  // console.log('DEBUG processContent called with:', { 
-  //   contentLength: content.length, 
-  //   lastHash,
-  //   contentPreview: content.substring(0, 50)
-  // });
-  
-  if (content.trim() === '') {
-    // console.log('DEBUG: Empty content, returning null');
-    return null;
-  }
-
-  const stripped = stripSummarySection(content);
-  const hash = computeContentHash(stripped.trim());
-
-  if (hash === lastHash) {
-    // console.log('DEBUG: Hash unchanged, skipping processing', { hash, lastHash });
-    return null;
-  }
-EOT_b7x
-new_text = <<'EOT_b7x'
-export async function processContent(
-  content: string,
-  lastHash: string,
-  debug?: boolean,
-  repoPath?: string
-): Promise<ProcessResult | null> {
-  // console.log('DEBUG processContent called with:', { 
-  //   contentLength: content.length, 
-  //   lastHash,
-  //   contentPreview: content.substring(0, 50)
-  // });
-  
-  if (content.trim() === '') {
-    // console.log('DEBUG: Empty content, returning null');
-    return null;
-  }
-
-  if (hasExistingSlupeResults(content)) {
-    // console.log('DEBUG: File already has SLUPE results, skipping processing');
-    return null;
-  }
-
-  const stripped = stripSummarySection(content);
-  const hash = computeContentHash(stripped.trim());
-EOT_b7x
-#!end_b7x
-```
-
-Now let's update the test file to match the new behavior:
-
-```sh nesl
-#!nesl [@three-char-SHA-256: c9k]
-action = "file_read"
+#!nesl [@three-char-SHA-256: d2m]
+action = "file_write"
 path = "/Users/stuart/repos/slupe/proj/comp/listener/test/unit/stripSummarySection.test.ts"
-#!end_c9k
+content = <<'EOT_d2m'
+import { describe, it, expect } from 'vitest';
+import { stripSummarySection, hasExistingSlupeResults } from '../../src/content-processor.js';
+
+describe('stripSummarySection', () => {
+
+  it('returns full content when no summary', () => {
+    const content = '# My Document\n\nSome content here.';
+    expect(stripSummarySection(content)).toBe(content);
+  });
+
+  it('strips summary at start of file', () => {
+    const content = `=== SLUPE RESULTS ===
+abc ✅ file_write /tmp/test.txt
+=== END ===
+
+# My Document
+
+Some content here.`;
+
+    const expected = `# My Document
+
+Some content here.`;
+
+    expect(stripSummarySection(content)).toBe(expected);
+  });
+
+  it('handles file ending with summary', () => {
+    const content = `=== SLUPE RESULTS ===
+abc ✅ file_write /tmp/test.txt
+=== END ===`;
+
+    expect(stripSummarySection(content)).toBe('');
+  });
+
+  it('handles no blank line after summary', () => {
+    const content = `=== SLUPE RESULTS ===
+abc ✅ file_write /tmp/test.txt
+=== END ===
+# Document`;
+
+    expect(stripSummarySection(content)).toBe('# Document');
+  });
+
+  it('preserves END marker in regular content', () => {
+    const content = `# Document
+
+This is about === END === markers in content.
+
+More text here.`;
+
+    expect(stripSummarySection(content)).toBe(content);
+  });
+
+  it('handles whitespace before summary marker', () => {
+    const content = `   
+    
+=== SLUPE RESULTS ===
+abc ✅ file_write /tmp/test.txt
+=== END ===
+
+# Document`;
+
+    expect(stripSummarySection(content)).toBe('# Document');
+  });
+});
+
+describe('hasExistingSlupeResults', () => {
+  it('returns true when file starts with SLUPE RESULTS', () => {
+    const content = '=== SLUPE RESULTS ===\nsome results\n=== END ===';
+    expect(hasExistingSlupeResults(content)).toBe(true);
+  });
+
+  it('returns true with leading whitespace', () => {
+    const content = '   \n\t=== SLUPE RESULTS ===\nsome results\n=== END ===';
+    expect(hasExistingSlupeResults(content)).toBe(true);
+  });
+
+  it('returns true with partial marker', () => {
+    const content = '=== SLUPE RESULTS\nsome text';
+    expect(hasExistingSlupeResults(content)).toBe(true);
+  });
+
+  it('returns false when marker is not at start', () => {
+    const content = 'Some text\n=== SLUPE RESULTS ===';
+    expect(hasExistingSlupeResults(content)).toBe(false);
+  });
+
+  it('returns false with no marker', () => {
+    const content = '# My Document\n\nSome content';
+    expect(hasExistingSlupeResults(content)).toBe(false);
+  });
+});
+EOT_d2m
+#!end_d2m
 ```
+
+This approach is much simpler and should completely prevent the re-execution loop. Once SLUPE writes its results to the top of the file, the listener will see the marker and skip processing entirely.
