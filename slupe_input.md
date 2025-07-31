@@ -1,4 +1,8 @@
 === SLUPE RESULTS ===
+j7k ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
+p9m ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts - old_text not found in file
+=== END ===
+=== SLUPE RESULTS ===
 j7k ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts
 p9m ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/clipboard-monitor.ts
 === END ===
