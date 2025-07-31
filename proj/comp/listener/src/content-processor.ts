@@ -15,21 +15,22 @@ export function stripSummarySection(content: string): string {
   const startMarker = '=== SLUPE RESULTS ===';
   const endMarker = '=== END ===';
   
-  // Check if content starts with a SLUPE results section (with some tolerance for leading content)
-  const startIndex = content.indexOf(startMarker);
-  if (startIndex === -1 || startIndex > 100) {
-    // No SLUPE section at the beginning of file
+  const trimmed = content.trimStart();
+  
+  if (!trimmed.startsWith(startMarker)) {
     return content;
   }
   
-  // Find the corresponding END marker after the start
-  const endIndex = content.indexOf(endMarker, startIndex);
+  const endIndex = content.indexOf(endMarker);
   if (endIndex === -1) {
-    return content; // Malformed section, keep content as-is
+    return content;
   }
   
-  // Return content after the END marker, trimming leading whitespace
   return content.slice(endIndex + endMarker.length).trimStart();
+}
+
+export function hasExistingSlupeResults(content: string): boolean {
+  return content.trimStart().startsWith('=== SLUPE RESULTS');
 }
 
 export async function processContent(
@@ -49,13 +50,13 @@ export async function processContent(
     return null;
   }
 
-  const stripped = stripSummarySection(content);
-  const hash = computeContentHash(stripped.trim());
-
-  if (hash === lastHash) {
-    // console.log('DEBUG: Hash unchanged, skipping processing', { hash, lastHash });
+  if (hasExistingSlupeResults(content)) {
+    // console.log('DEBUG: File already has SLUPE results, skipping processing');
     return null;
   }
+
+  const stripped = stripSummarySection(content);
+  const hash = computeContentHash(stripped.trim());
 
   // console.log('DEBUG: Creating Slupe instance...');
   const slupe = await Slupe.create({ 
