@@ -98,6 +98,7 @@ export class Slupe {
 
       // Run before hooks
       if (this.hooksManager) {
+        console.time('before-hooks');
         try {
           const beforeResult = await this.hooksManager.runBefore();
           if (!beforeResult.success) {
@@ -115,6 +116,7 @@ export class Slupe {
             };
           }
         } catch (error) {
+          console.timeEnd('before-hooks');
           return {
             success: false,
             totalBlocks: 0,
@@ -153,6 +155,7 @@ export class Slupe {
 
       // Run after hooks with context
       if (this.hooksManager) {
+        console.time('after-hooks');
         try {
           // Build rich context for hooks
           const modifiedFiles = new Set<string>();
@@ -186,7 +189,9 @@ export class Slupe {
             // After hook failure affects overall success
             hookErrors.after = afterResult.errors || [{command: 'unknown', error: 'Unknown after hook error'}];
           }
+          console.timeEnd('after-hooks');
         } catch (error) {
+          console.timeEnd('after-hooks');
           // After hook unexpected errors also affect success
           hookErrors.after = [{
             command: 'after hooks',
