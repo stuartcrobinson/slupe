@@ -1,5 +1,6 @@
 import { readFile } from 'fs/promises';
 import { dirname, join } from 'path';
+import clipboard from 'clipboardy';
 
 import type { ListenerConfig, ListenerHandle, ListenerState } from './types.js';
 import { ListenerError } from './errors.js';
@@ -47,6 +48,20 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     if (!result) {
       // console.log('DEBUG: No result from processContent');
       return;
+    }
+
+    // Copy combined content to clipboard before writing files
+    if (state.useClipboard) {
+      const combinedContent = result.summary + '\n' + result.originalContent;
+      try {
+        await clipboard.write(combinedContent);
+        if (state.debug) {
+          console.log('[Clipboard] Copied combined content to clipboard (length:', combinedContent.length + ')');
+        }
+      } catch (clipboardError) {
+        console.error('[Clipboard] Error copying to clipboard:', clipboardError);
+        // Don't fail the whole operation if clipboard fails
+      }
     }
 
     if (state.debug) console.time('write-outputs');
