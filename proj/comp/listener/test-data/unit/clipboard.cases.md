@@ -45,7 +45,7 @@ The system monitors clipboard changes and looks for paired clipboard entries tha
 #!end_aa
 ```
 
-110
+55
 
 ```sh
 X
@@ -67,7 +67,7 @@ X
 #!end_aa
 ```
 
-110
+55
 
 ```sh
 X
@@ -87,7 +87,7 @@ null
 #!end_aa
 ```
 
-110
+5
 
 ```sh
 X
@@ -110,7 +110,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
 
-110
+55
 
 ```sh
 #!nesl [@three-char-SHA-256: d748f3s]
@@ -139,7 +139,7 @@ content = "hi"
 #!end_b8fw34t
 ```
 
-110
+55
 
 ```sh
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -166,7 +166,7 @@ content = "hi"
 #!end_as7
 ```
 
-110
+5
 
 ```sh
 xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -195,7 +195,7 @@ EOT_f73js6
 #!end_f73js6
 ```
 
-110
+55
 
 ```sh nesl
 lalala
@@ -229,7 +229,7 @@ EOT_xyz
 #!end_xyz
 ```
 
-110
+55
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: xyz]
@@ -319,7 +319,7 @@ EOT_jkl
 #!end_jkl
 ```
 
-110
+55
 
 ```sh nesl
 as;doifjsodfij
@@ -350,14 +350,14 @@ EOT_34g
 #!end_34g
 ```
 
-243
+55
 
 
 ```sh nesl
 hey hey hey hey hey hey hey hey 
 ```
 
-197
+55
 
 
 ```sh nesl
@@ -392,20 +392,20 @@ this clipboard content gets ignored because its the bigger one
 this clipboard content gets ignored because its the bigger one
 ```
 
-78
+55
 
 
 ```sh nesl
 ```
 
-87
+55
 
 
 ```sh nesl
 hi
 ```
 
-124
+55
 
 
 ```sh nesl

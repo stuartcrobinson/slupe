@@ -127,7 +127,7 @@ describe('clipboard integration', async () => {
         handle = await startListener({
           filePath: inputFile,
           useClipboard: true,
-          debounceMs: 100
+          debounceMs: 15
         });
         
         console.log(`[TEST ${testCase.name}] Starting to write ${testCase.inputs.length} test inputs`);

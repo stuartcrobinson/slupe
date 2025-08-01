@@ -38,17 +38,13 @@ hooks:
   # before:
   #   - run: git add -A
   #   - run: git commit -m "before ${COMMIT_MSG}"
-  #     continueOnError: false
   #   - run: git push
-  #     continueOnError: false
   #     timeout: 10000  # 10s for slow networks
   
   after:
     - run: git add -A
     - run: git diff --quiet && git diff --staged --quiet || git commit -m "after ${COMMIT_MSG}"
-      continueOnError: false
-    - run: git push
-      continueOnError: false
+    - run: git rev-list @{u}..HEAD --quiet || git push
       timeout: 10000  # 10s for slow networks
 
 # Variables available in commands
