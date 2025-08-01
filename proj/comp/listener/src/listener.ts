@@ -74,7 +74,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
         minute: '2-digit',
         second: '2-digit',
         fractionalSecondDigits: 3
-      });
+      }).toLowerCase();
       const clipboardLine = `📋 Output copied to clipboard @ ${timeStr}`;
       result.summary = result.summary.replace(
         '=== SLUPE RESULTS ===',
