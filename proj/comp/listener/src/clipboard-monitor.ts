@@ -15,7 +15,7 @@ export class ClipboardMonitor {
   private checkCount: number = 0;
   private isInitialized: boolean = false;
 
-  constructor(filePath: string, pollInterval: number = 20) {
+  constructor(filePath: string, pollInterval: number = 50) {
     this.filePath = filePath;
     this.pollInterval = pollInterval;
   }
@@ -57,10 +57,10 @@ export class ClipboardMonitor {
     
     this.checkCount++;
     
-    // Log every 10th check to verify polling is happening
-    if (this.checkCount % 10 === 0) {
-      console.log(`[ClipboardMonitor] Polling check #${this.checkCount}`);
-    }
+    // // Log every 10th check to verify polling is happening
+    // if (this.checkCount % 10 === 0) {
+    //   console.log(`[ClipboardMonitor] Polling check #${this.checkCount}`);
+    // }
     
     try {
       const current = await clipboard.read();
