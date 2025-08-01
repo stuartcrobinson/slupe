@@ -51,10 +51,12 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     }
 
     // Copy combined content to clipboard before writing files
+    let clipboardCopyTime: Date | undefined;
     if (state.useClipboard) {
       const combinedContent = result.summary + '\n' + result.originalContent;
       try {
         await clipboard.write(combinedContent);
+        clipboardCopyTime = new Date();
         if (state.debug) {
           console.log('[Clipboard] Copied combined content to clipboard (length:', combinedContent.length + ')');
         }
@@ -62,6 +64,22 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
         console.error('[Clipboard] Error copying to clipboard:', clipboardError);
         // Don't fail the whole operation if clipboard fails
       }
+    }
+
+    // Update summary with clipboard timestamp if we copied
+    if (clipboardCopyTime) {
+      const timeStr = clipboardCopyTime.toLocaleTimeString('en-US', {
+        hour12: true,
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        fractionalSecondDigits: 3
+      });
+      const clipboardLine = `📋 Output copied to clipboard @ ${timeStr}`;
+      result.summary = result.summary.replace(
+        '=== SLUPE RESULTS ===',
+        `=== SLUPE RESULTS ===\n${clipboardLine}\n---------------------`
+      );
     }
 
     if (state.debug) console.time('write-outputs');

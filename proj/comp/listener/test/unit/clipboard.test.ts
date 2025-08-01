@@ -244,4 +244,56 @@ describe('clipboard integration', async () => {
       }
     });
   }
+
+  it('should add clipboard timestamp to input file after copying', async () => {
+    const inputFile = join(testRepoPath, 'input.md');
+    const uniqueContent = `unique-clipboard-timestamp-test-${Date.now()}`;
+    
+    await clipboard.write(uniqueContent);
+    await writeFile(inputFile, '');
+    
+    handle = await startListener({
+      filePath: inputFile,
+      useClipboard: true,
+      debounceMs: 100
+    });
+    
+    // Copy NESL command parts to trigger execution
+    await clipboard.write(`#!nesl [@three-char-SHA-256: tst]
+action = "file_write"
+path = "${testRepoPath}/test.txt"
+content = <<'EOT_tst'
+test content
+EOT_tst
+#!end_tst`);
+    
+    await new Promise(resolve => setTimeout(resolve, 50));
+    
+    await clipboard.write(`extra content
+#!end_tst`);
+    
+    // Poll for up to 1 second to see the clipboard timestamp appear
+    const startTime = Date.now();
+    let found = false;
+    
+    while (Date.now() - startTime < 1000) {
+      try {
+        const content = await readFile(inputFile, 'utf-8');
+        if (content.includes('📋 Output copied to clipboard @')) {
+          found = true;
+          // Verify the structure
+          expect(content).toContain('=== SLUPE RESULTS ===');
+          expect(content).toContain('📋 Output copied to clipboard @');
+          expect(content).toContain('---------------------');
+          expect(content).toContain('✅ file_write');
+          break;
+        }
+      } catch (e) {
+        // File might not be ready yet
+      }
+      await new Promise(resolve => setTimeout(resolve, 25));
+    }
+    
+    expect(found).toBe(true);
+  });
 });
