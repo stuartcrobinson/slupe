@@ -58,13 +58,19 @@ export class Slupe {
     const repoPath = options.repoPath || process.cwd();
 
     // Load configuration
+    console.time('loadConfig');
     const config = await loadConfig(repoPath);
+    console.timeEnd('loadConfig');
 
     // Update instructions file if needed
+    console.time('updateInstructions');
     await updateInstructions(repoPath, config['allowed-actions']);
+    console.timeEnd('updateInstructions');
 
     // Initialize executors
+    console.time('initializeExecutors');
     const executors = await Slupe.initializeExecutors(config, repoPath);
+    console.timeEnd('initializeExecutors');
 
     // Initialize hooks if enabled
     let hooksManager: HooksManager | undefined;
