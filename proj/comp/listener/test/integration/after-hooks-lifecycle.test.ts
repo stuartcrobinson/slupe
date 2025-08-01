@@ -187,9 +187,11 @@ content = "Action completed"
 #!end_h3a`;
     writeFileSync(inputFile, neslInput);
 
-    // Spawn the CLI process using tsx to run TypeScript directly
-    const child = spawn('npx', [
-      'tsx',
+    // Find tsx in node_modules to avoid npx overhead
+    const tsxPath = join(import.meta.dirname, '../../../../../node_modules/.bin/tsx');
+    
+    // Spawn the CLI process using tsx directly
+    const child = spawn(tsxPath, [
       cliScriptPath,
       inputFile,
       outputFile,
@@ -197,7 +199,7 @@ content = "Action completed"
     ], {
       cwd: testDir,
       env: { ...process.env, NODE_ENV: 'test' },
-      shell: true
+      stdio: ['ignore', 'pipe', 'pipe'] // Explicit stdio handling
     });
 
     // Collect output
@@ -206,9 +208,34 @@ content = "Action completed"
     child.stdout.on('data', (data) => { stdout += data; });
     child.stderr.on('data', (data) => { stderr += data; });
 
-    // Wait for process to exit
-    const exitCode = await new Promise<number>((resolve) => {
-      child.on('exit', (code) => resolve(code || 0));
+    // Wait for process to exit with timeout and cleanup
+    const exitCode = await new Promise<number>((resolve, reject) => {
+      let settled = false;
+      
+      // Set up timeout to kill hanging process
+      const timeout = setTimeout(() => {
+        if (!settled) {
+          settled = true;
+          child.kill('SIGTERM');
+          reject(new Error('Process timeout - killed after 10s'));
+        }
+      }, 10000);
+      
+      child.on('exit', (code) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timeout);
+          resolve(code || 0);
+        }
+      });
+      
+      child.on('error', (err) => {
+        if (!settled) {
+          settled = true;
+          clearTimeout(timeout);
+          reject(err);
+        }
+      });
     });
 
     // Verify process exited with error
