@@ -35,13 +35,13 @@ hooks:
   # after: []
   
   # Example hooks
-  before:
-    - run: git add -A
-    - run: git commit -m "before ${COMMIT_MSG}"
-      continueOnError: false
-    - run: git push
-      continueOnError: false
-      timeout: 10000  # 10s for slow networks
+  # before:
+  #   - run: git add -A
+  #   - run: git commit -m "before ${COMMIT_MSG}"
+  #     continueOnError: false
+  #   - run: git push
+  #     continueOnError: false
+  #     timeout: 10000  # 10s for slow networks
   
   after:
     - run: git add -A
