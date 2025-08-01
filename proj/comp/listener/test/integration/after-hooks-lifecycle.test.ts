@@ -6,6 +6,8 @@ import { tmpdir } from 'os';
 import { processContent } from '../../src/content-processor.js';
 import { Slupe } from '../../../orch/src/index.js';
 
+//https://claude.ai/chat/0d9f1c6b-3d6c-4ca7-bcdf-e6ddfd72cc5f
+
 describe('After Hooks Lifecycle', () => {
   let testDir: string;
   let outputFile: string;
@@ -127,10 +129,14 @@ content = "Main action executed"
 
   test('CLI process exits with error when after hook fails', async () => {
     // Create a test script that mimics the CLI behavior
+    // Use ESM imports and get the correct absolute paths
+    const orchPath = join(import.meta.dirname, '../../../orch/src/index.js');
+    const contentProcessorPath = join(import.meta.dirname, '../../src/content-processor.js');
+    
     const cliScript = `
-const { Slupe } = require('${join(testDir, '../../orch/src/index.js')}');
-const { processContent } = require('${join(testDir, '../../listener/src/content-processor.js')}');
-const { writeFileSync, readFileSync } = require('fs');
+import { Slupe } from '${orchPath}';
+import { processContent } from '${contentProcessorPath}';
+import { writeFileSync, readFileSync } from 'fs';
 
 async function main() {
   const input = readFileSync(process.argv[2], 'utf8');
@@ -161,8 +167,8 @@ main().catch(err => {
 });
 `;
 
-    // Write CLI script
-    const cliScriptPath = join(testDir, 'test-cli.js');
+    // Write CLI script as ESM module
+    const cliScriptPath = join(testDir, 'test-cli.mjs');
     writeFileSync(cliScriptPath, cliScript);
 
     // Create slupe.yml with failing after hook
@@ -185,8 +191,9 @@ content = "Action completed"
 #!end_h3a`;
     writeFileSync(inputFile, neslInput);
 
-    // Spawn the CLI process
+    // Spawn the CLI process with proper ESM handling
     const child = spawn(process.execPath, [
+      '--experimental-specifier-resolution=node',
       cliScriptPath,
       inputFile,
       outputFile,
