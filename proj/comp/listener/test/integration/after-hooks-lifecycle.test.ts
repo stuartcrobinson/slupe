@@ -128,14 +128,10 @@ content = "Main action executed"
   });
 
   test('CLI process exits with error when after hook fails', async () => {
-    // Create a test script that mimics the CLI behavior
-    // Use ESM imports and get the correct absolute paths
-    const orchPath = join(import.meta.dirname, '../../../orch/src/index.js');
-    const contentProcessorPath = join(import.meta.dirname, '../../src/content-processor.js');
-    
+    // Create a TypeScript test script that mimics the CLI behavior
     const cliScript = `
-import { Slupe } from '${orchPath}';
-import { processContent } from '${contentProcessorPath}';
+import { Slupe } from '${join(import.meta.dirname, '../../../orch/src/index.js').replace(/\\/g, '/')}';
+import { processContent } from '${join(import.meta.dirname, '../../src/content-processor.js').replace(/\\/g, '/')}';
 import { writeFileSync, readFileSync } from 'fs';
 
 async function main() {
@@ -167,8 +163,8 @@ main().catch(err => {
 });
 `;
 
-    // Write CLI script as ESM module
-    const cliScriptPath = join(testDir, 'test-cli.mjs');
+    // Write CLI script as TypeScript
+    const cliScriptPath = join(testDir, 'test-cli.ts');
     writeFileSync(cliScriptPath, cliScript);
 
     // Create slupe.yml with failing after hook
@@ -191,16 +187,17 @@ content = "Action completed"
 #!end_h3a`;
     writeFileSync(inputFile, neslInput);
 
-    // Spawn the CLI process with proper ESM handling
-    const child = spawn(process.execPath, [
-      '--experimental-specifier-resolution=node',
+    // Spawn the CLI process using tsx to run TypeScript directly
+    const child = spawn('npx', [
+      'tsx',
       cliScriptPath,
       inputFile,
       outputFile,
       testDir
     ], {
       cwd: testDir,
-      env: { ...process.env, NODE_ENV: 'test' }
+      env: { ...process.env, NODE_ENV: 'test' },
+      shell: true
     });
 
     // Collect output
