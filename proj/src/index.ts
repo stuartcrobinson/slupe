@@ -62,6 +62,8 @@ async function main(): Promise<void> {
 
   const debounceMs = config['debounce_ms'] || parseInt(process.env.SLUPE_DEBOUNCE || '50', 10);
   
+  console.log(`Using debounceMs: ${debounceMs}`);
+  
   const handle = await startListener({
     filePath,
     debounceMs,
