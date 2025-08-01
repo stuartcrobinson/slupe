@@ -45,7 +45,7 @@ hooks:
   
   after:
     - run: git add -A
-    - run: git commit -m "after ${COMMIT_MSG}"
+    - run: git diff --quiet && git diff --staged --quiet || git commit -m "after ${COMMIT_MSG}"
       continueOnError: false
     - run: git push
       continueOnError: false
