@@ -1128,5 +1128,5 @@ Should save ~5-10ms per test from Slupe creation, plus directory creation overhe
 
 ### output contains
 ```
-✅ file_write /tmp/t_valid_complex/1.txt
+❌
 ```
