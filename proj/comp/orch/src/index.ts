@@ -115,6 +115,7 @@ export class Slupe {
               fatalError: 'Before hooks failed - aborting execution'
             };
           }
+          console.timeEnd('before-hooks');
         } catch (error) {
           console.timeEnd('before-hooks');
           return {
