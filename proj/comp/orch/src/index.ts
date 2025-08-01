@@ -2,7 +2,7 @@ import type { SlupeAction, ParseError } from '../../nesl-action-parser/src/index
 import { parseNeslResponse } from '../../nesl-action-parser/src/index.js';
 import type { FileOpResult } from '../../fs-ops/src/index.js';
 import { FsOpsExecutor } from '../../fs-ops/src/index.js';
-import type { HooksConfig, HookContext, HookError } from '../../hooks/src/index.js';
+import type { HooksConfig, HookContext, HookError, HookResult } from '../../hooks/src/index.js';
 import { HooksManager } from '../../hooks/src/index.js';
 import { FsGuard } from '../../fs-guard/src/index.js';
 import { ExecExecutor } from '../../exec/src/index.js';
