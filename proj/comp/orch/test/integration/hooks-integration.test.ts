@@ -46,6 +46,11 @@ describe('Hooks Integration', () => {
       // Execute
       const result = await slupe.execute(testCase.input);
 
+      // Run after hooks if context is present (mimicking what listener does)
+      if (result.afterHookContext && !result.fatalError) {
+        await slupe.runAfterHooks(result.afterHookContext);
+      }
+
       // // Debug output
       // console.log(`\n=== Test: ${testCase.name} ===`);
       // console.log('Config:', JSON.stringify(testCase.config, null, 2));
