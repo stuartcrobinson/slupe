@@ -165,8 +165,8 @@ describe('clipboard integration', async () => {
           }
         }
         
-        console.log(`[TEST ${testCase.name}] Waiting 100ms for processing...`);
-        await new Promise(resolve => setTimeout(resolve, 100));
+        // console.log(`[TEST ${testCase.name}] Waiting 100ms for processing...`);
+        // await new Promise(resolve => setTimeout(resolve, 100));
         
         if (testCase.expectedOutput) {
           console.log(`[TEST ${testCase.name}] Expecting output to contain:`, testCase.expectedOutput);
