@@ -10,6 +10,7 @@ export interface ProcessResult {
   executedActions?: number;
   errors?: any[];
   slupeInstance?: any;
+  afterHookContext?: any;
 }
 
 export function stripSummarySection(content: string): string {
@@ -108,6 +109,7 @@ export async function processContent(
     originalContent: content,
     executedActions: orchResult.executedActions,
     errors: orchResult.parseErrors,
-    slupeInstance: slupe
+    slupeInstance: slupe,
+    afterHookContext: orchResult.afterHookContext
   };
 }

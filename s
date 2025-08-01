@@ -13,12 +13,9 @@ done
 
 file_list=$(cat <<'EOF'
 
-/Users/stuart/repos/slupe/proj/comp/listener/test/integration/listener-workflow-v2.test.ts
-/Users/stuart/repos/slupe/proj/comp/listener/src/content-processor.ts
-/Users/stuart/repos/slupe/proj/comp/listener/src/types.ts
-/Users/stuart/repos/slupe/proj/comp/orch/test/execute.test.ts
-
-
+/Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
+/Users/stuart/repos/slupe/proj/comp/hooks/src/types.ts
+/Users/stuart/repos/slupe/proj/cli/src/index.ts
 EOF
 )
 

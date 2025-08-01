@@ -24,6 +24,7 @@ export interface ExecutionResult {
     before?: HookError[];
     after?: HookError[];
   };
+  afterHookContext?: HookContext;
   debug?: {
     parseDebug?: any;
   };
@@ -154,60 +155,44 @@ export class Slupe {
       const noParseErrors = parseResult.errors.length === 0;
       const executionSuccess = allActionsSucceeded && noParseErrors;
 
-      // Run after hooks with context
+      // Build after hook context (but don't run them)
+      let afterHookContext: HookContext | undefined;
       if (this.hooksManager) {
-        console.time('after-hooks');
-        try {
-          // Build rich context for hooks
-          const modifiedFiles = new Set<string>();
-          const operations: string[] = [];
-          const errors: string[] = [];
+        const modifiedFiles = new Set<string>();
+        const operations: string[] = [];
+        const errors: string[] = [];
 
-          for (const result of results) {
-            if (result.action.startsWith('file_') && result.params.path) {
-              modifiedFiles.add(result.params.path);
-            }
-
-            operations.push(`${result.action}${result.success ? '' : ' (failed)'}`);
-
-            if (!result.success && result.error) {
-              errors.push(`${result.action}: ${result.error}`);
-            }
+        for (const result of results) {
+          if (result.action.startsWith('file_') && result.params.path) {
+            modifiedFiles.add(result.params.path);
           }
 
-          const afterContext: HookContext = {
-            success: executionSuccess,
-            executedActions: results.length,
-            totalBlocks: parseResult.summary.totalBlocks,
-            modifiedFiles: Array.from(modifiedFiles).join(','),
-            operations: operations.join(','),
-            errors: errors.join('; '),
-            errorCount: errors.length
-          };
+          operations.push(`${result.action}${result.success ? '' : ' (failed)'}`);
 
-          const afterResult = await this.hooksManager.runAfter(afterContext);
-          if (!afterResult.success) {
-            // After hook failure affects overall success
-            hookErrors.after = afterResult.errors || [{command: 'unknown', error: 'Unknown after hook error'}];
+          if (!result.success && result.error) {
+            errors.push(`${result.action}: ${result.error}`);
           }
-          console.timeEnd('after-hooks');
-        } catch (error) {
-          console.timeEnd('after-hooks');
-          // After hook unexpected errors also affect success
-          hookErrors.after = [{
-            command: 'after hooks',
-            error: `After hooks threw unexpected error: ${error instanceof Error ? error.message : String(error)}`
-          }];
         }
+
+        afterHookContext = {
+          success: executionSuccess,
+          executedActions: results.length,
+          totalBlocks: parseResult.summary.totalBlocks,
+          modifiedFiles: Array.from(modifiedFiles).join(','),
+          operations: operations.join(','),
+          errors: errors.join('; '),
+          errorCount: errors.length
+        };
       }
 
       return {
-        success: executionSuccess && !hookErrors.after, // After hook errors affect overall success
+        success: executionSuccess,
         totalBlocks: parseResult.summary.totalBlocks,
         executedActions: results.length,
         results,
         parseErrors: parseResult.errors,
         ...(Object.keys(hookErrors).length > 0 && { hookErrors }),
+        ...(afterHookContext && { afterHookContext }),
         debug: {
           parseDebug: parseResult.debug
         }
@@ -301,6 +286,29 @@ export class Slupe {
     }
 
     return null;
+  }
+
+  /**
+   * Run after hooks with the given context
+   * Returns the hook result with any errors
+   */
+  async runAfterHooks(context: HookContext): Promise<HookResult> {
+    if (!this.hooksManager) {
+      return { success: true, executed: 0 };
+    }
+
+    try {
+      return await this.hooksManager.runAfter(context);
+    } catch (error) {
+      return {
+        success: false,
+        executed: 0,
+        errors: [{
+          command: 'after hooks',
+          error: `After hooks threw unexpected error: ${error instanceof Error ? error.message : String(error)}`
+        }]
+      };
+    }
   }
 
   /**

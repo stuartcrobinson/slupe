@@ -72,6 +72,30 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
       state.slupeInstance = result.slupeInstance;
     }
 
+    // Run after hooks asynchronously (don't await)
+    if (result.slupeInstance && result.afterHookContext) {
+      result.slupeInstance.runAfterHooks(result.afterHookContext)
+        .then((hookResult: any) => {
+          if (!hookResult.success) {
+            console.error('\n=== AFTER HOOKS FAILED ===');
+            if (hookResult.errors) {
+              for (const error of hookResult.errors) {
+                console.error(`Command: ${error.command}`);
+                console.error(`Error: ${error.error}`);
+                if (error.stdout) console.error(`Stdout: ${error.stdout}`);
+                if (error.stderr) console.error(`Stderr: ${error.stderr}`);
+              }
+            }
+            console.error('=========================\n');
+            process.exit(1);
+          }
+        })
+        .catch((err: any) => {
+          console.error('Unexpected error running after hooks:', err);
+          process.exit(1);
+        });
+    }
+
   } catch (error) {
     console.error('listener: Error processing file change:', error);
   } finally {
