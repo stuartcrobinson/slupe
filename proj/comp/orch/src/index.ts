@@ -127,7 +127,9 @@ export class Slupe {
       }
 
       // Parse NESL blocks
+      console.time('parseNeslResponse');
       const parseResult = await parseNeslResponse(llmOutput);
+      console.timeEnd('parseNeslResponse');
 
       // Debug info captured in parseResult.debug
 
@@ -135,10 +137,14 @@ export class Slupe {
       const results: ActionResult[] = [];
       let seq = 1;
 
+      console.time('execute-all-actions');
       for (const action of parseResult.actions) {
+        console.time(`execute-action-${seq}`);
         const result = await this.executeAction(action, seq++);
+        console.timeEnd(`execute-action-${seq-1}`);
         results.push(result);
       }
+      console.timeEnd('execute-all-actions');
 
       // Calculate execution success (before considering after hooks)
       const allActionsSucceeded = results.every(r => r.success);
