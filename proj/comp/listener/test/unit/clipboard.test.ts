@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, beforeAll, afterAll } from 'vitest';
 import { readFile, rm, mkdir, writeFile } from 'fs/promises';
 import { marked } from 'marked';
 import { join, dirname } from 'path';
@@ -139,7 +139,9 @@ describe('clipboard integration', async () => {
         handle = await startListener({
           filePath: inputFile,
           useClipboard: true,
-          debounceMs: 15
+          debounceMs: 15,
+          outputFilename: `.slupe-output-${testCase.name}.txt`,
+          slupeInstance: sharedSlupeInstance
         });
         
         console.log(`[TEST ${testCase.name}] Starting to write ${testCase.inputs.length} test inputs`);

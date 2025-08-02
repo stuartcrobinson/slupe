@@ -4,6 +4,7 @@ export interface ListenerConfig {
   outputFilename?: string;
   debug?: boolean;
   useClipboard?: boolean;
+  slupeInstance?: any;
 }
 
 export interface ListenerHandle {
