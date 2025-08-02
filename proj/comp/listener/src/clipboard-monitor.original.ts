@@ -4,15 +4,6 @@ import { writeFile } from 'fs/promises';
 interface ClipboardEntry {
   content: string;
   timestamp: number | null;
-  detectedAt: number;
-  checkNumber: number;
-}
-
-interface TransitionEvent {
-  from: { length: number; preview: string };
-  to: { length: number; preview: string };
-  duration: number;
-  checkNumber: number;
 }
 
 export class ClipboardMonitor {
@@ -25,11 +16,6 @@ export class ClipboardMonitor {
   private isInitialized: boolean = false;
   private isChecking: boolean = false;
   private lastNonEmptyContent: string = '';
-  
-  private transitions: TransitionEvent[] = [];
-  private lastChangeTime: number = 0;
-  private unstableUntil: number = 0;
-  private diagnosticMode: boolean = true;
 
   constructor(filePath: string, pollInterval: number = 50) {
     this.filePath = filePath;
@@ -38,7 +24,6 @@ export class ClipboardMonitor {
 
   async start(): Promise<void> {
     console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
-    console.log('[ClipboardMonitor] DIAGNOSTIC MODE ENABLED');
 
     try {
       this.lastClipboardContent = await clipboard.read();
@@ -46,12 +31,7 @@ export class ClipboardMonitor {
       console.log('[ClipboardMonitor] Initialized with existing clipboard content length:', this.lastClipboardContent.length);
 
       if (this.lastClipboardContent) {
-        this.recentChanges.push({ 
-          content: this.lastClipboardContent, 
-          timestamp: null,
-          detectedAt: Date.now(),
-          checkNumber: 0
-        });
+        this.recentChanges.push({ content: this.lastClipboardContent, timestamp: null });
         console.log('[ClipboardMonitor] Added pre-existing content with null timestamp');
       }
     } catch (error) {
@@ -61,25 +41,9 @@ export class ClipboardMonitor {
     }
 
     this.isInitialized = true;
-    this.scheduleNextCheck();
-  }
-
-  private scheduleNextCheck(): void {
-    const now = Date.now();
-    const baseInterval = this.pollInterval;
-    
-    let nextInterval = baseInterval;
-    if (now < this.unstableUntil) {
-      nextInterval = 10;
-      if (this.diagnosticMode) {
-        console.log(`[ClipboardMonitor] Using fast polling (10ms) until ${this.unstableUntil - now}ms from now`);
-      }
-    }
-    
-    this.interval = setTimeout(async () => {
+    this.interval = setInterval(async () => {
       if (this.isChecking) {
         console.log('[ClipboardMonitor] Skipping check - previous check still running');
-        this.scheduleNextCheck();
         return;
       }
       try {
@@ -87,31 +51,17 @@ export class ClipboardMonitor {
         await this.checkClipboard();
       } finally {
         this.isChecking = false;
-        if (this.isInitialized) {
-          this.scheduleNextCheck();
-        }
       }
-    }, nextInterval);
+    }, this.pollInterval);
   }
 
   stop(): void {
     if (this.interval) {
-      clearTimeout(this.interval);
+      clearInterval(this.interval);
       this.interval = null;
     }
     this.recentChanges = [];
     this.isInitialized = false;
-    
-    if (this.diagnosticMode && this.transitions.length > 0) {
-      console.log('\n[ClipboardMonitor] === DIAGNOSTIC SUMMARY ===');
-      console.log('Transitions detected:');
-      this.transitions.forEach((t, i) => {
-        console.log(`  [${i}] Check #${t.checkNumber}: ${t.from.length} → ${t.to.length} bytes (${t.duration}ms)`);
-        if (t.from.length === 0 && t.to.length > 1000) {
-          console.log(`       ^ Large content appeared after empty! Took ${t.duration}ms`);
-        }
-      });
-    }
   }
 
   private async checkClipboard(): Promise<void> {
@@ -120,13 +70,12 @@ export class ClipboardMonitor {
     this.checkCount++;
     const checkStart = Date.now();
 
-    if (this.checkCount % 50 === 0 && this.recentChanges.length > 0) {
+    if (this.checkCount % 20 === 0 && this.recentChanges.length > 0) {
       console.log(`[ClipboardMonitor] === State at check #${this.checkCount} ===`);
       this.recentChanges.forEach((entry, i) => {
         const preview = entry.content.substring(0, 30).replace(/\n/g, '\\n');
         const hasDelim = entry.content.includes('#!end_');
-        const age = entry.timestamp ? checkStart - entry.timestamp : 'null';
-        console.log(`  [${i}] len:${entry.content.length} age:${age}ms check#:${entry.checkNumber} preview:"${preview}..." has#!end_:${hasDelim}`);
+        console.log(`  [${i}] len:${entry.content.length} ts:${entry.timestamp} preview:"${preview}..." has#!end_:${hasDelim}`);
       });
     }
 
@@ -134,47 +83,28 @@ export class ClipboardMonitor {
       const current = await clipboard.read();
       const now = Date.now();
 
+      // Clean old entries (>1800ms) and null timestamp entries
       const beforeClean = this.recentChanges.length;
       this.recentChanges = this.recentChanges.filter(e => e.timestamp !== null && now - e.timestamp <= 1800);
       if (beforeClean !== this.recentChanges.length) {
         console.log(`[ClipboardMonitor] Cleaned ${beforeClean - this.recentChanges.length} old entries`);
       }
 
+      // Only process if clipboard changed
       if (current !== this.lastClipboardContent) {
-        const transition: TransitionEvent = {
-          from: { 
-            length: this.lastClipboardContent.length, 
-            preview: this.lastClipboardContent.substring(0, 20).replace(/\n/g, '\\n') 
-          },
-          to: { 
-            length: current.length, 
-            preview: current.substring(0, 20).replace(/\n/g, '\\n') 
-          },
-          duration: this.lastChangeTime ? now - this.lastChangeTime : 0,
-          checkNumber: this.checkCount
-        };
-        this.transitions.push(transition);
-        this.lastChangeTime = now;
-
-        if (current === '') {
-          console.log(`[ClipboardMonitor] Check #${this.checkCount}: Empty clipboard detected`);
-          console.log(`  Previous content: ${this.lastClipboardContent.length} bytes`);
-          console.log(`  Time since last change: ${transition.duration}ms`);
-          
-          if (this.lastClipboardContent.length > 1000) {
-            console.log(`  ⚠️  Empty after large content - entering unstable period`);
-            this.unstableUntil = now + 500;
-          }
-        } else {
-          console.log(`[ClipboardMonitor] Check #${this.checkCount}: Clipboard changed!`);
-          console.log(`  Content length: ${current.length}`);
-          console.log(`  Time since last change: ${transition.duration}ms`);
-          
-          if (this.lastClipboardContent === '' && current.length > 1000) {
-            console.log(`  📊 Large content appeared ${transition.duration}ms after empty!`);
-          }
+        // Special handling for empty clipboard after non-empty content
+        if (current === '' && this.lastNonEmptyContent.length > 500) {
+          console.log(`[ClipboardMonitor] Empty clipboard detected after large content (${this.lastNonEmptyContent.length} chars)`);
+          console.log(`[ClipboardMonitor] Ignoring empty clipboard - likely a transient state`);
+          this.lastClipboardContent = current;
+          // Don't update lastNonEmptyContent since this is empty
+          // Don't add to recentChanges
+          return;
         }
 
+        console.log(`[ClipboardMonitor] Check #${this.checkCount}: Clipboard changed!`);
+        console.log(`  Content length: ${current.length}`);
+        console.log(`  Content preview: ${current.substring(0, 100).replace(/\n/g, '\\n')}`);
         console.log(`  Recent changes array size: ${this.recentChanges.length} -> ${this.recentChanges.length + 1}`);
 
         this.lastClipboardContent = current;
@@ -182,20 +112,7 @@ export class ClipboardMonitor {
           this.lastNonEmptyContent = current;
         }
         
-        this.recentChanges.push({ 
-          content: current, 
-          timestamp: now,
-          detectedAt: now,
-          checkNumber: this.checkCount
-        });
-
-        if (this.diagnosticMode && this.recentChanges.length >= 2) {
-          const last = this.recentChanges[this.recentChanges.length - 1];
-          const prev = this.recentChanges[this.recentChanges.length - 2];
-          if (prev.content === '' && last.content.length > 1000) {
-            console.log(`  📈 Pattern: empty→large in ${last.detectedAt - prev.detectedAt}ms`);
-          }
-        }
+        this.recentChanges.push({ content: current, timestamp: now });
 
         console.log(`[ClipboardMonitor] Current entries:`);
         this.recentChanges.forEach((entry, i) => {
