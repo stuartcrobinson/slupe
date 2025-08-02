@@ -187,6 +187,11 @@ export class ClipboardMonitor {
         this.lastClipboardContent = current;
         if (current.length > 0) {
           this.lastNonEmptyContent = current;
+          // Cancel fast polling when we get real content
+          if (this.unstableUntil > now) {
+            console.log(`  Canceling fast polling - real content detected`);
+            this.unstableUntil = 0;
+          }
         }
         
         this.recentChanges.push({ 
