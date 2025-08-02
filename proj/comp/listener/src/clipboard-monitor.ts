@@ -42,7 +42,7 @@ export class ClipboardMonitor {
 
     try {
       this.lastClipboardContent = await clipboard.read();
-      this.lastNonEmptyContent = this.lastClipboardContent;
+      this._lastNonEmptyContent = this.lastClipboardContent;
       console.log('[ClipboardMonitor] Initialized with existing clipboard content length:', this.lastClipboardContent.length);
 
       if (this.lastClipboardContent) {
@@ -57,7 +57,7 @@ export class ClipboardMonitor {
     } catch (error) {
       console.log('[ClipboardMonitor] Could not read initial clipboard:', error);
       this.lastClipboardContent = '';
-      this.lastNonEmptyContent = '';
+      this._lastNonEmptyContent = '';
     }
 
     this.isInitialized = true;
