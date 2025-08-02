@@ -68,11 +68,17 @@ export class ClipboardMonitor {
     if (!this.isInitialized) return;
 
     this.checkCount++;
+    const checkStart = Date.now();
 
-    // // Log every 10th check to verify polling is happening
-    // if (this.checkCount % 10 === 0) {
-    //   console.log(`[ClipboardMonitor] Polling check #${this.checkCount}`);
-    // }
+    // Log every 20th check with current state
+    if (this.checkCount % 20 === 0 && this.recentChanges.length > 0) {
+      console.log(`[ClipboardMonitor] === State at check #${this.checkCount} ===`);
+      this.recentChanges.forEach((entry, i) => {
+        const preview = entry.content.substring(0, 30).replace(/\n/g, '\\n');
+        const hasDelim = entry.content.includes('#!end_');
+        console.log(`  [${i}] len:${entry.content.length} ts:${entry.timestamp} preview:"${preview}..." has#!end_:${hasDelim}`);
+      });
+    }
 
     try {
       const current = await clipboard.read();
@@ -112,6 +118,11 @@ export class ClipboardMonitor {
       }
     } catch (error) {
       console.error('[ClipboardMonitor] Error:', error);
+    }
+    
+    const checkDuration = Date.now() - checkStart;
+    if (checkDuration > 20) {
+      console.log(`[ClipboardMonitor] Check #${this.checkCount} took ${checkDuration}ms`);
     }
   }
 
