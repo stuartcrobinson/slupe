@@ -44,7 +44,7 @@
     "js-yaml": "^4.1.0",
     "marked": "^12.0.0",
     "minimatch": "^9.0.3",
-    "nesl": "^0.1.11"
+    "nesl": "^0.1.12-beta.1"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
