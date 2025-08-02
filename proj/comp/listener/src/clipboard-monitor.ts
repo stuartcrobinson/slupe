@@ -24,7 +24,6 @@ export class ClipboardMonitor {
   private checkCount: number = 0;
   private isInitialized: boolean = false;
   private isChecking: boolean = false;
-  private _lastNonEmptyContent: string = '';
   
   private transitions: TransitionEvent[] = [];
   private lastChangeTime: number = 0;
@@ -42,7 +41,6 @@ export class ClipboardMonitor {
 
     try {
       this.lastClipboardContent = await clipboard.read();
-      this._lastNonEmptyContent = this.lastClipboardContent;
       console.log('[ClipboardMonitor] Initialized with existing clipboard content length:', this.lastClipboardContent.length);
 
       if (this.lastClipboardContent) {
@@ -57,7 +55,6 @@ export class ClipboardMonitor {
     } catch (error) {
       console.log('[ClipboardMonitor] Could not read initial clipboard:', error);
       this.lastClipboardContent = '';
-      this._lastNonEmptyContent = '';
     }
 
     this.isInitialized = true;
@@ -186,7 +183,6 @@ export class ClipboardMonitor {
 
         this.lastClipboardContent = current;
         if (current.length > 0) {
-          this._lastNonEmptyContent = current;
           // Cancel fast polling when we get real content
           if (this.unstableUntil > now) {
             console.log(`  Canceling fast polling - real content detected`);
