@@ -81,7 +81,7 @@ describe('clipboard integration', async () => {
     sharedRepoPath = mkdtempSync(join(tmpdir(), 'slupe-clipboard-shared-'));
     
     // Create shared Slupe instance
-    const { Slupe } = await import('../../orch/src/index.js');
+    const { Slupe } = await import('../../../orch/src/index.js');
     sharedSlupeInstance = await Slupe.create({ 
       gitCommit: false,
       repoPath: sharedRepoPath 
