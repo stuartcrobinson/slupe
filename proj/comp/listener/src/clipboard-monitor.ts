@@ -15,6 +15,7 @@ export class ClipboardMonitor {
   private checkCount: number = 0;
   private isInitialized: boolean = false;
   private isChecking: boolean = false;
+  private lastNonEmptyContent: string = '';
 
   constructor(filePath: string, pollInterval: number = 50) {
     this.filePath = filePath;
@@ -26,6 +27,7 @@ export class ClipboardMonitor {
 
     try {
       this.lastClipboardContent = await clipboard.read();
+      this.lastNonEmptyContent = this.lastClipboardContent;
       console.log('[ClipboardMonitor] Initialized with existing clipboard content length:', this.lastClipboardContent.length);
 
       if (this.lastClipboardContent) {
@@ -35,6 +37,7 @@ export class ClipboardMonitor {
     } catch (error) {
       console.log('[ClipboardMonitor] Could not read initial clipboard:', error);
       this.lastClipboardContent = '';
+      this.lastNonEmptyContent = '';
     }
 
     this.isInitialized = true;
@@ -80,26 +83,49 @@ export class ClipboardMonitor {
       const current = await clipboard.read();
       const now = Date.now();
 
+      // Clean old entries (>1800ms) and null timestamp entries
       const beforeClean = this.recentChanges.length;
       this.recentChanges = this.recentChanges.filter(e => e.timestamp !== null && now - e.timestamp <= 1800);
       if (beforeClean !== this.recentChanges.length) {
         console.log(`[ClipboardMonitor] Cleaned ${beforeClean - this.recentChanges.length} old entries`);
       }
 
+      // Only process if clipboard changed
       if (current !== this.lastClipboardContent) {
-        // Double-check empty reads on large clipboard operations
-        if (current === '' && this.lastClipboardContent.length > 1000) {
-          console.log(`[ClipboardMonitor] Detected empty read after large content (${this.lastClipboardContent.length} chars), re-reading...`);
-          await new Promise(resolve => setTimeout(resolve, 10));
-          const reread = await clipboard.read();
-          if (reread !== '') {
-            console.log(`[ClipboardMonitor] Re-read got content: ${reread.length} chars`);
-            this.handleClipboardChange(reread, now);
-            return;
-          }
+        // Special handling for empty clipboard after non-empty content
+        if (current === '' && this.lastNonEmptyContent.length > 500) {
+          console.log(`[ClipboardMonitor] Empty clipboard detected after large content (${this.lastNonEmptyContent.length} chars)`);
+          console.log(`[ClipboardMonitor] Ignoring empty clipboard - likely a transient state`);
+          this.lastClipboardContent = current;
+          // Don't update lastNonEmptyContent since this is empty
+          // Don't add to recentChanges
+          return;
+        }
+
+        console.log(`[ClipboardMonitor] Check #${this.checkCount}: Clipboard changed!`);
+        console.log(`  Content length: ${current.length}`);
+        console.log(`  Content preview: ${current.substring(0, 100).replace(/\n/g, '\\n')}`);
+        console.log(`  Recent changes array size: ${this.recentChanges.length} -> ${this.recentChanges.length + 1}`);
+
+        this.lastClipboardContent = current;
+        if (current.length > 0) {
+          this.lastNonEmptyContent = current;
         }
         
-        this.handleClipboardChange(current, now);
+        this.recentChanges.push({ content: current, timestamp: now });
+
+        console.log(`[ClipboardMonitor] Current entries:`);
+        this.recentChanges.forEach((entry, i) => {
+          const endMatch = entry.content.match(/^(#!end_[a-zA-Z0-9]+)/m);
+          console.log(`  [${i}] timestamp: ${entry.timestamp === null ? 'null' : entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
+        });
+
+        const match = this.findMatchingPair();
+        if (match) {
+          console.log('[ClipboardMonitor] Match found! Writing to file:', this.filePath);
+          await writeFile(this.filePath, match);
+          this.recentChanges = [];
+        }
       }
     } catch (error) {
       console.error('[ClipboardMonitor] Error:', error);
@@ -108,40 +134,6 @@ export class ClipboardMonitor {
     const checkDuration = Date.now() - checkStart;
     if (checkDuration > 20) {
       console.log(`[ClipboardMonitor] Check #${this.checkCount} took ${checkDuration}ms`);
-    }
-  }
-
-  private handleClipboardChange(content: string, timestamp: number): void {
-    console.log(`[ClipboardMonitor] Check #${this.checkCount}: Clipboard changed!`);
-    console.log(`  Content length: ${content.length}`);
-    console.log(`  Content preview: ${content.substring(0, 100).replace(/\n/g, '\\n')}`);
-    console.log(`  Recent changes array size: ${this.recentChanges.length} -> ${this.recentChanges.length + 1}`);
-
-    this.lastClipboardContent = content;
-    
-    // Skip empty clipboard entries unless explicitly clearing
-    if (content === '' && this.recentChanges.length > 0) {
-      const lastEntry = this.recentChanges[this.recentChanges.length - 1];
-      if (lastEntry.content.length > 0) {
-        console.log('[ClipboardMonitor] Skipping empty clipboard entry after non-empty content');
-        return;
-      }
-    }
-    
-    this.recentChanges.push({ content, timestamp });
-
-    console.log(`[ClipboardMonitor] Current entries:`);
-    this.recentChanges.forEach((entry, i) => {
-      const endMatch = entry.content.match(/^(#!end_[a-zA-Z0-9]+)/m);
-      console.log(`  [${i}] timestamp: ${entry.timestamp === null ? 'null' : entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
-    });
-
-    const match = this.findMatchingPair();
-    if (match) {
-      console.log('[ClipboardMonitor] Match found! Writing to file:', this.filePath);
-      writeFile(this.filePath, match).then(() => {
-        this.recentChanges = [];
-      });
     }
   }
 
