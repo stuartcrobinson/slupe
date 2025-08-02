@@ -24,12 +24,10 @@ export class ClipboardMonitor {
   async start(): Promise<void> {
     console.log('[ClipboardMonitor] Starting with poll interval:', this.pollInterval);
 
-    // Initialize with current clipboard content and mark it with null timestamp
     try {
       this.lastClipboardContent = await clipboard.read();
       console.log('[ClipboardMonitor] Initialized with existing clipboard content length:', this.lastClipboardContent.length);
 
-      // Add pre-existing content with null timestamp
       if (this.lastClipboardContent) {
         this.recentChanges.push({ content: this.lastClipboardContent, timestamp: null });
         console.log('[ClipboardMonitor] Added pre-existing content with null timestamp');
@@ -59,7 +57,6 @@ export class ClipboardMonitor {
       clearInterval(this.interval);
       this.interval = null;
     }
-    // Clear recent changes to prevent any pending matches
     this.recentChanges = [];
     this.isInitialized = false;
   }
@@ -70,7 +67,6 @@ export class ClipboardMonitor {
     this.checkCount++;
     const checkStart = Date.now();
 
-    // Log every 20th check with current state
     if (this.checkCount % 20 === 0 && this.recentChanges.length > 0) {
       console.log(`[ClipboardMonitor] === State at check #${this.checkCount} ===`);
       this.recentChanges.forEach((entry, i) => {
@@ -84,37 +80,26 @@ export class ClipboardMonitor {
       const current = await clipboard.read();
       const now = Date.now();
 
-      // Clean old entries (>1800ms) and null timestamp entries
       const beforeClean = this.recentChanges.length;
       this.recentChanges = this.recentChanges.filter(e => e.timestamp !== null && now - e.timestamp <= 1800);
       if (beforeClean !== this.recentChanges.length) {
         console.log(`[ClipboardMonitor] Cleaned ${beforeClean - this.recentChanges.length} old entries`);
       }
 
-      // Only process if clipboard changed
       if (current !== this.lastClipboardContent) {
-        console.log(`[ClipboardMonitor] Check #${this.checkCount}: Clipboard changed!`);
-        console.log(`  Content length: ${current.length}`);
-        console.log(`  Content preview: ${current.substring(0, 100).replace(/\n/g, '\\n')}`);
-        console.log(`  Recent changes array size: ${this.recentChanges.length} -> ${this.recentChanges.length + 1}`);
-
-        this.lastClipboardContent = current;
-        this.recentChanges.push({ content: current, timestamp: now });
-
-        // Log all entries with their delimiters
-        console.log(`[ClipboardMonitor] Current entries:`);
-        this.recentChanges.forEach((entry, i) => {
-          const endMatch = entry.content.match(/^(#!end_[a-zA-Z0-9]+)/m);
-          console.log(`  [${i}] timestamp: ${entry.timestamp === null ? 'null' : entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
-        });
-
-        // Check for matching delimiter pairs
-        const match = this.findMatchingPair();
-        if (match) {
-          console.log('[ClipboardMonitor] Match found! Writing to file:', this.filePath);
-          await writeFile(this.filePath, match);
-          this.recentChanges = [];
+        // Double-check empty reads on large clipboard operations
+        if (current === '' && this.lastClipboardContent.length > 1000) {
+          console.log(`[ClipboardMonitor] Detected empty read after large content (${this.lastClipboardContent.length} chars), re-reading...`);
+          await new Promise(resolve => setTimeout(resolve, 10));
+          const reread = await clipboard.read();
+          if (reread !== '') {
+            console.log(`[ClipboardMonitor] Re-read got content: ${reread.length} chars`);
+            this.handleClipboardChange(reread, now);
+            return;
+          }
         }
+        
+        this.handleClipboardChange(current, now);
       }
     } catch (error) {
       console.error('[ClipboardMonitor] Error:', error);
@@ -126,10 +111,43 @@ export class ClipboardMonitor {
     }
   }
 
+  private handleClipboardChange(content: string, timestamp: number): void {
+    console.log(`[ClipboardMonitor] Check #${this.checkCount}: Clipboard changed!`);
+    console.log(`  Content length: ${content.length}`);
+    console.log(`  Content preview: ${content.substring(0, 100).replace(/\n/g, '\\n')}`);
+    console.log(`  Recent changes array size: ${this.recentChanges.length} -> ${this.recentChanges.length + 1}`);
+
+    this.lastClipboardContent = content;
+    
+    // Skip empty clipboard entries unless explicitly clearing
+    if (content === '' && this.recentChanges.length > 0) {
+      const lastEntry = this.recentChanges[this.recentChanges.length - 1];
+      if (lastEntry.content.length > 0) {
+        console.log('[ClipboardMonitor] Skipping empty clipboard entry after non-empty content');
+        return;
+      }
+    }
+    
+    this.recentChanges.push({ content, timestamp });
+
+    console.log(`[ClipboardMonitor] Current entries:`);
+    this.recentChanges.forEach((entry, i) => {
+      const endMatch = entry.content.match(/^(#!end_[a-zA-Z0-9]+)/m);
+      console.log(`  [${i}] timestamp: ${entry.timestamp === null ? 'null' : entry.timestamp}, length: ${entry.content.length}, delimiter: ${endMatch ? endMatch[1] : 'none'}`);
+    });
+
+    const match = this.findMatchingPair();
+    if (match) {
+      console.log('[ClipboardMonitor] Match found! Writing to file:', this.filePath);
+      writeFile(this.filePath, match).then(() => {
+        this.recentChanges = [];
+      });
+    }
+  }
+
   private findMatchingPair(): string | null {
     console.log('[ClipboardMonitor] Checking for matching pairs, entries:', this.recentChanges.length);
 
-    // Look for pairs with matching delimiters, skip null timestamp entries
     for (let i = 0; i < this.recentChanges.length; i++) {
       for (let j = 0; j < this.recentChanges.length; j++) {
         if (i === j) continue;
@@ -137,13 +155,10 @@ export class ClipboardMonitor {
         const entry1 = this.recentChanges[i];
         const entry2 = this.recentChanges[j];
 
-        // Skip entries with null timestamps
         if (entry1.timestamp === null || entry2.timestamp === null) {
           continue;
         }
 
-        // Extract ALL delimiters from entries (looking for #!end_xxx)
-        // Must be at start of a line
         const start = Date.now();
         const endMatches1 = Array.from(entry1.content.matchAll(/^(#!end_[a-zA-Z0-9]+)/gm));
         const endMatches2 = Array.from(entry2.content.matchAll(/^(#!end_[a-zA-Z0-9]+)/gm));
@@ -159,7 +174,6 @@ export class ClipboardMonitor {
         console.log(`    [${i}] delimiters: ${delimiters1.length > 0 ? delimiters1.join(', ') : 'none'}`);
         console.log(`    [${j}] delimiters: ${delimiters2.length > 0 ? delimiters2.join(', ') : 'none'}`);
         
-        // Debug: show actual content around delimiter
         if (delimiters1.length === 0 && entry1.content.includes('#!end_')) {
           const idx = entry1.content.indexOf('#!end_');
           console.log(`    [${i}] has #!end_ but not at line start. Context: "${entry1.content.substring(Math.max(0, idx - 10), idx + 20).replace(/\n/g, '\\n')}"`);
@@ -169,7 +183,6 @@ export class ClipboardMonitor {
           console.log(`    [${j}] has #!end_ but not at line start. Context: "${entry2.content.substring(Math.max(0, idx - 10), idx + 20).replace(/\n/g, '\\n')}"`);
         }
 
-        // Check if ANY delimiter from entry1 matches ANY delimiter from entry2
         for (const d1 of delimiters1) {
           for (const d2 of delimiters2) {
             if (d1 === d2) {
@@ -178,7 +191,6 @@ export class ClipboardMonitor {
               console.log(`  Entry [${j}] length: ${entry2.content.length}`);
               const smaller = entry1.content.length < entry2.content.length ? entry1.content : entry2.content;
               console.log(`  Returning the smaller entry (length ${smaller.length})`);
-              // Return the smaller content (actual NESL command)
               return smaller;
             }
           }
@@ -189,5 +201,4 @@ export class ClipboardMonitor {
     console.log('[ClipboardMonitor] No matching pairs found');
     return null;
   }
-
 }
