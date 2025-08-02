@@ -24,7 +24,7 @@ export class ClipboardMonitor {
   private checkCount: number = 0;
   private isInitialized: boolean = false;
   private isChecking: boolean = false;
-  private lastNonEmptyContent: string = '';
+  private _lastNonEmptyContent: string = '';
   
   private transitions: TransitionEvent[] = [];
   private lastChangeTime: number = 0;
@@ -186,7 +186,7 @@ export class ClipboardMonitor {
 
         this.lastClipboardContent = current;
         if (current.length > 0) {
-          this.lastNonEmptyContent = current;
+          this._lastNonEmptyContent = current;
           // Cancel fast polling when we get real content
           if (this.unstableUntil > now) {
             console.log(`  Canceling fast polling - real content detected`);
@@ -204,7 +204,7 @@ export class ClipboardMonitor {
         if (this.diagnosticMode && this.recentChanges.length >= 2) {
           const last = this.recentChanges[this.recentChanges.length - 1];
           const prev = this.recentChanges[this.recentChanges.length - 2];
-          if (prev.content === '' && last.content.length > 1000) {
+          if (last && prev && prev.content === '' && last.content.length > 1000) {
             console.log(`  📈 Pattern: empty→large in ${last.detectedAt - prev.detectedAt}ms`);
           }
         }
@@ -242,7 +242,7 @@ export class ClipboardMonitor {
         const entry1 = this.recentChanges[i];
         const entry2 = this.recentChanges[j];
 
-        if (entry1.timestamp === null || entry2.timestamp === null) {
+        if (!entry1 || !entry2 || entry1.timestamp === null || entry2.timestamp === null) {
           continue;
         }
 

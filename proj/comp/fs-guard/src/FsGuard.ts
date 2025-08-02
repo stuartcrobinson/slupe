@@ -41,8 +41,8 @@ export class FsGuard {
 
   constructor(config: FsGuardConfig, private repoRoot: string) {
     // Config is now required - defaults are handled in loadConfig
-    this.allowedPatterns = config.allowed;
-    this.deniedPatterns = config.denied;
+    this.allowedPatterns = config.allowed || [];
+    this.deniedPatterns = config.denied || [];
     this.followSymlinks = config.followSymlinks ?? false;
 
     // Resolve relative patterns from repo root

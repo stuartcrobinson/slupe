@@ -26,7 +26,7 @@ export class FileWatcher {
 
     const debouncedOnChange = this.debounce(onChange, debounceMs);
 
-    const watcher = watch(filePath, (eventType, filename) => {
+    const watcher = watch(filePath, (eventType, _filename) => {
       if (eventType === 'change') {
         debouncedOnChange();
       }

@@ -37,7 +37,7 @@ export function hasExistingSlupeResults(content: string): boolean {
 
 export async function processContent(
   content: string,
-  lastHash: string,
+  _lastHash: string,
   debug?: boolean,
   repoPath?: string,
   slupeInstance?: any

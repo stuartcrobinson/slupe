@@ -10,6 +10,14 @@ X allow cmd line arg and config arg for custom input/output files
     - critical for using npx slupe in actual slupe repo
 
 
+now... 
+
+- fix build errors
+- clean up README 
+
+- write hacker news post about it
+- publish sunday morning 
+
 ---
 
 LATER
@@ -17,8 +25,8 @@ LATER
 what else do i need rn? before publish to HN?
 
 nesl transcription layer? 
-    - remove apostrophes after end delimiters 
-    - make sure they're on their own line
+    X remove apostrophes after end delimiters 
+    X make sure they're on their own line
 
 - build search/replace range action
 

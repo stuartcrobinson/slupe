@@ -219,7 +219,8 @@ export class Slupe {
   private static async initializeExecutors(config: SlupeConfig, repoPath: string): Promise<Map<string, (action: SlupeAction) => Promise<FileOpResult>>> {
 
     // Create fs-guard with config (loadConfig ensures fs-guard section always exists)
-    const fsGuard = new FsGuard(config['fs-guard'], repoPath);
+    const fsGuardConfig = config['fs-guard'] || { allowed: [], denied: [] };
+    const fsGuard = new FsGuard(fsGuardConfig, repoPath);
 
     // Create executors
     const fsOps = new FsOpsExecutor(fsGuard);
