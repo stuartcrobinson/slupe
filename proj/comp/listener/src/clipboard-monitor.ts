@@ -147,6 +147,16 @@ export class ClipboardMonitor {
         console.log(`[ClipboardMonitor]   Comparing [${i}] and [${j}]:`);
         console.log(`    [${i}] delimiters: ${delimiters1.length > 0 ? delimiters1.join(', ') : 'none'}`);
         console.log(`    [${j}] delimiters: ${delimiters2.length > 0 ? delimiters2.join(', ') : 'none'}`);
+        
+        // Debug: show actual content around delimiter
+        if (delimiters1.length === 0 && entry1.content.includes('#!end_')) {
+          const idx = entry1.content.indexOf('#!end_');
+          console.log(`    [${i}] has #!end_ but not at line start. Context: "${entry1.content.substring(Math.max(0, idx - 10), idx + 20).replace(/\n/g, '\\n')}"`);
+        }
+        if (delimiters2.length === 0 && entry2.content.includes('#!end_')) {
+          const idx = entry2.content.indexOf('#!end_');
+          console.log(`    [${j}] has #!end_ but not at line start. Context: "${entry2.content.substring(Math.max(0, idx - 10), idx + 20).replace(/\n/g, '\\n')}"`);
+        }
 
         // Check if ANY delimiter from entry1 matches ANY delimiter from entry2
         for (const d1 of delimiters1) {
