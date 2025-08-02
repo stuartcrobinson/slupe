@@ -14,6 +14,7 @@ export class ClipboardMonitor {
   private pollInterval: number;
   private checkCount: number = 0;
   private isInitialized: boolean = false;
+  private isChecking: boolean = false;
 
   constructor(filePath: string, pollInterval: number = 50) {
     this.filePath = filePath;
@@ -39,7 +40,18 @@ export class ClipboardMonitor {
     }
 
     this.isInitialized = true;
-    this.interval = setInterval(() => this.checkClipboard(), this.pollInterval);
+    this.interval = setInterval(async () => {
+      if (this.isChecking) {
+        console.log('[ClipboardMonitor] Skipping check - previous check still running');
+        return;
+      }
+      try {
+        this.isChecking = true;
+        await this.checkClipboard();
+      } finally {
+        this.isChecking = false;
+      }
+    }, this.pollInterval);
   }
 
   stop(): void {
@@ -121,8 +133,13 @@ export class ClipboardMonitor {
 
         // Extract ALL delimiters from entries (looking for #!end_xxx)
         // Must be at start of a line
+        const start = Date.now();
         const endMatches1 = Array.from(entry1.content.matchAll(/^(#!end_[a-zA-Z0-9]+)/gm));
         const endMatches2 = Array.from(entry2.content.matchAll(/^(#!end_[a-zA-Z0-9]+)/gm));
+        const regexTime = Date.now() - start;
+        if (regexTime > 10) {
+          console.log(`[ClipboardMonitor] Regex parsing took ${regexTime}ms for entries of length ${entry1.content.length} and ${entry2.content.length}`);
+        }
 
         const delimiters1 = endMatches1.map(m => m[1]);
         const delimiters2 = endMatches2.map(m => m[1]);
