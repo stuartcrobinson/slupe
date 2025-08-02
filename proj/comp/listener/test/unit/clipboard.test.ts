@@ -73,10 +73,24 @@ async function parseTestCases(): Promise<TestCase[]> {
 describe('clipboard integration', async () => {
   const cases = await parseTestCases();
   let handle: ListenerHandle | null = null;
-  let testRepoPath: string;
+  let sharedRepoPath: string;
+  let sharedSlupeInstance: any;
   
-  beforeEach(async () => {
-    testRepoPath = mkdtempSync(join(tmpdir(), 'slupe-clipboard-test-'));
+  beforeAll(async () => {
+    // Create shared temp directory and Slupe instance once
+    sharedRepoPath = mkdtempSync(join(tmpdir(), 'slupe-clipboard-shared-'));
+    
+    // Create shared Slupe instance
+    const { Slupe } = await import('../../orch/src/index.js');
+    sharedSlupeInstance = await Slupe.create({ 
+      gitCommit: false,
+      repoPath: sharedRepoPath 
+    });
+  });
+  
+  afterAll(async () => {
+    // Clean up shared resources
+    await rm(sharedRepoPath, { recursive: true, force: true }).catch(() => {});
   });
   
   afterEach(async () => {
@@ -84,8 +98,6 @@ describe('clipboard integration', async () => {
       await handle.stop();
       handle = null;
     }
-    
-    await rm(testRepoPath, { recursive: true, force: true }).catch(() => {});
   });
   
   for (const testCase of cases) {
@@ -97,8 +109,8 @@ describe('clipboard integration', async () => {
       });
       
       const testDir = `/tmp/t_${testCase.name}`;
-      const inputFile = join(testRepoPath, 'input.md');
-      const outputFile = join(testRepoPath, '.slupe-output-latest.txt');
+      const inputFile = join(sharedRepoPath, `${testCase.name}.md`);
+      const outputFile = join(sharedRepoPath, `.slupe-output-${testCase.name}.txt`);
       
       // Write unique content BEFORE starting monitor
       const uniqueContent = `unique-${testCase.name}-${Date.now()}`;
@@ -246,7 +258,7 @@ describe('clipboard integration', async () => {
   }
 
   it('should add clipboard timestamp to input file after copying', async () => {
-    const inputFile = join(testRepoPath, 'input.md');
+    const inputFile = join(sharedRepoPath, 'clipboard-timestamp-test.md');
     const uniqueContent = `unique-clipboard-timestamp-test-${Date.now()}`;
     
     await clipboard.write(uniqueContent);
@@ -255,13 +267,15 @@ describe('clipboard integration', async () => {
     handle = await startListener({
       filePath: inputFile,
       useClipboard: true,
-      debounceMs: 100
+      debounceMs: 15,
+      outputFilename: '.slupe-output-clipboard-timestamp-test.txt',
+      slupeInstance: sharedSlupeInstance
     });
     
     // Copy NESL command parts to trigger execution
     await clipboard.write(`#!nesl [@three-char-SHA-256: tst]
 action = "file_write"
-path = "${testRepoPath}/test.txt"
+path = "${sharedRepoPath}/test.txt"
 content = <<'EOT_tst'
 test content
 EOT_tst

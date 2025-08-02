@@ -158,7 +158,8 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
     outputPath: join(dirname(config.filePath), config.outputFilename || '.slupe-output-latest.txt'),
     debug: config.debug || false,
     useClipboard: config.useClipboard || false,
-    inputPath: config.filePath
+    inputPath: config.filePath,
+    slupeInstance: config.slupeInstance
   };
 
   const processHandler = async () => processFileChange(config.filePath, state);
