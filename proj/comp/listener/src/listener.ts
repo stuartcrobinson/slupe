@@ -53,12 +53,11 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     // Copy combined content to clipboard before writing files
     let clipboardCopyTime: Date | undefined;
     if (state.useClipboard) {
-      const combinedContent = result.summary + '\n' + result.originalContent;
       try {
-        await clipboard.write(combinedContent);
+        await clipboard.write(result.fullOutput);
         clipboardCopyTime = new Date();
         if (state.debug) {
-          console.log('[Clipboard] Copied combined content to clipboard (length:', combinedContent.length + ')');
+          console.log('[Clipboard] Copied combined content to clipboard (length:', result.fullOutput.length + ')');
         }
       } catch (clipboardError) {
         console.error('[Clipboard] Error copying to clipboard:', clipboardError);
