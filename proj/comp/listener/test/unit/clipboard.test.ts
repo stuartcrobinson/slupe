@@ -119,14 +119,14 @@ describe('clipboard integration', async () => {
       
       // Poll to ensure clipboard write completed
       let writeVerified = false;
-      for (let i = 0; i < 50; i++) { // max 500ms
+      for (let i = 0; i < 20; i++) { // max 100ms
         const current = await clipboard.read();
         if (current === uniqueContent) {
           writeVerified = true;
-          console.log(`[TEST ${testCase.name}] Clipboard write verified after ${i * 10}ms`);
+          console.log(`[TEST ${testCase.name}] Clipboard write verified after ${i * 5}ms`);
           break;
         }
-        await new Promise(resolve => setTimeout(resolve, 10));
+        await new Promise(resolve => setTimeout(resolve, 5));
       }
       if (!writeVerified) {
         throw new Error(`Failed to verify clipboard write of unique content`);
@@ -157,14 +157,14 @@ describe('clipboard integration', async () => {
           
           // Poll to verify the write
           let writeVerified = false;
-          for (let i = 0; i < 50; i++) { // max 500ms
+          for (let i = 0; i < 20; i++) { // max 100ms
             const written = await clipboard.read();
             if (written === input.content) {
               writeVerified = true;
-              console.log(`  Verified write after ${i * 10}ms - length: ${written.length}`);
+              console.log(`  Verified write after ${i * 5}ms - length: ${written.length}`);
               break;
             }
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise(resolve => setTimeout(resolve, 5));
           }
           if (!writeVerified) {
             throw new Error(`Failed to verify clipboard write for input ${idx + 1}`);
@@ -174,8 +174,8 @@ describe('clipboard integration', async () => {
             console.log(`  Waiting ${input.delay}ms...`);
             await new Promise(resolve => setTimeout(resolve, input.delay));
           } else {
-            console.log(`  No delay specified, waiting 50ms default...`);
-            await new Promise(resolve => setTimeout(resolve, 50));
+            console.log(`  No delay specified, waiting 5ms default...`);
+            await new Promise(resolve => setTimeout(resolve, 5));
           }
         }
         
@@ -238,14 +238,14 @@ describe('clipboard integration', async () => {
           
           // Poll to verify cleanup write
           let cleanupVerified = false;
-          for (let i = 0; i < 50; i++) { // max 500ms
+          for (let i = 0; i < 10; i++) { // max 50ms
             const current = await clipboard.read();
             if (current === uniqueContent) {
               cleanupVerified = true;
-              console.log(`[TEST ${testCase.name}] Cleanup write verified after ${i * 10}ms`);
+              console.log(`[TEST ${testCase.name}] Cleanup write verified after ${i * 5}ms`);
               break;
             }
-            await new Promise(resolve => setTimeout(resolve, 10));
+            await new Promise(resolve => setTimeout(resolve, 5));
           }
           if (!cleanupVerified) {
             console.log(`[TEST ${testCase.name}] Warning: Failed to verify cleanup clipboard write`);
