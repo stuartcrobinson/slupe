@@ -70,9 +70,9 @@ export class ClipboardMonitor {
     
     let nextInterval = baseInterval;
     if (now < this.unstableUntil) {
-      nextInterval = 5;
+      nextInterval = 1;
       if (this.diagnosticMode) {
-        console.log(`[ClipboardMonitor] Using fast polling (5ms) until ${this.unstableUntil - now}ms from now`);
+        console.log(`[ClipboardMonitor] Using fast polling (${nextInterval}ms) until ${this.unstableUntil - now}ms from now`);
       }
     }
     
@@ -167,6 +167,15 @@ export class ClipboardMonitor {
           console.log(`[ClipboardMonitor] Check #${this.checkCount}: Clipboard changed!`);
           console.log(`  Content length: ${current.length}`);
           console.log(`  Time since last change: ${transition.duration}ms`);
+          
+          // Check if this looks like it should be the huge file
+          if (current.includes('#!end_k9m') && current.length < 10000) {
+            console.log(`  🚨 ANOMALY: Content has huge file delimiter but only ${current.length} bytes!`);
+          }
+          
+          if (this.lastClipboardContent === '' && current.length === 5260) {
+            console.log(`  ⚠️  Medium content (5260) appeared after empty - huge file may have been skipped!`);
+          }
           
           if (this.lastClipboardContent === '' && current.length > 1000) {
             console.log(`  📊 Large content appeared ${transition.duration}ms after empty!`);
