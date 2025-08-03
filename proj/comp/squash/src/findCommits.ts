@@ -21,6 +21,8 @@ export async function findCommits(options: SquashOptions, cwd?: string): Promise
   
   for (let i = 0; i < commits.length; i++) {
     const commit = commits[i];
+    if (!commit) continue;
+    
     if (options.limit && count >= options.limit) {
       debug('findCommits:limitReached', { limit: options.limit, count });
       break;

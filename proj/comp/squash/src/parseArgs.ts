@@ -18,15 +18,21 @@ export function parseArgs(args: string[]): SquashOptions | null {
     switch (args[i]) {
       case '--containing':
         if (i + 1 < args.length) {
-          options.containing.push(args[i + 1]);
+          const val = args[i + 1];
+          if (val !== undefined) {
+            options.containing.push(val);
+          }
           i++;
         }
         break;
       case '--limit':
         if (i + 1 < args.length) {
-          const limit = parseInt(args[i + 1], 10);
-          if (!isNaN(limit) && limit > 0) {
-            options.limit = limit;
+          const limitArg = args[i + 1];
+          if (limitArg !== undefined) {
+            const limit = parseInt(limitArg, 10);
+            if (!isNaN(limit) && limit > 0) {
+              options.limit = limit;
+            }
           }
           i++;
         }

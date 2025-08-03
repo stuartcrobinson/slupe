@@ -58,7 +58,7 @@ export async function squash(cwd?: string): Promise<void> {
     
     if (options.push) {
       console.log('Pushing changes...');
-      await pushChanges(options.force, workingDir);
+      await pushChanges(options.force || false, workingDir);
       console.log('Pushed successfully');
     }
     

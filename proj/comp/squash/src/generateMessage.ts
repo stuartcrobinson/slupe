@@ -20,12 +20,5 @@ export async function generateMessage(commits: GitCommit[], cwd?: string): Promi
   }
   
   const filesList = Array.from(filesSet).sort();
-  let filesStr: string;
   
-  if (filesList.length <= 10) {
-    filesStr = filesList.join(', ');
-  } else {
-    filesStr = filesList.slice(0, 2).join(', ') + `, ... and ${filesList.length - 2} more`;
-  }
-  
-return `slupe-squash:: ${commits.length} commits (${oldestDate} to ${newestDate}): modified ${filesList.length} files\n${filesList.join('\n')}`;}
+  return `slupe-squash:: ${commits.length} commits (${oldestDate} to ${newestDate}): modified ${filesList.length} files\n${filesList.join('\n')}`;}
