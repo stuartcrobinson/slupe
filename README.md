@@ -49,17 +49,17 @@ This creates:
 
 ## NESL Syntax
 
-NESL blocks are markdown code blocks that LLMs can generate:
+NESL was designed to provide LLMs with a robust and conflict-free way to communicate payloads with minimal errors.  Tests have generally shown LLM-generated nesl to be more reliable that other compared formats including json (obviously), yaml, ruby heredocs, perl heredocs, and aider's git-conflict search/replace format.
 
 ```sh nesl
-#!nesl [@three-char-SHA-256: abc]
+#!nesl [@three-char-SHA-256: x5t]
 action = "file_write"
 path = "/path/to/file.txt"
-content = <<'EOT_abc'
+content = <<'EOT_x5t'
 Hello, World!
 This is multi-line content.
-EOT_abc
-#!end_abc
+EOT_x5t
+#!end_x5t
 ```
 
 ## Available Actions
