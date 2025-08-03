@@ -63,7 +63,7 @@ async function main(): Promise<void> {
   }
 
   console.log(`Starting listener on: ${filePath}`);
-  console.log(`Clipboard: ${useClipboard ? 'enabled' : 'disabled'}`);
+  console.log(`Clipboard: ${useClipboard ? 'enabled' : 'disabled. Use --clipboard to activate'}`);
 
   const debounceMs = config.debounce_ms || parseInt(process.env.SLUPE_DEBOUNCE || '50', 10);
   
