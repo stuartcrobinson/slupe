@@ -55,7 +55,7 @@ describe('squash integration', () => {
     
     const logAfter = await git.log();
     expect(logAfter.total).toBe(2);
-    expect(logAfter.latest!.message).toMatch(/Squashed 3 commits/);
+    expect(logAfter.latest!.message).toMatch(/slupe-squash:: 3 commits/);
     expect(logAfter.all[1]!.message).toBe('manual commit');
   });
   
@@ -71,7 +71,7 @@ describe('squash integration', () => {
     
     const log = await git.log();
     expect(log.total).toBe(3);
-    expect(log.latest!.message).toMatch(/Squashed 3 commits/);
+    expect(log.latest!.message).toMatch(/slupe-squash:: 3 commits/);
   });
   
   it('handles empty string pattern', async () => {
@@ -157,7 +157,7 @@ describe('squash integration', () => {
     
     const remoteLog = await remoteGit.log([branch]);
     expect(remoteLog.total).toBe(2);
-    expect(remoteLog.latest!.message).toMatch(/Squashed 2 commits/);
+    expect(remoteLog.latest!.message).toMatch(/slupe-squash:: 2 commits/);
   });
 
 
@@ -173,7 +173,7 @@ describe('squash integration', () => {
     
     const log = await git.log();
     expect(log.total).toBe(3);
-    expect(log.latest!.message).toMatch(/Squashed 3 commits/);
+    expect(log.latest!.message).toMatch(/slupe-squash:: 3 commits/);
   });
 
   it('respects after date filter', async () => {
@@ -221,7 +221,7 @@ describe('squash integration', () => {
     });
     
     expect(log.total).toBe(3);
-    expect(log.latest!.message).toMatch(/Squashed 2 commits/);
+    expect(log.latest!.message).toMatch(/slupe-squash:: 2 commits/);
   });
 
   it('handles various date formats for after', async () => {
