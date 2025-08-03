@@ -126,5 +126,19 @@ export function validateConfig(config: any): ValidationResult {
     }
   }
 
+  if (config['input_file'] !== undefined && typeof config['input_file'] !== 'string') {
+    return {
+      valid: false,
+      error: 'input_file must be a string'
+    };
+  }
+
+  if (config['output_file'] !== undefined && typeof config['output_file'] !== 'string') {
+    return {
+      valid: false,
+      error: 'output_file must be a string'
+    };
+  }
+
   return { valid: true };
 }

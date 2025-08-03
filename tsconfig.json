@@ -49,6 +49,8 @@
     "node_modules",
     "dist",
     "**/test/**",
-    "**/test-data/**"
+    "**/test-data/**",
+    "proj/src/cli.js",
+    "proj/src/cli-squash.js"
   ]
 }

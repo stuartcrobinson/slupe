@@ -3,11 +3,32 @@ import { readFileSync } from 'fs';
 
 
 export function formatSummary(orchResult: OrchestratorResult): string {
-  const lines = ['', '=== SLUPE RESULTS ==='];
+  const lines = ['=== SLUPE RESULTS ==='];
+  
+  // If no actions and no errors, indicate that
+  if (!orchResult.results?.length && !orchResult.parseErrors?.length && !orchResult.hookErrors?.before?.length) {
+    lines.push('No NESL blocks found');
+  }
+
+
 
   // DEBUG: Log raw orchestrator result for parse errors
   if (orchResult.parseErrors && orchResult.parseErrors.length > 0) {
     // console.log('DEBUG: Raw parseErrors:', JSON.stringify(orchResult.parseErrors, null, 2));
+  }
+
+  // Handle hook errors first
+  if (orchResult.hookErrors?.before) {
+    for (const error of orchResult.hookErrors.before) {
+      lines.push(`def ❌ - Hook failed: ${error.command}`);
+      lines.push(`          Error: ${error.error}`);
+      if (error.stderr?.trim()) {
+        lines.push(`          stderr: ${error.stderr.trim()}`);
+      }
+      if (error.stdout?.trim()) {
+        lines.push(`          stdout: ${error.stdout.trim()}`);
+      }
+    }
   }
 
   // Add execution results
@@ -77,7 +98,7 @@ export function formatSummary(orchResult: OrchestratorResult): string {
     }
   }
 
-  lines.push('=== END ===', '');
+  lines.push('=== END ===');
   return lines.join('\n');
 }
 
@@ -187,6 +208,20 @@ function formatFileReadOutput(result: any): string[] {
 
 export function formatFullOutput(orchResult: OrchestratorResult): string {
   const lines = ['=== SLUPE RESULTS ==='];
+
+  // Handle hook errors first
+  if (orchResult.hookErrors?.before) {
+    for (const error of orchResult.hookErrors.before) {
+      lines.push(`def ❌ - Hook failed: ${error.command}`);
+      lines.push(`          Error: ${error.error}`);
+      if (error.stderr?.trim()) {
+        lines.push(`          stderr: ${error.stderr.trim()}`);
+      }
+      if (error.stdout?.trim()) {
+        lines.push(`          stdout: ${error.stdout.trim()}`);
+      }
+    }
+  }
 
   // Add execution results
   if (orchResult.results) {

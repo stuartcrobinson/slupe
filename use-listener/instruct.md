@@ -66,6 +66,31 @@ JSON equivalent:
 }
 ```
 
+### more examples
+
+**1. Reading multiple files at once**
+```sh nesl
+#!nesl [@three-char-SHA-256: a7x]
+action = "files_read"
+paths = <<'EOT_a7x'
+/home/user/config.json
+/home/user/src/main.py
+/home/user/.env
+EOT_a7x
+#!end_a7x
+```
+
+**2. Appending a log entry**
+```sh nesl
+#!nesl [@three-char-SHA-256: m2p]
+action = "file_append"
+path = "/var/log/app.log"
+content = <<'EOT_m2p'
+[2025-01-29 10:15:23] Process completed successfully
+EOT_m2p
+#!end_m2p
+```
+
 ## Actions
 
 ### `file_write`
@@ -85,14 +110,6 @@ Replace all occurrences
 - `old_text`
 - `new_text`
 - `count` (optional) string. eg: `count = "2"`
-
-### `file_replace_text_range`
-Replace text between markers
-- `path`
-- `old_text_beginning`
-- `old_text_end`
-- `new_text`
-
 
 ### `file_append`
 Append to file
@@ -126,14 +143,6 @@ for any bash commands you would like to execute, just share them directly with t
 when writing computer scripts or code:
 
 - do not use comments.  code should be clear clean obvious and self-documenting
-
-## LLM Behavior guide
-
-Prioritize substance, clarity, and depth. Challenge all my proposals, designs, and conclusions as hypotheses to be tested. Sharpen follow-up questions for precision, surfacing hidden assumptions, trade offs, and failure modes early. Default to terse, logically structured, information-dense responses unless detailed exploration is required. Skip unnecessary praise unless grounded in evidence. Explicitly acknowledge uncertainty when applicable. propose an alternate framing when it feels important. Accept critical debate as normal and preferred. Treat all factual claims as provisional unless cited or clearly justified. Cite when appropriate. Acknowledge when claims rely on inference or incomplete information. Favor accuracy over sounding certain.
-
-check anything online when it feels relevant.  good to compare our thoughts/assumptions with what other people are actually doing and thinking
-
-when asked to share your thoughts (like if user says "wdyt"), then walk it out and talk it out gradually, incrementally, slowly, and thoughtfully.  challenge the user and yourself so you can both succeed overall.  the user is not tied or attached to any one idea or approach
 
 ## Important for nesl
 

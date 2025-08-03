@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { readFileSync, existsSync, rmSync } from 'fs';
+import { readFileSync, existsSync, rmSync, mkdtempSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
+import { tmpdir } from 'os';
 import { marked, Token } from 'marked';
 import { Slupe } from '../src/index.js';
 import { clearActionSchemaCache } from '../../nesl-action-parser/src/index.js';
@@ -50,11 +51,21 @@ const testDirs = [
 
 describe('Slupe.execute()', () => {
   let slupe: Slupe;
+  let testRepoPath: string;
 
   beforeEach(async () => {
     // Clear the action schema cache to pick up latest definitions
     clearActionSchemaCache();
-    slupe = await Slupe.create();
+    
+    // Create isolated test directory
+    testRepoPath = mkdtempSync(join(tmpdir(), 'slupe-test-'));
+    
+    // Create Slupe instance with isolated repo path
+    slupe = await Slupe.create({ 
+      repoPath: testRepoPath,
+      enableHooks: false  // Explicitly disable hooks for these tests
+    });
+    
     // Clean up files
     for (const path of testFiles) {
       try {
@@ -89,6 +100,14 @@ describe('Slupe.execute()', () => {
       } catch (err) {
         // Continue cleanup even if one fails
       }
+    }
+    // Clean up test repo directory
+    try {
+      if (existsSync(testRepoPath)) {
+        rmSync(testRepoPath, { recursive: true, force: true });
+      }
+    } catch (err) {
+      // Continue cleanup even if one fails
     }
   });
 

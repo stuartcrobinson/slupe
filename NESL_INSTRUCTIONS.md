@@ -104,14 +104,6 @@ Move/rename file
 Read multiple files
 - `paths` heredoc string, one path per line
 
-### `exec`
-Execute code
-- `lang`
-- `code`
-- `cwd` (optional)
-- `return_output` (optional)
-
-
 ## bash
 
 for any bash commands you would like to execute, just share them directly with the user in fenced off code block in your response

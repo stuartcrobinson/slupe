@@ -105,6 +105,11 @@ content = "export const feature = () => 'implemented';"
     // console.log('\n=== EXECUTING NESL ===');
     const result = await slupe.execute(neslInput);
 
+    // Run after hooks manually since we're testing orchestrator directly
+    if (result.afterHookContext) {
+      await slupe.runAfterHooks(result.afterHookContext);
+    }
+
     // // Debug: log the full result to see what's happening
     // console.log('\nExecution result:', JSON.stringify(result, null, 2));
 

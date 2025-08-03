@@ -8,6 +8,9 @@ export interface SlupeConfig {
   'exec-guard'?: ExecGuardConfig; // future
   'allowed-actions': string[];
   clipboard?: boolean;
+  'input_file'?: string;
+  'output_file'?: string;
+  debounce_ms?: number;
 }
 
 export interface FsGuardConfig {

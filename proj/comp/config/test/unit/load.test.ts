@@ -50,7 +50,9 @@ fs-guard:
     expect(config['fs-guard']).toBeDefined();
     expect(config['fs-guard']?.allowed).toContain('./**');
     expect(config['fs-guard']?.allowed).toContain('/tmp/**');
-    expect(config.hooks).toEqual({ before: [], after: [] });
+    expect(config.hooks).toBeDefined();
+    expect(config.hooks?.before).toBeUndefined();
+    expect(config.hooks?.after).toBeUndefined();
   });
 
   test('throws on invalid YAML', async () => {

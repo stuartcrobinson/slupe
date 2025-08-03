@@ -1,0 +1,152 @@
+=== START FILE: /Users/stuart/repos/slupe/proj/src/index.ts ===
+#!/usr/bin/env node
+
+import { startListener } from '../comp/listener/src/index.js';
+import { loadConfig } from '../comp/config/src/index.js';
+import { updateInstructions } from '../comp/instruct-gen/src/index.js';
+import { join } from 'path';
+import { access, writeFile } from 'fs/promises';
+
+function showHelp(): void {
+  console.log(`Usage: slupe [options]
+
+Options:
+  --clipboard              Enable clipboard copy on execution
+  --input_file <path>      Input file path (default: slupe_input.md)
+  --output_file <path>     Output file path (default: .slupe_output.md)
+  --help                   Show this help message
+
+Config file options (slupe.yml):
+  clipboard: boolean       Enable clipboard by default
+  input_file: string       Default input file path
+  output_file: string      Default output file path
+  debounce_ms: number      File watch debounce in milliseconds (default: 200)
+`);
+}
+
+async function main(): Promise<void> {
+  const args = process.argv.slice(2);
+
+  if (args.includes('--help')) {
+    showHelp();
+    process.exit(0);
+  }
+  
+  const getArgValue = (flag: string): string | undefined => {
+    const index = args.indexOf(flag);
+    if (index >= 0 && index + 1 < args.length) {
+      return args[index + 1];
+    }
+    return undefined;
+  };
+
+  const hasClipboardFlag = args.includes('--clipboard');
+  const inputFileArg = getArgValue('--input_file');
+  const outputFileArg = getArgValue('--output_file');
+
+  const config = await loadConfig(process.cwd());
+  
+  // Generate NESL instructions before any processing
+  await updateInstructions(process.cwd(), config['allowed-actions']);
+  
+  const useClipboard = hasClipboardFlag || (config.clipboard ?? false);
+  const inputFile = inputFileArg || config['input_file'] || 'slupe_input.md';
+  const outputFile = outputFileArg || config['output_file'] || '.slupe_output.md';
+
+  const filePath = join(process.cwd(), inputFile);
+
+  // Create file if it doesn't exist
+  try {
+    await access(filePath);
+  } catch {
+    await writeFile(filePath, '', 'utf8');
+    console.log(`Created: ${filePath}`);
+  }
+
+  console.log(`Starting listener on: ${filePath}`);
+  console.log(`Clipboard: ${useClipboard ? 'enabled' : 'disabled'}`);
+
+  const debounceMs = config.debounce_ms || parseInt(process.env.SLUPE_DEBOUNCE || '50', 10);
+  
+  console.log(`Using debounceMs: ${debounceMs}`);
+  
+  const handle = await startListener({
+    filePath,
+    debounceMs,
+    outputFilename: outputFile,
+    useClipboard
+  });
+
+  process.on('SIGINT', async () => {
+    console.log('\nStopping...');
+    await handle.stop();
+    process.exit(0);
+  });
+
+  await new Promise(() => { });
+}
+
+main().catch(console.error);
+=== END FILE: /Users/stuart/repos/slupe/proj/src/index.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/instruct-gen/src/loader.ts ===
+import { readFile } from 'fs/promises';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const TEMPLATE_PATH = join(__dirname, '../templates/base-instructions.md');
+
+export async function loadBaseInstructions(): Promise<string> {
+  return readFile(TEMPLATE_PATH, 'utf8');
+}
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/instruct-gen/src/loader.ts ===
+
+=== START FILE: /Users/stuart/repos/slupe/proj/comp/instruct-gen/src/parser.ts ===
+
+
+export function filterByAllowedTools(
+  markdown: string, 
+  allowedTools: string[]
+): string {
+  const allowed = new Set(allowedTools);
+  const lines = markdown.split('\n');
+  const output: string[] = [];
+  
+  let inActionSection = false;
+  let currentTool: string | null = null;
+  let skipCurrentTool = false;
+  
+  for (const line of lines) {
+    // Detect "## Actions" section
+    if (line === '## Actions') {
+      inActionSection = true;
+      output.push(line);
+      continue;
+    }
+    
+    // Detect other sections (exit Actions)
+    if (inActionSection && line.startsWith('## ') && line !== '## Actions') {
+      inActionSection = false;
+      skipCurrentTool = false; // Reset skip flag when leaving Actions section
+    }
+    
+    // Process tool headers in Actions section
+    if (inActionSection && line.startsWith('### `')) {
+      const match = line.match(/^### `([^`]+)`/);
+      currentTool = match?.[1] || null;
+      skipCurrentTool = currentTool ? !allowed.has(currentTool) : false;
+      
+      if (skipCurrentTool) continue; // Skip the header line itself
+    }
+    
+    // Skip lines for disallowed tools only within Actions section
+    if (!skipCurrentTool || !inActionSection) {
+      output.push(line);
+    }
+  }
+  
+  return output.join('\n');
+}
+=== END FILE: /Users/stuart/repos/slupe/proj/comp/instruct-gen/src/parser.ts ===
+

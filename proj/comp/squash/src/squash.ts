@@ -1,0 +1,1 @@
+export { squash } from './index.js';

@@ -26,11 +26,8 @@ export function stopListenerTests() {
   });
 
   it('stops watching and cleans up', async () => {
-    // Start listener
+    // Start listener - this now waits for initial processing
     handle = await startListener({ filePath: testFile });
-
-    // Wait for initial processing to complete
-    await new Promise(resolve => setTimeout(resolve, 700));
 
     // Check that initial content was processed
     let content = await readFile(testFile, 'utf-8');
@@ -81,9 +78,6 @@ export function stopListenerTests() {
   });
 }
 
-// Only run directly if this file is executed, not imported
-if (import.meta.url === `file://${process.argv[1]}`) {
-  describe('stopListener', () => {
-    stopListenerTests();
-  });
-}
+describe('stopListener', () => {
+  stopListenerTests();
+});

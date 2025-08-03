@@ -2,7 +2,7 @@ import type { SlupeAction, ParseError } from '../../nesl-action-parser/src/index
 import { parseNeslResponse } from '../../nesl-action-parser/src/index.js';
 import type { FileOpResult } from '../../fs-ops/src/index.js';
 import { FsOpsExecutor } from '../../fs-ops/src/index.js';
-import type { HooksConfig, HookContext } from '../../hooks/src/index.js';
+import type { HooksConfig, HookContext, HookError, HookResult } from '../../hooks/src/index.js';
 import { HooksManager } from '../../hooks/src/index.js';
 import { FsGuard } from '../../fs-guard/src/index.js';
 import { ExecExecutor } from '../../exec/src/index.js';
@@ -10,7 +10,6 @@ import { ExecExecutor } from '../../exec/src/index.js';
 
 import { loadConfig } from '../../config/src/index.js';
 import type { SlupeConfig } from '../../config/src/index.js';
-import { updateInstructions } from '../../instruct-gen/src/index.js';
 import { ActionDefinitions } from '../../../src/unified-design.js';
 
 export interface ExecutionResult {
@@ -21,9 +20,10 @@ export interface ExecutionResult {
   parseErrors: ParseError[];
   fatalError?: string;
   hookErrors?: {
-    before?: string[];
-    after?: string[];
+    before?: HookError[];
+    after?: HookError[];
   };
+  afterHookContext?: HookContext;
   debug?: {
     parseDebug?: any;
   };
@@ -58,13 +58,16 @@ export class Slupe {
     const repoPath = options.repoPath || process.cwd();
 
     // Load configuration
+    console.time('loadConfig');
     const config = await loadConfig(repoPath);
+    console.timeEnd('loadConfig');
 
-    // Update instructions file if needed
-    await updateInstructions(repoPath, config['allowed-actions']);
+    // Instructions file should already exist from main entry point
 
     // Initialize executors
+    console.time('initializeExecutors');
     const executors = await Slupe.initializeExecutors(config, repoPath);
+    console.timeEnd('initializeExecutors');
 
     // Initialize hooks if enabled
     let hooksManager: HooksManager | undefined;
@@ -92,6 +95,7 @@ export class Slupe {
 
       // Run before hooks
       if (this.hooksManager) {
+        console.time('before-hooks');
         try {
           const beforeResult = await this.hooksManager.runBefore();
           if (!beforeResult.success) {
@@ -103,12 +107,14 @@ export class Slupe {
               results: [],
               parseErrors: [],
               hookErrors: {
-                before: beforeResult.errors?.map(e => `${e.command}: ${e.error}`) || ['Unknown before hook error']
+                before: beforeResult.errors || [{command: 'unknown', error: 'Unknown before hook error'}]
               },
               fatalError: 'Before hooks failed - aborting execution'
             };
           }
+          console.timeEnd('before-hooks');
         } catch (error) {
+          console.timeEnd('before-hooks');
           return {
             success: false,
             totalBlocks: 0,
@@ -121,7 +127,9 @@ export class Slupe {
       }
 
       // Parse NESL blocks
+      console.time('parseNeslResponse');
       const parseResult = await parseNeslResponse(llmOutput);
+      console.timeEnd('parseNeslResponse');
 
       // Debug info captured in parseResult.debug
 
@@ -129,64 +137,58 @@ export class Slupe {
       const results: ActionResult[] = [];
       let seq = 1;
 
+      console.time('execute-all-actions');
       for (const action of parseResult.actions) {
+        console.time(`execute-action-${seq}`);
         const result = await this.executeAction(action, seq++);
+        console.timeEnd(`execute-action-${seq-1}`);
         results.push(result);
       }
+      console.timeEnd('execute-all-actions');
 
       // Calculate execution success (before considering after hooks)
       const allActionsSucceeded = results.every(r => r.success);
       const noParseErrors = parseResult.errors.length === 0;
       const executionSuccess = allActionsSucceeded && noParseErrors;
 
-      // Run after hooks with context
+      // Build after hook context (but don't run them)
+      let afterHookContext: HookContext | undefined;
       if (this.hooksManager) {
-        try {
-          // Build rich context for hooks
-          const modifiedFiles = new Set<string>();
-          const operations: string[] = [];
-          const errors: string[] = [];
+        const modifiedFiles = new Set<string>();
+        const operations: string[] = [];
+        const errors: string[] = [];
 
-          for (const result of results) {
-            if (result.action.startsWith('file_') && result.params.path) {
-              modifiedFiles.add(result.params.path);
-            }
-
-            operations.push(`${result.action}${result.success ? '' : ' (failed)'}`);
-
-            if (!result.success && result.error) {
-              errors.push(`${result.action}: ${result.error}`);
-            }
+        for (const result of results) {
+          if (result.action.startsWith('file_') && result.params.path) {
+            modifiedFiles.add(result.params.path);
           }
 
-          const afterContext: HookContext = {
-            success: executionSuccess,
-            executedActions: results.length,
-            totalBlocks: parseResult.summary.totalBlocks,
-            modifiedFiles: Array.from(modifiedFiles).join(','),
-            operations: operations.join(','),
-            errors: errors.join('; '),
-            errorCount: errors.length
-          };
+          operations.push(`${result.action}${result.success ? '' : ' (failed)'}`);
 
-          const afterResult = await this.hooksManager.runAfter(afterContext);
-          if (!afterResult.success) {
-            // After hook failure affects overall success
-            hookErrors.after = afterResult.errors?.map(e => `${e.command}: ${e.error}`) || ['Unknown after hook error'];
+          if (!result.success && result.error) {
+            errors.push(`${result.action}: ${result.error}`);
           }
-        } catch (error) {
-          // After hook unexpected errors also affect success
-          hookErrors.after = [`After hooks threw unexpected error: ${error instanceof Error ? error.message : String(error)}`];
         }
+
+        afterHookContext = {
+          success: executionSuccess,
+          executedActions: results.length,
+          totalBlocks: parseResult.summary.totalBlocks,
+          modifiedFiles: Array.from(modifiedFiles).join(','),
+          operations: operations.join(','),
+          errors: errors.join('; '),
+          errorCount: errors.length
+        };
       }
 
       return {
-        success: executionSuccess && !hookErrors.after, // After hook errors affect overall success
+        success: executionSuccess,
         totalBlocks: parseResult.summary.totalBlocks,
         executedActions: results.length,
         results,
         parseErrors: parseResult.errors,
         ...(Object.keys(hookErrors).length > 0 && { hookErrors }),
+        ...(afterHookContext && { afterHookContext }),
         debug: {
           parseDebug: parseResult.debug
         }
@@ -212,8 +214,8 @@ export class Slupe {
    */
   private static async initializeExecutors(config: SlupeConfig, repoPath: string): Promise<Map<string, (action: SlupeAction) => Promise<FileOpResult>>> {
 
-    // Create fs-guard with config or empty object
-    const fsGuardConfig = config['fs-guard'] || {};
+    // Create fs-guard with config (loadConfig ensures fs-guard section always exists)
+    const fsGuardConfig = config['fs-guard'] || { allowed: [], denied: [] };
     const fsGuard = new FsGuard(fsGuardConfig, repoPath);
 
     // Create executors
@@ -281,6 +283,29 @@ export class Slupe {
     }
 
     return null;
+  }
+
+  /**
+   * Run after hooks with the given context
+   * Returns the hook result with any errors
+   */
+  async runAfterHooks(context: HookContext): Promise<HookResult> {
+    if (!this.hooksManager) {
+      return { success: true, executed: 0 };
+    }
+
+    try {
+      return await this.hooksManager.runAfter(context);
+    } catch (error) {
+      return {
+        success: false,
+        executed: 0,
+        errors: [{
+          command: 'after hooks',
+          error: `After hooks threw unexpected error: ${error instanceof Error ? error.message : String(error)}`
+        }]
+      };
+    }
   }
 
   /**

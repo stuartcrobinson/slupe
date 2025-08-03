@@ -4,6 +4,7 @@ export interface ListenerConfig {
   outputFilename?: string;
   debug?: boolean;
   useClipboard?: boolean;
+  slupeInstance?: any;
 }
 
 export interface ListenerHandle {
@@ -20,6 +21,11 @@ export interface ListenerState {
   actionSchema?: Map<string, ActionDefinition>;
   debug?: boolean;
   useClipboard: boolean;
+  slupeInstance?: any;
+  clipboardMonitor?: {
+    lastEntry: { content: string; timestamp: number } | null;
+    interval: NodeJS.Timeout | null;
+  };
 }
 
 export interface ActionDefinition {

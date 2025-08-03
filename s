@@ -11,120 +11,16 @@ for arg in "$@"; do
 done
 
 
-# /Users/stuart/repos/slupe/xd5_ref.md
-# /Users/stuart/repos/slupe/replacer/replacer_llm_instructions.md
-
-
-# /Users/stuart/repos/slupe/proj/comp/hooks/doc/ABSTRACT.md
-# /Users/stuart/repos/slupe/proj/comp/hooks/doc/API.md
-# /Users/stuart/repos/slupe/proj/comp/hooks/doc/ARCH.md
-# /Users/stuart/repos/slupe/proj/comp/orch/doc/API.md
-
-
-
-
-###### for working on fs-guard
-# https://claude.ai/chat/50860d9f-c4eb-4b91-980c-522e89bdfc1c
-# https://claude.ai/chat/3e2b39e8-e16b-4e73-bfa2-bb57a1ec744f
-# proj/comp/fs-ops/src/index.ts
-# proj/comp/exec/src/index.ts
-# unified-design.yaml
-# proj/comp/orch/src/index.ts
-# xd5_ref.md
-
-# proj/comp/fs-ops/test-data/integration/write_action_result/file_delete.cases.md proj/comp/fs-ops/test-data/integration/write_action_result/file_move.cases.md proj/comp/fs-ops/test-data/integration/write_action_result/file_read_numbered.cases.md proj/comp/fs-ops/test-data/integration/write_action_result/file_read.cases.md proj/comp/fs-ops/test-data/integration/write_action_result/files_read.cases.md
-# proj/comp/listener/src/formatters.ts
-# proj/comp/fs-ops/doc/ARCH.md
-
-# proj/comp/fs-guard/doc/ABSTRACT.md proj/comp/fs-guard/doc/ARCH.md proj/comp/fs-guard/doc/TODO.md
-
-# proj/comp/fs-guard/doc/adr/background.md
-
-
-
-# proj/comp/orch/src/index.ts
-# proj/comp/orch/src/createStarterConfig.ts
-# proj/comp/fs-ops/src/index.ts
-# proj/comp/exec/src/index.ts
-# proj/comp/hooks/src/index.ts
-# proj/comp/hooks/src/parseYamlConfig.ts
-# proj/comp/hooks/src/validateConfig.ts
-# unified-design.yaml
-# proj/comp/fs-guard/doc/ABSTRACT.md proj/comp/fs-guard/doc/ARCH.md proj/comp/fs-guard/doc/TODO.md
-
-# /Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/fs-ops/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/exec/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/fs-guard/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/fs-guard/src/types.ts
-# /Users/stuart/repos/slupe/proj/comp/fs-guard/src/FsGuard.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/src/loadConfig.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/src/types.ts
-# /Users/stuart/repos/slupe/slupe.yml
-# /Users/stuart/repos/slupe/proj/comp/fs-guard/test/unit/FsGuard.test.ts
-# /Users/stuart/repos/slupe/proj/comp/fs-ops/test/integration/minimal.test.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/test/integration/fs-guard-integration.test.ts
-
-# proj/comp/orch/src/types.ts
-# proj/comp/fs-guard/src/types.ts
-# proj/comp/fs-guard/src/FsGuard.ts
-# proj/comp/fs-ops/src/index.ts
-# proj/comp/exec/src/index.ts
-# proj/comp/orch/src/loadConfig.ts
-# proj/comp/orch/src/index.ts
-# use-listener/instruct.md
-
-# /Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/test/integration/git-integration.test.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/src/types.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/src/loadConfig.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/test/integration/hooks-basic.test.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/test/integration/hooks-abort.test.ts
-
-
-# /Users/stuart/repos/slupe/proj/comp/orch/test/execute.test.ts
-  
-# proj/comp/fs-ops/src/index.ts 
-# proj/comp/fs-ops/test/integration/write_action_result.test.ts
-# proj/comp/fs-guard/tsconfig.json 
-# package.json
-# tsconfig.json
-
-#  proj/comp/hooks/doc/ABSTRACT.md proj/comp/hooks/doc/API.md proj/comp/hooks/doc/ARCH.md proj/comp/orch/doc/API.md proj/comp/orch/doc/ARCH.md
-
-#  /Users/stuart/repos/slupe/proj/comp/config/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/config/src/load.ts
-# /Users/stuart/repos/slupe/proj/comp/config/src/create.ts
-# /Users/stuart/repos/slupe/proj/comp/config/src/types.ts
-# /Users/stuart/repos/slupe/proj/comp/config/src/validate.ts
-# /Users/stuart/repos/slupe/proj/comp/config/test/unit/load.test.ts
-# /Users/stuart/repos/slupe/proj/comp/config/test/unit/create.test.ts
-# /Users/stuart/repos/slupe/proj/comp/config/test/unit/validate.test.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/src/loadConfig.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/src/createStarterConfig.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/src/types.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/src/parseYamlConfig.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/src/validateConfig.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/src/index.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/test/integration/git-integration.test.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/test/integration/hooks-basic.test.ts
-# /Users/stuart/repos/slupe/proj/comp/hooks/test/integration/hooks-abort.test.ts
-# /Users/stuart/repos/slupe/proj/comp/orch/doc/ARCH.md
-
-
 file_list=$(cat <<'EOF'
 
-/Users/stuart/repos/slupe/use-listener/instruct.md
 
-/Users/stuart/repos/slupe/proj/comp/exec/src/executeCommand.ts
-/Users/stuart/repos/slupe/proj/comp/exec/src/formatExecResult.ts
-/Users/stuart/repos/slupe/proj/comp/exec/src/types.ts
-/Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
-/Users/stuart/repos/slupe/proj/comp/exec/test/unit/executeCommand.test.ts
-/Users/stuart/repos/slupe/proj/comp/exec/test/unit/formatExecResult.test.ts
+/Users/stuart/repos/slupe/proj/src/index.ts
+/Users/stuart/repos/slupe/proj/src/cli.ts
+/Users/stuart/repos/slupe/proj/comp/instruct-gen/src/loader.ts
+/Users/stuart/repos/slupe/proj/comp/instruct-gen/src/parser.ts
+
+
+
 EOF
 )
 
