@@ -8,8 +8,8 @@
     ".": "./dist/src/index.js"
   },
   "bin": {
-    "slupe": "dist/src/index.js",
-    "slupe-squash": "dist/src/squash.js"
+    "slupe": "dist/src/cli.js",
+    "slupe-squash": "dist/src/cli-squash.js"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -21,8 +21,8 @@
   ],
   "scripts": {
     "clean": "rm -rf dist/",
-    "build": "npm run clean && tsc && npm run add-shebang",
-    "add-shebang": "echo '#!/usr/bin/env node' | cat - dist/src/index.js > temp && mv temp dist/src/index.js && chmod +x dist/src/index.js",
+    "build": "npm run clean && tsc && npm run copy-cli",
+    "copy-cli": "cp proj/src/cli.js dist/src/cli.js && cp proj/src/cli-squash.js dist/src/cli-squash.js && chmod +x dist/src/cli.js dist/src/cli-squash.js",
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint && vitest run --exclude '**/listener/**' && npm run build",
     "package": "npm run build && npm pack",
