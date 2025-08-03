@@ -10,6 +10,7 @@ export interface SlupeConfig {
   clipboard?: boolean;
   'input_file'?: string;
   'output_file'?: string;
+  debounce_ms?: number;
 }
 
 export interface FsGuardConfig {
