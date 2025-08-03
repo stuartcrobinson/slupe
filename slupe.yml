@@ -30,8 +30,8 @@ fs-guard:
 
 # Git hooks configuration
 hooks:
-  before: []
-  after: []
+  # before: []
+  # after: []
 
 
   # Example hooks
