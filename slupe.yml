@@ -44,8 +44,8 @@ hooks:
   - run: |
       git add -A && \
       git diff --quiet && git diff --staged --quiet || \
-      git commit -m "Updated $(git diff --cached --name-only | wc -l) files: $(git diff --cached --name-only | head -3 | tr '\n' ', ')$([ $(git diff --cached --name-only | wc -l) -gt 3 ] && echo '...')"
-
+      git commit -m "Updated $(git diff --cached --name-only | wc -l | tr -d ' ') files:
+      $(git diff --cached --name-only | head -10)"
 # Variables available in commands
 vars:
   COMMIT_MSG: "AI-assisted changes"
