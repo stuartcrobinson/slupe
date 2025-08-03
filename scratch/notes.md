@@ -1,4 +1,42 @@
+TODO:
 
+X start working in a dev branch?
+X need tests for copy/paste stuff.  with that feature on and off. 
+X we need to prevent repeat edits/overwrites from happening.  we need a 'log' per sha id and once its successful we should block re-executing it. i think.  cos i just accidentally overwrote a bunch of changes i made.
+    X quick fix - just dont apply any changes if the top nonwhitespace text is "=== SLUPE RESULTS ==="
+X write e2e tests that dont use copy/paste
+X set up the git hooks
+X allow cmd line arg and config arg for custom input/output files
+    - critical for using npx slupe in actual slupe repo
+
+- squasher !!!
+
+now... 
+
+- fix build errors
+- clean up README 
+
+- write hacker news post about it
+- publish sunday morning 
+
+---
+
+LATER
+
+what else do i need rn? before publish to HN?
+
+nesl transcription layer? 
+    X remove apostrophes after end delimiters 
+    X make sure they're on their own line
+
+- build search/replace range action
+
+- ast code... for query / especially debugging, get all the file paths and most relevant functions from the error statements.  then get all the functions connectd to those. like as in graph.  pagerank or whatever.  and inlude those in context. i think thats what aider does maybe. 
+
+wdw doing now ..
+
+- claude is getting bad at reading files from pasted snapshots.  need to inlude some header info about how to process them i think
+-----------------
 
 TODO:
 
@@ -31,14 +69,23 @@ X new feature - listen for LLM output copy?
             x so u click the copy button, then do ctrl-a, ctrl-v -- to immediately just copy the whole page
             x and this is how sloop will know that the first thing u copied was real nesl syntax that u want to get executed.  
             x no - should we integrate mac notifications?  prob too hard. deal w settings etc
-- publish nesl to npm 
-- publish slupe to npm 
+X publish nesl to npm 
+X publish slupe to npm 
 - look for response from npm support about getting my account back...             
-- rename to slupe
+X rename to slupe
 - cleanup, just delete trash or embarrassing bits
 
 WHAT TO DO WHILE WAITING FOR NPM ACCESS?
 
+start doing some of this ... maybe in a dev branch now!!!! YES USE DEV BRANCHES NOW 
+
+use npx slupe for stuff now.  wdiw most.... 
+- paths support wildcards 
+- search replace range
+
+^ those seem easiest to implement and biggest reward rn.  
+
+oh also we need to figure out why cant run node tests from exec command. 
 
 
 - update all 'path' vars to support wildcard/glob expansion.  
@@ -149,3 +196,4 @@ all the imports and dependency file locationn and formats is a big source of was
 
 ---
 
+asdf

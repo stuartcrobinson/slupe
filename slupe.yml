@@ -10,7 +10,6 @@ allowed-actions:
   - file_replace_text
   - file_replace_all_text
   - files_read
-  - exec
 
 # File system guard configuration
 fs-guard:
@@ -32,25 +31,18 @@ fs-guard:
 # Git hooks configuration
 hooks:
   before: []
-  after: []
+  after:
+    - run: |
+        git add -A && 
+        git commit -m "$(echo "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files:\n$(git diff --cached --name-only | head -10)")" &&
+        git push
   
-  # Example hooks
-  # before:
-  #   - run: git stash --include-untracked
-  #     continueOnError: false
-  
-  # after:
-  #   - run: git add -A
-  #   - run: git commit -m "${COMMIT_MSG}"
-  #     continueOnError: false
-  #   - run: git push
-  #     continueOnError: true
-  #     timeout: 10000  # 10s for slow networks
-
 # Variables available in commands
 vars:
-  COMMIT_MSG: "AI-assisted changes"
+  COMMIT_MSG: "auto-slupe::"
   # Add more variables as needed
 
 # Listener configuration
 clipboard: false  # Enable clipboard copy on execution
+input_file: slupe_input.md
+output_file: .slupe_output.md

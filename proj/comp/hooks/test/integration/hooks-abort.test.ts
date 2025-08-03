@@ -49,7 +49,7 @@ content = "This should not be written"
     expect(result.executedActions).toBe(0);
     expect(result.fatalError).toBe('Before hooks failed - aborting execution');
     expect(result.hookErrors?.before).toBeDefined();
-    expect(result.hookErrors?.before?.[0]).toMatch(/cat.*No such file/);
+    expect(result.hookErrors?.before?.[0]?.error).toMatch(/cat.*No such file/);
 
     // Verify only the first hook ran
     expect(existsSync(join(TEST_PATH, 'first.txt'))).toBe(true);

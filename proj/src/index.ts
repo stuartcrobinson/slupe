@@ -2,17 +2,57 @@
 
 import { startListener } from '../comp/listener/src/index.js';
 import { loadConfig } from '../comp/config/src/index.js';
+import { updateInstructions } from '../comp/instruct-gen/src/index.js';
 import { join } from 'path';
 import { access, writeFile } from 'fs/promises';
 
+function showHelp(): void {
+  console.log(`Usage: slupe [options]
+
+Options:
+  --clipboard              Enable clipboard copy on execution
+  --input_file <path>      Input file path (default: slupe_input.md)
+  --output_file <path>     Output file path (default: .slupe_output.md)
+  --help                   Show this help message
+
+Config file options (slupe.yml):
+  clipboard: boolean       Enable clipboard by default
+  input_file: string       Default input file path
+  output_file: string      Default output file path
+  debounce_ms: number      File watch debounce in milliseconds (default: 200)
+`);
+}
+
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
+
+  if (args.includes('--help')) {
+    showHelp();
+    process.exit(0);
+  }
+  
+  const getArgValue = (flag: string): string | undefined => {
+    const index = args.indexOf(flag);
+    if (index >= 0 && index + 1 < args.length) {
+      return args[index + 1];
+    }
+    return undefined;
+  };
+
   const hasClipboardFlag = args.includes('--clipboard');
+  const inputFileArg = getArgValue('--input_file');
+  const outputFileArg = getArgValue('--output_file');
 
   const config = await loadConfig(process.cwd());
+  
+  // Generate NESL instructions before any processing
+  await updateInstructions(process.cwd(), config['allowed-actions']);
+  
   const useClipboard = hasClipboardFlag || (config.clipboard ?? false);
+  const inputFile = inputFileArg || config['input_file'] || 'slupe_input.md';
+  const outputFile = outputFileArg || config['output_file'] || '.slupe_output.md';
 
-  const filePath = join(process.cwd(), 'slupe_input.md');
+  const filePath = join(process.cwd(), inputFile);
 
   // Create file if it doesn't exist
   try {
@@ -23,12 +63,18 @@ async function main(): Promise<void> {
   }
 
   console.log(`Starting listener on: ${filePath}`);
-  console.log(`Clipboard: ${useClipboard ? 'enabled' : 'disabled'}`);
+  console.log(`Clipboard: ${useClipboard ?
+     'enabled. To input nesl actions via clipboard, copy the target content, and then copy some content that includes the original content plus some extra text, within 2 seconds. (either order)' : 
+     'disabled. Use --clipboard to activate'}`);
 
+  const debounceMs = config.debounce_ms || parseInt(process.env.SLUPE_DEBOUNCE || '50', 10);
+  
+  console.log(`Using debounceMs: ${debounceMs}`);
+  
   const handle = await startListener({
     filePath,
-    debounceMs: 500,
-    outputFilename: '.slupe_output.md',
+    debounceMs,
+    outputFilename: outputFile,
     useClipboard
   });
 

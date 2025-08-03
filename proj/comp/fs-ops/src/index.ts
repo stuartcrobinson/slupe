@@ -85,7 +85,10 @@ export class FsOpsExecutor {
   async execute(action: SlupeAction): Promise<FileOpResult> {
     try {
       // Check fs-guard permissions first
+      console.time('guard-check');
       const guardResult = await this.guard.check(action);
+      console.timeEnd('guard-check');
+      
       if (!guardResult.allowed) {
         return {
           success: false,
@@ -109,7 +112,10 @@ export class FsOpsExecutor {
         };
       }
 
-      return await handler(action);
+      console.time('handler-execute');
+      const result = await handler(action);
+      console.timeEnd('handler-execute');
+      return result;
     } catch (error: any) {
       // This should never happen - handlers should catch their own errors
       return {

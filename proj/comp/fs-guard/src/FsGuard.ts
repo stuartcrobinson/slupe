@@ -39,10 +39,11 @@ export class FsGuard {
     glob: [{ type: 'read', path: 'base_path', paramName: 'base_path' }]
   };
 
-  constructor(config: FsGuardConfig | undefined, private repoRoot: string) {
-    this.allowedPatterns = config?.allowed || [`${repoRoot}/**`];
-    this.deniedPatterns = config?.denied || ['/**'];
-    this.followSymlinks = config?.followSymlinks ?? false;
+  constructor(config: FsGuardConfig, private repoRoot: string) {
+    // Config is now required - defaults are handled in loadConfig
+    this.allowedPatterns = config.allowed || [];
+    this.deniedPatterns = config.denied || [];
+    this.followSymlinks = config.followSymlinks ?? false;
 
     // Resolve relative patterns from repo root
     this.allowedPatterns = this.allowedPatterns.map(p => this.resolvePattern(p));

@@ -11,13 +11,26 @@ export async function loadConfig(repoPath: string): Promise<SlupeConfig> {
 
   try {
     const content = await readFile(configPath, 'utf8');
-    const config = loadYaml(content) as SlupeConfig;
+    const userConfig = loadYaml(content) as SlupeConfig;
 
     // Validate config structure
-    const validation = validateConfig(config);
+    const validation = validateConfig(userConfig);
     if (!validation.valid) {
       throw new Error(`Invalid config: ${validation.error}`);
     }
+
+    // Parse defaults to fill in missing sections
+    const defaults = loadYaml(DEFAULT_SLUPE_YAML) as SlupeConfig;
+
+    // Merge defaults for missing top-level sections only
+    // This preserves user's complete control over any section they define
+    const config: SlupeConfig = {
+      ...userConfig,
+      // Fill in missing sections from defaults
+      'fs-guard': userConfig['fs-guard'] ?? defaults['fs-guard'],
+      'hooks': userConfig['hooks'] ?? defaults['hooks'],
+      'vars': userConfig['vars'] ?? defaults['vars']
+    };
 
     // Keep patterns as-is, resolution happens in FsGuard
     return config;
@@ -25,10 +38,9 @@ export async function loadConfig(repoPath: string): Promise<SlupeConfig> {
     if (error.code === 'ENOENT') {
       // Create the config file
       await createStarterConfig(repoPath);
-
-      // Return config by parsing the same YAML we just wrote
-      const config = loadYaml(DEFAULT_SLUPE_YAML) as SlupeConfig;
-
+      // Read the actual file we just created (which may have modifications like exec removal)
+      const content = await readFile(configPath, 'utf8');
+      const config = loadYaml(content) as SlupeConfig;
       return config;
     }
     throw error;

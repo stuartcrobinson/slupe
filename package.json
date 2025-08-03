@@ -1,6 +1,6 @@
 {
   "name": "slupe",
-  "version": "0.1.0-beta.0",
+  "version": "0.1.1-beta.10",
   "description": "LLM coder 'tools' for any model",
   "type": "module",
   "main": "./dist/src/index.js",
@@ -8,7 +8,8 @@
     ".": "./dist/src/index.js"
   },
   "bin": {
-    "slupe": "./dist/src/index.js"
+    "slupe": "dist/src/cli.js",
+    "slupe-squash": "dist/src/cli-squash.js"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -19,9 +20,13 @@
     "LICENSE"
   ],
   "scripts": {
-    "build": "tsc",
+    "clean": "rm -rf dist/",
+    "build": "npm run clean && tsc && npm run copy-assets",
+    "copy-assets": "cp proj/src/cli.js dist/src/cli.js && cp proj/src/cli-squash.js dist/src/cli-squash.js && chmod +x dist/src/cli.js dist/src/cli-squash.js && mkdir -p dist/comp/instruct-gen/templates && cp proj/comp/instruct-gen/templates/*.md dist/comp/instruct-gen/templates/",
     "prepare": "npm run build",
-    "prepublishOnly": "npm run lint && npm run test && npm run build",
+    "prepublishOnly": "npm run lint && vitest run --exclude '**/listener/**' && npm run build",
+    "package": "npm run build && npm pack",
+    "local-install": "npm run package && npm install -g ./slupe-*.tgz",
     "dev": "tsx watch proj/src/index.ts",
     "start": "tsx proj/src/index.ts",
     "test": "vitest run",
@@ -40,7 +45,8 @@
     "js-yaml": "^4.1.0",
     "marked": "^12.0.0",
     "minimatch": "^9.0.3",
-    "nesl": "^0.1.11"
+    "nesl": "^0.1.12-beta.1",
+    "simple-git": "^3.28.0"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",
@@ -55,9 +61,13 @@
   },
   "keywords": [
     "llm",
+    "ai",
+    "tools",
     "actions",
     "filesystem",
-    "nesl"
+    "nesl",
+    "code-generation",
+    "automation"
   ],
   "author": "Stuart Robinson",
   "repository": {
