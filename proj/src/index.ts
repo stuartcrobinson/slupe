@@ -63,7 +63,9 @@ async function main(): Promise<void> {
   }
 
   console.log(`Starting listener on: ${filePath}`);
-  console.log(`Clipboard: ${useClipboard ? 'enabled' : 'disabled. Use --clipboard to activate'}`);
+  console.log(`Clipboard: ${useClipboard ?
+     'enabled. To input nesl actions via clipboard, copy the target content, and then copy some content that includes the original content plus some extra text, within 2 seconds. (either order)' : 
+     'disabled. Use --clipboard to activate'}`);
 
   const debounceMs = config.debounce_ms || parseInt(process.env.SLUPE_DEBOUNCE || '50', 10);
   
