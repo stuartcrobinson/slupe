@@ -2,17 +2,16 @@
 
 > LLM coder 'tools' for any model
 
-Slupe is a file system orchestration tool that enables Large Language Models (LLMs) to execute file operations and shell commands through a structured markup language called NESL (Natural Expression Structured Language). It provides a secure, configurable bridge between AI assistants and your local development environment.
+Slupe is a file system orchestration tool that enables Large Language Models (LLMs) to execute file operations through a structured markup language called NESL (Natural Expression Structured Language). It provides a secure, configurable bridge between AI assistants and your local development environment.
 
 ## Features
 
 - **Universal LLM Compatibility**: Works with any LLM that can generate text
 - **File System Operations**: Read, write, move, delete files with configurable access controls
-- **Code Execution**: Run Python, JavaScript, and Bash scripts with timeout protection
 - **Security Guards**: Configurable path-based access control with glob pattern support
 - **Git Integration**: Optional hooks for automated commits and version control
 - **Real-time Monitoring**: Watch files for changes and execute NESL blocks automatically
-- **Clipboard Integration**: Copy outputs directly to clipboard for easy sharing
+- **Clipboard Integration**: Copy outputs directly to clipboard and monitor clipboard for NESL blocks
 
 ## Installation
 
@@ -28,7 +27,7 @@ npx slupe
 
 Requirements:
 - Node.js >= 20.0.0
-- Git, SVN, etc (optional, for version control hooks)
+- Git (optional, for version control hooks)
 
 ## Quick Start
 
@@ -37,7 +36,6 @@ Requirements:
 cd your-project
 slupe
 ```
-
 
 This creates:
 - `slupe.yml` - Configuration file
@@ -49,7 +47,6 @@ This creates:
 allowed-actions:
   - file_read
   - file_write
-  - exec
 
 fs-guard:
   allowed:
@@ -84,10 +81,8 @@ EOT_abc
 - `file_move` - Move or rename files
 - `file_replace_text` - Replace text in files (single occurrence)
 - `file_replace_all_text` - Replace all occurrences of text
+- `files_replace_all_text` - Replace text across multiple files
 - `files_read` - Read multiple files at once
-
-### Code Execution
-- `exec` - Execute code in Python, JavaScript, or Bash
 
 ## Configuration
 
@@ -100,7 +95,6 @@ version: 1
 allowed-actions:
   - file_write
   - file_read
-  - exec
 
 # File system access control
 fs-guard:
@@ -126,6 +120,13 @@ vars:
 
 # Enable clipboard integration
 clipboard: true
+
+# File watching debounce (milliseconds)
+debounce_ms: 200
+
+# Custom input/output file paths
+input_file: slupe_input.md
+output_file: .slupe_output.md
 ```
 
 ## Usage Modes
@@ -142,16 +143,63 @@ Enable clipboard integration:
 slupe --clipboard
 ```
 
-### 3. Programmatic Usage
-```javascript
-import { Slupe } from 'slupe';
+With clipboard mode enabled:
+- Execution results are automatically copied to clipboard
+- Slupe monitors your clipboard for NESL blocks
+- When you copy two clipboard entries containing matching NESL delimiters (e.g., both containing `#!end_abc`), Slupe automatically executes the shorter entry
 
-const slupe = await Slupe.create({ 
-  repoPath: '/path/to/project' 
-});
+This enables a workflow where:
+1. Copy NESL blocks from any source (LLM chat, documentation, etc.)
+2. Slupe detects and executes them automatically
+3. Results are copied back to your clipboard
 
-const result = await slupe.execute(neslContent);
+### 3. Command Line Options
+```bash
+slupe [options]
+
+Options:
+  --clipboard              Enable clipboard copy on execution
+  --input_file <path>      Input file path (default: slupe_input.md)
+  --output_file <path>     Output file path (default: .slupe_output.md)
+  --help                   Show help message
 ```
+
+## Slupe Squash
+
+Slupe includes a git squashing utility for cleaning up commit history:
+
+```bash
+slupe-squash [options]
+
+Options:
+  --containing <string>   Match commits containing string (multiple=OR, ""=all)
+                         Default: "auto-slupe::" if none specified
+  --limit <number>       Max commits to squash from HEAD
+  --after <date>         Only consider commits after ISO date
+  --message <string>     Custom message (auto-generated if omitted)  
+  --push                 Push to remote using --force-with-lease
+  --force                With --push, use --force instead
+  --dry-run              Preview without executing
+  --help                 Show help
+```
+
+Examples:
+```bash
+# Squash all commits containing "WIP"
+slupe-squash --containing "WIP"
+
+# Squash last 5 commits with any message
+slupe-squash --containing "" --limit 5
+
+# Squash and push with custom message
+slupe-squash --message "Feature: Add authentication" --push
+```
+
+The squash tool:
+- Finds commits matching your criteria
+- Combines them into a single commit
+- Preserves the complete file change history
+- Can automatically push changes with lease protection
 
 ## Security
 
@@ -159,8 +207,7 @@ Slupe implements multiple security layers:
 
 1. **Action Allowlist**: Only explicitly allowed actions can be executed
 2. **Path Guards**: Fine-grained control over file system access
-3. **Execution Timeouts**: Prevent runaway processes (default 30s)
-4. **No Shell Expansion**: Commands are executed safely without shell interpretation
+3. **No Shell Expansion**: Commands are executed safely without shell interpretation
 
 ## LLM Integration
 
@@ -201,9 +248,9 @@ Slupe is built with a modular component architecture:
 - **Orchestrator** (`orch`): Coordinates execution and manages workflow
 - **Executors**: Specialized handlers for different action types
   - `fs-ops`: File system operations
-  - `exec`: Code execution
 - **Guards** (`fs-guard`): Security and access control
 - **Listener**: File watching and real-time execution
+- **Squash**: Git history management utility
 
 ## Contributing
 
