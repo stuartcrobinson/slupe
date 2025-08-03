@@ -171,8 +171,14 @@ describe('listener workflow v2', () => {
     try {
       // Setup
       await mkdir(testDir, { recursive: true });
-      // Write default config to ensure test isolation
-      await writeFile(join(testDir, 'slupe.yml'), DEFAULT_SLUPE_YAML);
+      // Write config without hooks for test isolation
+      const testConfig = DEFAULT_SLUPE_YAML;
+      
+      // .replace(
+      //   /# Git hooks configuration[\s\S]*?\n# Variables/,
+      //   '# Git hooks configuration\nhooks:\n  # No hooks for testing\n\n# Variables'
+      // );
+      await writeFile(join(testDir, 'slupe.yml'), testConfig);
       await writeFile(testFile, testCase.initialContent);
 
       // Start listener

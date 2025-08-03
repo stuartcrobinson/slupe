@@ -50,9 +50,9 @@ fs-guard:
     expect(config['fs-guard']).toBeDefined();
     expect(config['fs-guard']?.allowed).toContain('./**');
     expect(config['fs-guard']?.allowed).toContain('/tmp/**');
-    expect(config.hooks?.before).toEqual([]);
-    expect(config.hooks?.after).toHaveLength(1);
-    expect(config.hooks?.after?.[0]?.run).toContain('git add -A');
+    expect(config.hooks).toBeDefined();
+    expect(config.hooks?.before).toHaveLength(0);
+    expect(config.hooks?.after).toHaveLength(0);
   });
 
   test('throws on invalid YAML', async () => {

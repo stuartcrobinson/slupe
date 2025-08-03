@@ -38,10 +38,9 @@ export async function loadConfig(repoPath: string): Promise<SlupeConfig> {
     if (error.code === 'ENOENT') {
       // Create the config file
       await createStarterConfig(repoPath);
-
-      // Return config by parsing the same YAML we just wrote
-      const config = loadYaml(DEFAULT_SLUPE_YAML) as SlupeConfig;
-
+      // Read the actual file we just created (which may have modifications like exec removal)
+      const content = await readFile(configPath, 'utf8');
+      const config = loadYaml(content) as SlupeConfig;
       return config;
     }
     throw error;

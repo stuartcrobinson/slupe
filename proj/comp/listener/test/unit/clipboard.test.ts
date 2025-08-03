@@ -11,6 +11,8 @@ import { mkdtempSync } from 'fs';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
+const debug = false;
+
 interface ClipboardEntry {
   content: string;
   delay?: number;
@@ -110,7 +112,7 @@ describe('clipboard integration', async () => {
         const timestamp = Date.now();
         const entry = `[${timestamp}] ${msg}`;
         globalClipboardLog.push(entry);
-        console.log(`[TEST ${testCase.name}] ${entry}`);
+        debug&&console.log(`[TEST ${testCase.name}] ${entry}`);
       };
 
       logClipboard(`=== START TEST CASE: ${testCase.name} ===`);
@@ -211,9 +213,9 @@ describe('clipboard integration', async () => {
             logClipboard(`  Final clipboard state: "${finalCheck.substring(0, 100)}..." (len=${finalCheck.length})`);
             
             // Print the full diagnostic log before throwing
-            console.log('\n=== FULL DIAGNOSTIC LOG ===');
-            globalClipboardLog.forEach(line => console.log(line));
-            console.log('=== END DIAGNOSTIC LOG ===\n');
+            debug&&console.log('\n=== FULL DIAGNOSTIC LOG ===');
+            globalClipboardLog.forEach(line => debug&&console.log(line));
+            debug&&console.log('=== END DIAGNOSTIC LOG ===\n');
             
             throw new Error(`Failed to verify clipboard write for input ${idx + 1}`);
           }

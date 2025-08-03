@@ -63,10 +63,7 @@ export class Slupe {
     const config = await loadConfig(repoPath);
     console.timeEnd('loadConfig');
 
-    // Update instructions file if needed
-    console.time('updateInstructions');
-    await updateInstructions(repoPath, config['allowed-actions']);
-    console.timeEnd('updateInstructions');
+    // Instructions file should already exist from main entry point
 
     // Initialize executors
     console.time('initializeExecutors');

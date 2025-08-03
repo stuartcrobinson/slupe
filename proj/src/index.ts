@@ -2,6 +2,7 @@
 
 import { startListener } from '../comp/listener/src/index.js';
 import { loadConfig } from '../comp/config/src/index.js';
+import { updateInstructions } from '../comp/instruct-gen/src/index.js';
 import { join } from 'path';
 import { access, writeFile } from 'fs/promises';
 
@@ -43,6 +44,10 @@ async function main(): Promise<void> {
   const outputFileArg = getArgValue('--output_file');
 
   const config = await loadConfig(process.cwd());
+  
+  // Generate NESL instructions before any processing
+  await updateInstructions(process.cwd(), config['allowed-actions']);
+  
   const useClipboard = hasClipboardFlag || (config.clipboard ?? false);
   const inputFile = inputFileArg || config['input_file'] || 'slupe_input.md';
   const outputFile = outputFileArg || config['output_file'] || '.slupe_output.md';

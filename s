@@ -13,9 +13,14 @@ done
 
 file_list=$(cat <<'EOF'
 
-/Users/stuart/repos/slupe/proj/comp/orch/src/index.ts
-/Users/stuart/repos/slupe/proj/comp/hooks/src/types.ts
-/Users/stuart/repos/slupe/proj/cli/src/index.ts
+
+/Users/stuart/repos/slupe/proj/src/index.ts
+/Users/stuart/repos/slupe/proj/src/cli.ts
+/Users/stuart/repos/slupe/proj/comp/instruct-gen/src/loader.ts
+/Users/stuart/repos/slupe/proj/comp/instruct-gen/src/parser.ts
+
+
+
 EOF
 )
 

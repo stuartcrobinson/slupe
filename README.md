@@ -1,8 +1,9 @@
-# ⛵️ Slupe - Sandboxed LLM oUtput processing engine
+# ⛵️ Slupe 
+### Sandboxed LLM oUtput processing engine
 
 LLM coder 'tools' for any model
 
-Slupe is a file system orchestration tool that enables Large Language Models (LLMs) to execute file operations through a structured markup language called NESL (Natural Expression Structured Language). It provides a secure, configurable bridge between AI assistants and your local development environment.
+Slupe is a file system orchestration tool that enables LLMs to execute file operations through a custom syntax language called NESL (No Escape Syntax Language). It provides a secure, configurable bridge between AI assistants and your local development environment.
 
 ## Features
 

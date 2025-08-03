@@ -10,7 +10,6 @@ allowed-actions:
   - file_replace_text
   - file_replace_all_text
   - files_read
-  - exec
 
 # File system guard configuration
 fs-guard:
@@ -33,7 +32,8 @@ fs-guard:
 hooks:
   # before: []
   # after: []
-  
+
+
   # Example hooks
   # before:
   #   - run: git add -A
@@ -42,11 +42,11 @@ hooks:
   #     timeout: 10000  # 10s for slow networks
   after:
   - run: |
-      git add -A && \
-      git diff --quiet && git diff --staged --quiet || \
-      git commit -m "${COMMIT_MSG} $(git diff --cached --name-only | wc -l | tr -d ' ') files:
+      git add -A &&   #     git diff --quiet && git diff --staged --quiet ||   #     git commit -m "${COMMIT_MSG} $(git diff --cached --name-only | wc -l | tr -d ' ') files:
       $(git diff --cached --name-only | head -10)"
       git push
+
+  
 # Variables available in commands
 vars:
   COMMIT_MSG: "auto-slupe::"

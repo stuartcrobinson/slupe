@@ -31,22 +31,25 @@ fs-guard:
 
 # Git hooks configuration
 hooks:
-  # before: []
-  # after: []
-  
+  before: []
+  after: []
+
+
   # Example hooks
   # before:
   #   - run: git add -A
   #   - run: git commit -m "before \${COMMIT_MSG}"
   #   - run: git push
   #     timeout: 10000  # 10s for slow networks
-  after:
-  - run: |
-      git add -A && \
-      git diff --quiet && git diff --staged --quiet || \
-      git commit -m "\${COMMIT_MSG} $(git diff --cached --name-only | wc -l | tr -d ' ') files:
-      $(git diff --cached --name-only | head -10)"
-      git push
+  # after:
+  # - run: |
+  #     git add -A && \
+  #     git diff --quiet && git diff --staged --quiet || \
+  #     git commit -m "\${COMMIT_MSG} $(git diff --cached --name-only | wc -l | tr -d ' ') files:
+  #     $(git diff --cached --name-only | head -10)"
+  #     git push
+
+  
 # Variables available in commands
 vars:
   COMMIT_MSG: "auto-slupe::"
