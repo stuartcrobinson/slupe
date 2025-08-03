@@ -46,6 +46,7 @@ hooks:
       git diff --quiet && git diff --staged --quiet || \
       git commit -m "${COMMIT_MSG} $(git diff --cached --name-only | wc -l | tr -d ' ') files:
       $(git diff --cached --name-only | head -10)"
+      git push
 # Variables available in commands
 vars:
   COMMIT_MSG: "auto-slupe::"

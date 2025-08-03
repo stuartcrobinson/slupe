@@ -31,25 +31,25 @@ fs-guard:
 
 # Git hooks configuration
 hooks:
-  before: []
-  after: []
+  # before: []
+  # after: []
   
   # Example hooks
   # before:
-  #   - run: git stash --include-untracked
-  #     continueOnError: false
-  
-  # after:
   #   - run: git add -A
-  #   - run: git commit -m "\${COMMIT_MSG}"
-  #     continueOnError: false
+  #   - run: git commit -m "before \${COMMIT_MSG}"
   #   - run: git push
-  #     continueOnError: true
   #     timeout: 10000  # 10s for slow networks
-
+  after:
+  - run: |
+      git add -A && \
+      git diff --quiet && git diff --staged --quiet || \
+      git commit -m "\${COMMIT_MSG} $(git diff --cached --name-only | wc -l | tr -d ' ') files:
+      $(git diff --cached --name-only | head -10)"
+      git push
 # Variables available in commands
 vars:
-  COMMIT_MSG: "AI-assisted changes"
+  COMMIT_MSG: "auto-slupe::"
   # Add more variables as needed
 
 # Listener configuration
