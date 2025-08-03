@@ -45,7 +45,7 @@ describe('squash with public repo', () => {
     
     const logAfter = await git.log();
     expect(logAfter.total).toBe(beforeCount - 2);
-    expect(logAfter.latest!.message).toMatch(/Squashed 3 commits/);
+    expect(logAfter.latest!.message).toMatch(/slupe-squash:: 3 commits/);
     
     const status = await git.status();
     expect(status.files.length).toBe(0);
