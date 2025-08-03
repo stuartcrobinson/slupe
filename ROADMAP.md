@@ -9,6 +9,7 @@ X set up the git hooks
 X allow cmd line arg and config arg for custom input/output files
     - critical for using npx slupe in actual slupe repo
 
+- squasher !!!
 
 now... 
 
