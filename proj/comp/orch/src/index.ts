@@ -10,7 +10,6 @@ import { ExecExecutor } from '../../exec/src/index.js';
 
 import { loadConfig } from '../../config/src/index.js';
 import type { SlupeConfig } from '../../config/src/index.js';
-import { updateInstructions } from '../../instruct-gen/src/index.js';
 import { ActionDefinitions } from '../../../src/unified-design.js';
 
 export interface ExecutionResult {
