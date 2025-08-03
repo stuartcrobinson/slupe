@@ -45,7 +45,7 @@ hooks:
   # after:
   #   - run: |
   #       git add -A && 
-  #       git commit -m "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files: $(git diff --cached --name-only | head -10 | tr '\\n' ' ')" && 
+  #       git commit -m "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files:$'\\n'$(git diff --cached --name-only | head -10)" && 
   #       git push
   
 # Variables available in commands
