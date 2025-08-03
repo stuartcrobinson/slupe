@@ -111,7 +111,7 @@ fs-guard:
 
 # Git hooks configuration
 hooks:
-  before: []
+#  before: []
 #  after: []
 
 
@@ -123,11 +123,11 @@ hooks:
   #     timeout: 10000  # 10s for slow networks
 
   ## this creates a pushes a git commit with a helpful message
-  after:
-  - run: |
-      git add -A &&   #     git diff --quiet && git diff --staged --quiet ||   #     git commit -m "${COMMIT_MSG} $(git diff --cached --name-only | wc -l | tr -d ' ') files:
-      $(git diff --cached --name-only | head -10)"
-      git push
+  # after:
+  #   - run: |
+  #       git add -A && 
+  #       git commit -m "$(echo "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files:\n$(git diff --cached --name-only | head -10)")" &&
+  #       git push
 
   
 # Variables available in commands

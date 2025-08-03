@@ -11,6 +11,8 @@ import { ClipboardMonitor } from './clipboard-monitor.js';
 
 // possible design issue/problem: we're passing the full content through multiple layers just to write it back. The stripped content would be better, but processContent doesn't return it.
 
+const debug = false;
+
 const activeListeners = new Map<string, ListenerHandle>();
 const fileWatcher = new FileWatcher();
 
@@ -25,15 +27,15 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     return;
   }
 
-  console.time('total-processing');
+  debug&&console.time('total-processing');
   try {
     state.isProcessing = true;
 
-    console.time('read-file');
+    debug&&console.time('read-file');
     const fullContent = await readFile(filePath, 'utf-8');
-    console.timeEnd('read-file');
+    debug&&console.timeEnd('read-file');
     
-    console.time('processContent-total');
+    debug&&console.time('processContent-total');
     const result = await processContent(
       fullContent,
       state.lastExecutedHash,
@@ -41,7 +43,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
       dirname(filePath),
       state.slupeInstance
     );
-    console.timeEnd('processContent-total');
+    debug&&console.timeEnd('processContent-total');
 
     // console.log('DEBUG: processContent result:', result);
 
@@ -81,7 +83,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
       );
     }
 
-    if (state.debug) console.time('write-outputs');
+    if (state.debug) debug&&console.time('write-outputs');
     try {
       await writeOutputs(
         {
@@ -96,7 +98,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
       console.error('DEBUG: Error writing outputs:', writeError);
       throw writeError;
     }
-    if (state.debug) console.timeEnd('write-outputs');
+    if (state.debug) debug&&console.timeEnd('write-outputs');
 
     state.lastExecutedHash = result.hash;
     
@@ -132,7 +134,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
     console.error('listener: Error processing file change:', error);
   } finally {
     state.isProcessing = false;
-    console.timeEnd('total-processing');
+    debug&&console.timeEnd('total-processing');
   }
 }
 

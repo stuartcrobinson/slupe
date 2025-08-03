@@ -32,16 +32,6 @@ fs-guard:
 # Git hooks configuration
 hooks:
   # before: []
-  # after: []
-
-
-  # Example hooks
-  # before:
-  #   - run: git add -A
-  #   - run: git commit -m "before \${COMMIT_MSG}"
-  #   - run: git push
-  #     timeout: 10000  # 10s for slow networks
-
   # after:
   #   - run: |
   #       git add -A && 
