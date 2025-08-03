@@ -8,7 +8,8 @@
     ".": "./dist/src/index.js"
   },
   "bin": {
-    "slupe": "dist/src/index.js"
+    "slupe": "dist/src/index.js",
+    "slupe-squash": "dist/src/squash.js"
   },
   "engines": {
     "node": ">=20.0.0"
@@ -44,7 +45,8 @@
     "js-yaml": "^4.1.0",
     "marked": "^12.0.0",
     "minimatch": "^9.0.3",
-    "nesl": "^0.1.12-beta.1"
+    "nesl": "^0.1.12-beta.1",
+    "simple-git": "^3.28.0"
   },
   "devDependencies": {
     "@types/js-yaml": "^4.0.9",

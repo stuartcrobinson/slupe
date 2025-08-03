@@ -44,11 +44,11 @@ hooks:
   - run: |
       git add -A && \
       git diff --quiet && git diff --staged --quiet || \
-      git commit -m "Updated $(git diff --cached --name-only | wc -l | tr -d ' ') files:
+      git commit -m "${COMMIT_MSG} $(git diff --cached --name-only | wc -l | tr -d ' ') files:
       $(git diff --cached --name-only | head -10)"
 # Variables available in commands
 vars:
-  COMMIT_MSG: "AI-assisted changes"
+  COMMIT_MSG: "auto-slupe::"
   # Add more variables as needed
 
 # Listener configuration
