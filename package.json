@@ -1,6 +1,6 @@
 {
   "name": "slupe",
-  "version": "0.1.1-beta.4",
+  "version": "0.1.1-beta.6",
   "description": "LLM coder 'tools' for any model",
   "type": "module",
   "main": "./dist/src/index.js",
@@ -21,8 +21,8 @@
   ],
   "scripts": {
     "clean": "rm -rf dist/",
-    "build": "npm run clean && tsc && npm run copy-cli",
-    "copy-cli": "cp proj/src/cli.js dist/src/cli.js && cp proj/src/cli-squash.js dist/src/cli-squash.js && chmod +x dist/src/cli.js dist/src/cli-squash.js",
+    "build": "npm run clean && tsc && npm run copy-assets",
+    "copy-assets": "cp proj/src/cli.js dist/src/cli.js && cp proj/src/cli-squash.js dist/src/cli-squash.js && chmod +x dist/src/cli.js dist/src/cli-squash.js && mkdir -p dist/comp/instruct-gen/templates && cp proj/comp/instruct-gen/templates/*.md dist/comp/instruct-gen/templates/",
     "prepare": "npm run build",
     "prepublishOnly": "npm run lint && vitest run --exclude '**/listener/**' && npm run build",
     "package": "npm run build && npm pack",
