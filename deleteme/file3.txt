@@ -1,1 +1,1 @@
-fresh file3 data
+file3 updated content

@@ -1,1 +1,1 @@
-entirely different file2 content
+file2 new version
