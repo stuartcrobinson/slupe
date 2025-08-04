@@ -3,6 +3,12 @@ ____________________
 aug 4 
 
 
+- update this error:
+        === SLUPE RESULTS ===
+        rd1 ❌ file_read /Users/stuart/repos/slupe/proj/comp/listener/src/index.ts - Read access denied for
+        === END ===
+    - denied for what? remove "for" maybe
+    - list the cwd. (in case slupe running in multiple repos simultaneously)
 - fix files_read so it returns what it can even if some of the reads failed. 
 - add cmd line arg to not copy output back to output. .... or maybe we need 2 cmds: --clipboard-input --clipboard-output .... yeah.  default for input is true, default for output is false.  will taht work? can cmd line args have optional parameters? so if missing its treated like "true" ?
 - add parsed structure edit actions
