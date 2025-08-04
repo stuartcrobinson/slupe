@@ -446,6 +446,26 @@ fm2 ❌ file_replace_text /tmp/t_listener_multi_match/app.js - old_text appears 
 === END ===
 
 === OUTPUTS ===
+
+[fm2 ❌] /tmp/t_listener_multi_match/app.js:
+=== START FILE: /tmp/t_listener_multi_match/app.js ===
+// Application code
+function process() {
+  const value = 100;
+  console.log(value);
+  
+  if (value > 50) {
+    console.log("High value");
+  }
+  
+  return value;
+}
+
+function validate() {
+  const value = 100;
+  return value > 0;
+}
+=== END FILE: /tmp/t_listener_multi_match/app.js ===
 === END ===
 ````
 
