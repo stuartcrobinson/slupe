@@ -14,7 +14,7 @@ Slupe is a file system orchestration tool that enables LLMs to execute file oper
 - **Real-time Monitoring**: Watch input files for action changes and execute NESL blocks automatically
 - **Clipboard Integration**: Optionally copies outputs directly to clipboard and monitor clipboard for input NESL blocks
 
-![gif of slupe usage, LLM generating actions to modify ascii art animation](./assets/gifs_for_readme/too_long.gif)
+![gif of slupe usage, LLM generating actions to modify ascii art animation](https://private-user-images.githubusercontent.com/12928716/473868476-d1e4b43e-7f4d-4e92-aa7d-1ca8f2a0b5ab.gif?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTQyODI0NTMsIm5iZiI6MTc1NDI4MjE1MywicGF0aCI6Ii8xMjkyODcxNi80NzM4Njg0NzYtZDFlNGI0M2UtN2Y0ZC00ZTkyLWFhN2QtMWNhOGYyYTBiNWFiLmdpZj9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNTA4MDQlMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjUwODA0VDA0MzU1M1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTNiMGRiMzcwNDFiNWNlYWZhMzNiZGNjMWExZmY1OWFhYjBlOWJlN2E0YWNmZjY2MTFiMTQ5YjFhNjUwMmYxZGUmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0In0.unFBjsoVGAHmjcg5eb7Uj8kE7yiQIh4anuSjgLS_OeY)
 
 ## Installation
 
