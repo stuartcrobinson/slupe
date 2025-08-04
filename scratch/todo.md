@@ -9,6 +9,14 @@ aug 4
         === END ===
     - denied for what? remove "for" maybe
     - list the cwd. (in case slupe running in multiple repos simultaneously)
+- fix this output - needs file content for failed match
+            === SLUPE RESULTS ===
+            fs1 ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts - old_text appears 2 times, must appear exactly once
+            fs2 ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
+            === END ===
+            === OUTPUTS ===
+    - and maybe we sould update instructinos to avoid this somehow. but honestly maybe we should NOT be responding with file content all the time.  LLM knows what the state is. it can focus and be more careful? but that seems crappy too. what we really need is targeted parsed node editing.  then we can pass back stuff all the time. 
+=== END ===
 - fix files_read so it returns what it can even if some of the reads failed. 
 - add cmd line arg to not copy output back to output. .... or maybe we need 2 cmds: --clipboard-input --clipboard-output .... yeah.  default for input is true, default for output is false.  will taht work? can cmd line args have optional parameters? so if missing its treated like "true" ?
 - add parsed structure edit actions

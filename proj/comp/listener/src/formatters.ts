@@ -268,10 +268,17 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
   // Add execution results
   if (orchResult.results) {
     for (const result of orchResult.results) {
-      const icon = result.success ? '✅' : '❌';
+      let icon = result.success ? '✅' : '❌';
       const primaryParam = getPrimaryParamFromResult(result);
 
-      if (result.success) {
+      // Check for partial success in files_read
+      if (result.success && result.action === 'files_read' && result.data?.errors) {
+        icon = '⚠️ ';
+        const totalFiles = (result.data.paths?.length || 0) + (result.data.errors?.length || 0);
+        const successCount = result.data.paths?.length || 0;
+        const failCount = result.data.errors?.length || 0;
+        lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam} - Read ${successCount} of ${totalFiles} files (${failCount} failed)`.trim());
+      } else if (result.success) {
         lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam}`.trim());
       } else {
         lines.push(`${result.blockId} ${icon} ${result.action} ${primaryParam} - ${getErrorSummary(result.error, result)}`.trim());
