@@ -595,7 +595,7 @@ new_text = "content"
 #!nesl [@three-char-SHA-256: po1]
 action = "file_write"
 path = "/tmp/t_partial-marker-overlap/partial.txt"
-content = "START_MARKER some content END_START_MARKER more END_MARKER final"
+content = "BEGIN_MARKER some content that ends with MARKER suffix"
 #!end_po1
 ```
 
@@ -603,8 +603,8 @@ content = "START_MARKER some content END_START_MARKER more END_MARKER final"
 #!nesl [@three-char-SHA-256: po2]
 action = "file_replace_text_range"
 path = "/tmp/t_partial-marker-overlap/partial.txt"
-old_text_beginning = "START_MARKER"
-old_text_end = "_MARKER"
+old_text_beginning = "BEGIN_MARKER"
+old_text_end = "MARKER"
 new_text = "REPLACED"
 #!end_po2
 ```
@@ -620,5 +620,5 @@ new_text = "REPLACED"
 ```
 
 ```
-REPLACED some content END_START_MARKER more END_MARKER final
+REPLACED suffix
 ```
