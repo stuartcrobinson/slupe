@@ -33,27 +33,37 @@ export async function handle__files_read(action: SlupeAction): Promise<FileOpRes
     }
   }
 
-  // Check if any files failed to read
+  // Separate successful and failed files
+  const successfulFiles = results.filter(r => !r.error);
   const failedFiles = results.filter(r => r.error);
-  if (failedFiles.length > 0) {
-    // Return error listing all failed files
+
+  // If all files failed, return error
+  if (successfulFiles.length === 0 && failedFiles.length > 0) {
     const errorDetails = failedFiles
       .map(f => `  ${f.path}: ${f.error}`)
       .join('\n');
     return {
       success: false,
-      error: `files_read: Failed to read ${failedFiles.length} file(s):\n${errorDetails}`
+      error: `files_read: Failed to read all ${failedFiles.length} file(s):\n${errorDetails}`
     };
   }
 
-  // All files read successfully - return contents as array
-  const contents = results.map(r => r.content!);
+  // Build data object with successful reads
+  const data: any = {
+    paths: successfulFiles.map(r => r.path),
+    content: successfulFiles.map(r => r.content!)
+  };
+
+  // Add error information if there were any failures
+  if (failedFiles.length > 0) {
+    data.errors = failedFiles.map(f => ({
+      path: f.path,
+      error: f.error
+    }));
+  }
 
   return {
     success: true,
-    data: {
-      paths: pathList,
-      content: contents
-    }
+    data
   };
 }

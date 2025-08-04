@@ -903,7 +903,7 @@ EOT_fm2
 
 ```json
 {
-  "success": false,
+  "success": true,
   "totalBlocks": 2,
   "executedActions": 2,
   "results": [{
@@ -926,8 +926,15 @@ EOT_fm2
     "params": {
       "paths": "/tmp/018-files-read-with-missing/exists.txt\n/tmp/018-files-read-with-missing/missing.txt"
     },
-    "success": false,
-    "error": "files_read: Failed to read 1 file(s):\n  /tmp/018-files-read-with-missing/missing.txt: ENOENT: no such file or directory, open '/tmp/018-files-read-with-missing/missing.txt'"
+    "success": true,
+    "data": {
+      "paths": ["/tmp/018-files-read-with-missing/exists.txt"],
+      "content": ["This file exists"],
+      "errors": [{
+        "path": "/tmp/018-files-read-with-missing/missing.txt",
+        "error": "ENOENT: no such file or directory, open '/tmp/018-files-read-with-missing/missing.txt'"
+      }]
+    }
   }],
   "parseErrors": []
 }

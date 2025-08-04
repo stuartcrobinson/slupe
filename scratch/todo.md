@@ -1,3 +1,42 @@
+
+____________________
+aug 4 
+
+
+- add parsed structure edit actions and file_replace_text_range
+https://claude.ai/chat/d8212c32-e2ba-4888-b92d-22875549255d
+- make clipboard-input and clipboard-ouput default to true. 
+    pring usage notes whenever slupe is run
+
+X fix this output - needs file content for failed match
+            === SLUPE RESULTS ===
+            fs1 ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts - old_text appears 2 times, must appear exactly once
+            fs2 ✅ file_replace_text /Users/stuart/repos/slupe/proj/comp/listener/src/formatters.ts
+            === END ===
+            === OUTPUTS ===
+            === END ===
+    - and maybe we sould update instructinos to avoid this somehow. but honestly maybe we should NOT be responding with file content all the time.  LLM knows what the state is. it can focus and be more careful? but that seems crappy too. what we really need is targeted parsed node editing.  then we can pass back stuff all the time. 
+
+X fix files_read so it returns what it can even if some of the reads failed. 
+
+
+
+
+
+future:
+
+- add cmd line arg to not copy output back to output. .... or maybe we need 2 cmds: --clipboard-input --clipboard-output .... yeah.  default for input is true, default for output is false.  will taht work? can cmd line args have optional parameters? so if missing its treated like "true" ?
+- update listener-workflow-v2.test so it doens't need cases to have the entire input when checking the prepended results
+
+- update/fix this error: -- see /Users/stuart/repos/slupe/proj/comp/fs-guard/src/FsGuard.ts
+        === SLUPE RESULTS ===
+        rd1 ❌ file_read /Users/stuart/repos/slupe/proj/comp/listener/src/index.ts - Read access denied for
+        === END ===
+    - denied for what? remove "for" maybe
+    - list the cwd. (in case slupe running in multiple repos simultaneously)
+
+
+------------------------
 TODO:
 
 X start working in a dev branch?
@@ -9,15 +48,21 @@ X set up the git hooks
 X allow cmd line arg and config arg for custom input/output files
     - critical for using npx slupe in actual slupe repo
 
-- squasher !!!
+X squasher !!!
 
 now... 
 
-- fix build errors
-- clean up README 
+X fix build errors
+X clean up README 
 
-- write hacker news post about it
-- publish sunday morning 
+X write hacker news post about it
+X publish sunday morning 
+
+
+---
+
+demo:
+
 
 
 ---

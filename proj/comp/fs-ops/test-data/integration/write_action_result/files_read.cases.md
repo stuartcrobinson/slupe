@@ -120,8 +120,21 @@ EOT_mf2
 
 ```json
 {
-  "success": false,
-  "error": "files_read: Failed to read 2 file(s):\n  /tmp/t_read-with-missing-file/files-read-missing/does-not-exist.txt: ENOENT: no such file or directory, open '/tmp/t_read-with-missing-file/files-read-missing/does-not-exist.txt'\n  /tmp/t_read-with-missing-file/files-read-missing/also-missing.txt: ENOENT: no such file or directory, open '/tmp/t_read-with-missing-file/files-read-missing/also-missing.txt'"
+  "success": true,
+  "data": {
+    "paths": ["/tmp/t_read-with-missing-file/files-read-missing/exists.txt"],
+    "content": ["This file exists"],
+    "errors": [
+      {
+        "path": "/tmp/t_read-with-missing-file/files-read-missing/does-not-exist.txt",
+        "error": "ENOENT: no such file or directory, open '/tmp/t_read-with-missing-file/files-read-missing/does-not-exist.txt'"
+      },
+      {
+        "path": "/tmp/t_read-with-missing-file/files-read-missing/also-missing.txt",
+        "error": "ENOENT: no such file or directory, open '/tmp/t_read-with-missing-file/files-read-missing/also-missing.txt'"
+      }
+    ]
+  }
 }
 ```
 
@@ -174,7 +187,30 @@ paths = "/tmp/t_read-single-file/files-read-single/only.txt"
 }
 ```
 
-### 006-read-files-with-special-content
+### 006-read-all-missing-files
+
+```
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: am1]
+action = "files_read"
+paths = <<'EOT_am1'
+/tmp/t_read-all-missing/files-read-all-missing/missing1.txt
+/tmp/t_read-all-missing/files-read-all-missing/missing2.txt
+/tmp/t_read-all-missing/files-read-all-missing/missing3.txt
+EOT_am1
+#!end_am1
+```
+
+```json
+{
+  "success": false,
+  "error": "files_read: Failed to read all 3 file(s):\n  /tmp/t_read-all-missing/files-read-all-missing/missing1.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing1.txt'\n  /tmp/t_read-all-missing/files-read-all-missing/missing2.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing2.txt'\n  /tmp/t_read-all-missing/files-read-all-missing/missing3.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing3.txt'"
+}
+```
+
+### 007-read-files-with-special-content
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sc1]

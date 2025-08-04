@@ -446,6 +446,26 @@ fm2 ❌ file_replace_text /tmp/t_listener_multi_match/app.js - old_text appears 
 === END ===
 
 === OUTPUTS ===
+
+[fm2 ❌] /tmp/t_listener_multi_match/app.js:
+=== START FILE: /tmp/t_listener_multi_match/app.js ===
+// Application code
+function process() {
+  const value = 100;
+  console.log(value);
+  
+  if (value > 50) {
+    console.log("High value");
+  }
+  
+  return value;
+}
+
+function validate() {
+  const value = 100;
+  return value > 0;
+}
+=== END FILE: /tmp/t_listener_multi_match/app.js ===
 === END ===
 ````
 
@@ -557,7 +577,7 @@ fn2 ❌ file_replace_text /tmp/t_listener_no_match/readme.md - old_text not foun
 
 === OUTPUTS ===
 
-[fn2] file_replace_text /tmp/t_listener_no_match/readme.md (failed - showing file contents):
+[fn2 ❌] /tmp/t_listener_no_match/readme.md:
 === START FILE: /tmp/t_listener_no_match/readme.md ===
 # Project README
 
@@ -656,7 +676,7 @@ rf2 ✅ file_read /tmp/t_listener_read/sample.py
 
 === OUTPUTS ===
 
-[rf2] file_read:
+[rf2 ✅] /tmp/t_listener_read/sample.py:
 === START FILE: /tmp/t_listener_read/sample.py ===
 #!/usr/bin/env python3
 """Sample Python file for testing."""
@@ -948,6 +968,135 @@ venv/
 === END ===
 ````
 
+### files-read-partial-failure
+
+#### Initial Content
+````sh
+Testing files read with some missing files.
+````
+
+#### New Content
+````sh
+Testing files read with some missing files.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf1]
+action = "file_write"
+path = "/tmp/t_listener_partial_read/exists1.txt"
+content = <<'EOT_pf1'
+This is the first file that exists.
+It has multiple lines.
+Line 3 here.
+EOT_pf1
+#!end_pf1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf2]
+action = "file_write"
+path = "/tmp/t_listener_partial_read/exists2.txt"
+content = <<'EOT_pf2'
+Second file content.
+Also exists successfully.
+EOT_pf2
+#!end_pf2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf3]
+action = "files_read"
+paths = <<'EOT_pf3'
+/tmp/t_listener_partial_read/exists1.txt
+/tmp/t_listener_partial_read/missing1.txt
+/tmp/t_listener_partial_read/exists2.txt
+/tmp/t_listener_partial_read/missing2.txt
+/tmp/t_listener_partial_read/also_missing.txt
+EOT_pf3
+#!end_pf3
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+pf1 ✅ file_write /tmp/t_listener_partial_read/exists1.txt
+pf2 ✅ file_write /tmp/t_listener_partial_read/exists2.txt
+pf3 ⚠️  files_read (5 files) - Read 2 of 5 files (3 failed)
+=== END ===
+Testing files read with some missing files.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf1]
+action = "file_write"
+path = "/tmp/t_listener_partial_read/exists1.txt"
+content = <<'EOT_pf1'
+This is the first file that exists.
+It has multiple lines.
+Line 3 here.
+EOT_pf1
+#!end_pf1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf2]
+action = "file_write"
+path = "/tmp/t_listener_partial_read/exists2.txt"
+content = <<'EOT_pf2'
+Second file content.
+Also exists successfully.
+EOT_pf2
+#!end_pf2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf3]
+action = "files_read"
+paths = <<'EOT_pf3'
+/tmp/t_listener_partial_read/exists1.txt
+/tmp/t_listener_partial_read/missing1.txt
+/tmp/t_listener_partial_read/exists2.txt
+/tmp/t_listener_partial_read/missing2.txt
+/tmp/t_listener_partial_read/also_missing.txt
+EOT_pf3
+#!end_pf3
+```
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+pf1 ✅ file_write /tmp/t_listener_partial_read/exists1.txt
+pf2 ✅ file_write /tmp/t_listener_partial_read/exists2.txt
+pf3 ⚠️  files_read (5 files) - Read 2 of 5 files (3 failed)
+=== END ===
+
+=== OUTPUTS ===
+
+[pf3] files_read:
+Successfully read 2 of 5 files (3 failed):
+
+✅ Successfully read:
+- /tmp/t_listener_partial_read/exists1.txt
+- /tmp/t_listener_partial_read/exists2.txt
+
+❌ Failed to read:
+- /tmp/t_listener_partial_read/missing1.txt: ENOENT: no such file or directory, open '/tmp/t_listener_partial_read/missing1.txt'
+- /tmp/t_listener_partial_read/missing2.txt: ENOENT: no such file or directory, open '/tmp/t_listener_partial_read/missing2.txt'
+- /tmp/t_listener_partial_read/also_missing.txt: ENOENT: no such file or directory, open '/tmp/t_listener_partial_read/also_missing.txt'
+
+=== START FILE: /tmp/t_listener_partial_read/exists1.txt ===
+This is the first file that exists.
+It has multiple lines.
+Line 3 here.
+=== END FILE: /tmp/t_listener_partial_read/exists1.txt ===
+
+=== START FILE: /tmp/t_listener_partial_read/exists2.txt ===
+Second file content.
+Also exists successfully.
+=== END FILE: /tmp/t_listener_partial_read/exists2.txt ===
+=== END ===
+````
+
 ### listener-parsing-errors
 
 #### Initial Content
@@ -1098,5 +1247,224 @@ unknown ❌ -          ERROR: Block ID must be exactly 3 characters (line 42)
 === END ===
 
 === OUTPUTS ===
+=== END ===
+````
+
+
+You're absolutely right! I completely messed up the format. Looking at the other test cases, I need to provide the proper 4-section format. Here's the corrected test case:
+
+### multiple-failures-show-file-contents
+
+#### Initial Content
+````sh
+Testing multiple file replacement failures.
+````
+
+#### New Content
+````sh
+Testing multiple file replacement failures.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf1]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+content = <<'EOT_mf1'
+foo bar
+foo baz
+end line
+EOT_mf1
+#!end_mf1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf2]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
+content = <<'EOT_mf2'
+hello world
+test line
+goodbye
+EOT_mf2
+#!end_mf2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf3]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
+content = <<'EOT_mf3'
+cat dog
+bird fish
+last one
+EOT_mf3
+#!end_mf3
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs1]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+old_text = "foo"
+new_text = "bar"
+#!end_fs1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs2]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
+old_text = "missing text"
+new_text = "replacement"
+#!end_fs2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs3]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
+old_text = "cat dog"
+new_text = "dog cat"
+#!end_fs3
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs4]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+old_text = "missing line"
+new_text = "replacement"
+#!end_fs4
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs5]
+action = "file_read"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+#!end_fs5
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+mf1 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file1.txt
+mf2 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file2.txt
+mf3 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs1 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text appears 2 times, must appear exactly once
+fs2 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file2.txt - old_text not found in file
+fs3 ✅ file_replace_text /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs4 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text not found in file
+fs5 ✅ file_read /tmp/t_multiple-failures-show-file-contents/file1.txt
+=== END ===
+Testing multiple file replacement failures.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf1]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+content = <<'EOT_mf1'
+foo bar
+foo baz
+end line
+EOT_mf1
+#!end_mf1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf2]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
+content = <<'EOT_mf2'
+hello world
+test line
+goodbye
+EOT_mf2
+#!end_mf2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf3]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
+content = <<'EOT_mf3'
+cat dog
+bird fish
+last one
+EOT_mf3
+#!end_mf3
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs1]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+old_text = "foo"
+new_text = "bar"
+#!end_fs1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs2]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
+old_text = "missing text"
+new_text = "replacement"
+#!end_fs2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs3]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
+old_text = "cat dog"
+new_text = "dog cat"
+#!end_fs3
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs4]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+old_text = "missing line"
+new_text = "replacement"
+#!end_fs4
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs5]
+action = "file_read"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+#!end_fs5
+```
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+mf1 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file1.txt
+mf2 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file2.txt
+mf3 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs1 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text appears 2 times, must appear exactly once
+fs2 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file2.txt - old_text not found in file
+fs3 ✅ file_replace_text /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs4 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text not found in file
+fs5 ✅ file_read /tmp/t_multiple-failures-show-file-contents/file1.txt
+=== END ===
+
+=== OUTPUTS ===
+
+[fs1 ❌, fs4 ❌, fs5 ✅] /tmp/t_multiple-failures-show-file-contents/file1.txt:
+=== START FILE: /tmp/t_multiple-failures-show-file-contents/file1.txt ===
+foo bar
+foo baz
+end line
+=== END FILE: /tmp/t_multiple-failures-show-file-contents/file1.txt ===
+
+[fs2 ❌] /tmp/t_multiple-failures-show-file-contents/file2.txt:
+=== START FILE: /tmp/t_multiple-failures-show-file-contents/file2.txt ===
+hello world
+test line
+goodbye
+=== END FILE: /tmp/t_multiple-failures-show-file-contents/file2.txt ===
 === END ===
 ````
