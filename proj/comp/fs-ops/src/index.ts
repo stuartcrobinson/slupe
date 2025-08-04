@@ -59,6 +59,7 @@ const NOT_IMPLEMENTED = new Set([
   'files_replace_text_in_parents'
 ]);
 
+const debug = false;
 /**
  * File system operations executor with security guard
  */
@@ -85,9 +86,9 @@ export class FsOpsExecutor {
   async execute(action: SlupeAction): Promise<FileOpResult> {
     try {
       // Check fs-guard permissions first
-      console.time('guard-check');
+      debug&&console.time('guard-check');
       const guardResult = await this.guard.check(action);
-      console.timeEnd('guard-check');
+      debug&&console.timeEnd('guard-check');
       
       if (!guardResult.allowed) {
         return {
@@ -112,9 +113,9 @@ export class FsOpsExecutor {
         };
       }
 
-      console.time('handler-execute');
+      debug&&console.time('handler-execute');
       const result = await handler(action);
-      console.timeEnd('handler-execute');
+      debug&&console.timeEnd('handler-execute');
       return result;
     } catch (error: any) {
       // This should never happen - handlers should catch their own errors
