@@ -170,9 +170,51 @@ function formatFileReadOutput(result: any): string[] {
     lines.push((result.data.content !== undefined ? result.data.content : result.data) || '[empty file]');
     lines.push(`=== END FILE: [numbered] ${path} ===`);
   } else if (result.action === 'files_read') {
-    // Multiple files read - data contains { paths: string[], content: string[] }
+    // Multiple files read - data contains { paths: string[], content: string[], errors?: [{path, error}] }
     // Each element in content array corresponds to the file at the same index in paths
-    if (result.data.paths && result.data.content) {
+    const successCount = result.data.paths?.length || 0;
+    const failCount = result.data.errors?.length || 0;
+    const totalCount = successCount + failCount;
+
+    // Handle partial failures
+    if (result.data.errors && result.data.errors.length > 0) {
+      lines.push(`Successfully read ${successCount} of ${totalCount} files (${failCount} failed):`);
+      lines.push('');
+
+      // List successful files
+      if (successCount > 0) {
+        lines.push('✅ Successfully read:');
+        for (const path of result.data.paths) {
+          lines.push(`- ${path}`);
+        }
+        lines.push('');
+      }
+
+      // List failed files
+      lines.push('❌ Failed to read:');
+      for (const error of result.data.errors) {
+        lines.push(`- ${error.path}: ${error.error}`);
+      }
+      lines.push('');
+
+      // Show content of successful files
+      if (successCount > 0) {
+        for (let i = 0; i < result.data.paths.length; i++) {
+          const path = result.data.paths[i];
+          const content = result.data.content[i];
+
+          lines.push(`=== START FILE: ${path} ===`);
+          lines.push(content || '[empty file]');
+          lines.push(`=== END FILE: ${path} ===`);
+
+          // Add blank line between files (except after the last one)
+          if (i < result.data.paths.length - 1) {
+            lines.push('');
+          }
+        }
+      }
+    } else if (result.data.paths && result.data.content) {
+      // All files read successfully
       lines.push(`Reading ${result.data.paths.length} files:`);
 
       // List all files first
