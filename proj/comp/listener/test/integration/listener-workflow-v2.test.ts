@@ -207,8 +207,15 @@ describe('listener workflow v2', () => {
       const actualPrepended = await readFile(testFile, 'utf-8');
       const actualOutput = await readFile(outputFile, 'utf-8');
 
-      // Compare results (exact match)
-      expect(actualPrepended).toBe(testCase.expectedPrepended);
+      // Compare results - prepended content should be at the start of the file
+      expect(actualPrepended.startsWith(testCase.expectedPrepended)).toBe(true);
+      
+      // Also verify the original content is still there after the prepended section
+      const prependedLength = testCase.expectedPrepended.length;
+      const remainingContent = actualPrepended.slice(prependedLength);
+      expect(remainingContent.trim()).toBe(testCase.newContent.trim());
+      
+      // Output file should still be an exact match
       expect(actualOutput).toBe(testCase.expectedOutput);
 
     } finally {
