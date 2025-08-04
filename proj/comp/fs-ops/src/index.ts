@@ -17,6 +17,7 @@ import { handle__file_replace_lines } from './actions/file_replace_lines.js';
 import { handle__file_delete } from './actions/file_delete.js';
 import { handle__file_move } from './actions/file_move.js';
 import { handle__files_read } from './actions/files_read.js';
+import { handle__file_replace_text_range } from './actions/file_replace_text_range.js';
 
 export interface FileOpResult {
   success: boolean;
@@ -43,7 +44,6 @@ const NOT_IMPLEMENTED = new Set([
   'ls',
   'grep',
   'glob',
-  'file_replace_text_range',
   'file_append',
   'exec',
   'context_add',
@@ -76,7 +76,8 @@ export class FsOpsExecutor {
       ['file_replace_lines', handle__file_replace_lines],
       ['file_delete', handle__file_delete],
       ['file_move', handle__file_move],
-      ['files_read', handle__files_read]
+      ['files_read', handle__files_read],
+      ['file_replace_text_range', handle__file_replace_text_range]
     ]);
   }
 
