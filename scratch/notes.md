@@ -19,6 +19,12 @@ now...
 - write hacker news post about it
 - publish sunday morning 
 
+
+---
+
+demo:
+
+
 ---
 
 LATER
