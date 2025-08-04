@@ -344,23 +344,76 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
 
   lines.push('=== END ===', '', '=== OUTPUTS ===');
 
-  // Add outputs for successful actions based on output_display rules
+  // Group operations by file path for concise output
+  const fileOperations = new Map<string, { blockId: string, action: string, success: boolean }[]>();
+
+  // Collect all file operations that need to show content
   if (orchResult.results) {
     for (const result of orchResult.results) {
-      // Special case: show file contents for failed text replacements
+      // Check if this operation should show file contents
+      let shouldShow = false;
+      let filePath = '';
+
+      // Failed replace operations where text wasn't found
       if (!result.success &&
         ['file_replace_text', 'file_replace_all_text'].includes(result.action) &&
         result.error?.includes('not found in file') &&
         result.params?.path) {
-        lines.push('', `[${result.blockId}] ${result.action} ${result.params.path} (failed - showing file contents):`);
-        try {
-          const content = readFileSync(result.params.path, 'utf-8');
-          lines.push(`=== START FILE: ${result.params.path} ===`);
-          lines.push(content);
-          lines.push(`=== END FILE: ${result.params.path} ===`);
-        } catch (err: any) {
-          lines.push(`[Error reading file: ${err.message}]`);
+        shouldShow = true;
+        filePath = result.params.path;
+      }
+      // Failed replace operations with duplicate text
+      else if (!result.success &&
+        ['file_replace_text', 'file_replace_all_text'].includes(result.action) &&
+        result.error?.includes('appears') &&
+        result.error?.includes('times') &&
+        result.params?.path) {
+        shouldShow = true;
+        filePath = result.params.path;
+      }
+      // Successful file_read operations
+      else if (result.success && result.action === 'file_read' && result.params?.path) {
+        shouldShow = true;
+        filePath = result.params.path;
+      }
+
+      if (shouldShow && filePath) {
+        if (!fileOperations.has(filePath)) {
+          fileOperations.set(filePath, []);
         }
+        fileOperations.get(filePath)!.push({
+          blockId: result.blockId,
+          action: result.action,
+          success: result.success
+        });
+      }
+    }
+  }
+
+  // Output grouped file contents
+  for (const [filePath, operations] of fileOperations) {
+    // Format the operations list: [blockId ✅/❌, ...]
+    const opsStr = operations
+      .map(op => `${op.blockId} ${op.success ? '✅' : '❌'}`)
+      .join(', ');
+
+    lines.push('', `[${opsStr}] ${filePath}:`);
+    
+    try {
+      const content = readFileSync(filePath, 'utf-8');
+      lines.push(`=== START FILE: ${filePath} ===`);
+      lines.push(content);
+      lines.push(`=== END FILE: ${filePath} ===`);
+    } catch (err: any) {
+      lines.push(`[Error reading file: ${err.message}]`);
+    }
+  }
+
+  // Handle other output types (non-file operations)
+  if (orchResult.results) {
+    for (const result of orchResult.results) {
+      // Skip file operations we already handled
+      if (['file_read', 'file_replace_text', 'file_replace_all_text'].includes(result.action)) {
         continue;
       }
 
@@ -380,7 +433,6 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
 
           if (result.data.stderr) {
             lines.push('stderr:');
-            // Indent stderr content for clarity
             const stderrLines = result.data.stderr.trimEnd().split('\n');
             lines.push(...stderrLines.map((line: string) => '  ' + line));
             lines.push('');
@@ -392,17 +444,15 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
           continue;
         }
 
-        // Normal formatting for successful actions
+        // Handle other output types
         const primaryParam = getPrimaryParamFromResult(result);
-        // For file read operations, don't include path in header since it's shown in the formatted output
-        const includeParam = !['file_read', 'file_read_numbered', 'files_read'].includes(result.action);
+        const includeParam = !['file_read_numbered', 'files_read'].includes(result.action);
         const header = (primaryParam && includeParam)
           ? `[${result.blockId}] ${result.action} ${primaryParam}:`
           : `[${result.blockId}] ${result.action}:`;
         lines.push('', header);
 
-        // Special formatting for file read operations
-        if (['file_read', 'file_read_numbered', 'files_read'].includes(result.action)) {
+        if (['file_read_numbered', 'files_read'].includes(result.action)) {
           const formattedOutput = formatFileReadOutput(result);
           lines.push(...formattedOutput);
         } else if (typeof result.data === 'string') {

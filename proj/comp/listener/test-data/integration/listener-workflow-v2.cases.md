@@ -1229,3 +1229,222 @@ unknown ❌ -          ERROR: Block ID must be exactly 3 characters (line 42)
 === OUTPUTS ===
 === END ===
 ````
+
+
+You're absolutely right! I completely messed up the format. Looking at the other test cases, I need to provide the proper 4-section format. Here's the corrected test case:
+
+### multiple-failures-show-file-contents
+
+#### Initial Content
+````sh
+Testing multiple file replacement failures.
+````
+
+#### New Content
+````sh
+Testing multiple file replacement failures.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf1]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+content = <<'EOT_mf1'
+foo bar
+foo baz
+end line
+EOT_mf1
+#!end_mf1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf2]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
+content = <<'EOT_mf2'
+hello world
+test line
+goodbye
+EOT_mf2
+#!end_mf2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf3]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
+content = <<'EOT_mf3'
+cat dog
+bird fish
+last one
+EOT_mf3
+#!end_mf3
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs1]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+old_text = "foo"
+new_text = "bar"
+#!end_fs1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs2]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
+old_text = "missing text"
+new_text = "replacement"
+#!end_fs2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs3]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
+old_text = "cat dog"
+new_text = "dog cat"
+#!end_fs3
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs4]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+old_text = "missing line"
+new_text = "replacement"
+#!end_fs4
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs5]
+action = "file_read"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+#!end_fs5
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+mf1 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file1.txt
+mf2 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file2.txt
+mf3 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs1 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text appears 2 times, must appear exactly once
+fs2 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file2.txt - old_text not found in file
+fs3 ✅ file_replace_text /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs4 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text not found in file
+fs5 ✅ file_read /tmp/t_multiple-failures-show-file-contents/file1.txt
+=== END ===
+Testing multiple file replacement failures.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf1]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+content = <<'EOT_mf1'
+foo bar
+foo baz
+end line
+EOT_mf1
+#!end_mf1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf2]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
+content = <<'EOT_mf2'
+hello world
+test line
+goodbye
+EOT_mf2
+#!end_mf2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: mf3]
+action = "file_write"
+path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
+content = <<'EOT_mf3'
+cat dog
+bird fish
+last one
+EOT_mf3
+#!end_mf3
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs1]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+old_text = "foo"
+new_text = "bar"
+#!end_fs1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs2]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
+old_text = "missing text"
+new_text = "replacement"
+#!end_fs2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs3]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
+old_text = "cat dog"
+new_text = "dog cat"
+#!end_fs3
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs4]
+action = "file_replace_text"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+old_text = "missing line"
+new_text = "replacement"
+#!end_fs4
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: fs5]
+action = "file_read"
+path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
+#!end_fs5
+```
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+mf1 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file1.txt
+mf2 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file2.txt
+mf3 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs1 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text appears 2 times, must appear exactly once
+fs2 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file2.txt - old_text not found in file
+fs3 ✅ file_replace_text /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs4 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text not found in file
+fs5 ✅ file_read /tmp/t_multiple-failures-show-file-contents/file1.txt
+=== END ===
+
+=== OUTPUTS ===
+
+[fs1 ❌, fs4 ❌, fs5 ✅] /tmp/t_multiple-failures-show-file-contents/file1.txt:
+=== START FILE: /tmp/t_multiple-failures-show-file-contents/file1.txt ===
+foo bar
+foo baz
+end line
+=== END FILE: /tmp/t_multiple-failures-show-file-contents/file1.txt ===
+
+[fs2 ❌] /tmp/t_multiple-failures-show-file-contents/file2.txt:
+=== START FILE: /tmp/t_multiple-failures-show-file-contents/file2.txt ===
+hello world
+test line
+goodbye
+=== END FILE: /tmp/t_multiple-failures-show-file-contents/file2.txt ===
+=== END ===
+````
