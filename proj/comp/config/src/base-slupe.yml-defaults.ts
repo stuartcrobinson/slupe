@@ -36,7 +36,7 @@ hooks:
   #   - run: |
   #       git add -A && 
   #       git commit -m "$(echo "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files:\\n$(git diff --cached --name-only | head -10)")" &&
-  #       git push
+  #       git push -u origin HEAD
   
 # Variables available in commands
 vars:
