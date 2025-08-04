@@ -948,6 +948,135 @@ venv/
 === END ===
 ````
 
+### files-read-partial-failure
+
+#### Initial Content
+````sh
+Testing files read with some missing files.
+````
+
+#### New Content
+````sh
+Testing files read with some missing files.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf1]
+action = "file_write"
+path = "/tmp/t_listener_partial_read/exists1.txt"
+content = <<'EOT_pf1'
+This is the first file that exists.
+It has multiple lines.
+Line 3 here.
+EOT_pf1
+#!end_pf1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf2]
+action = "file_write"
+path = "/tmp/t_listener_partial_read/exists2.txt"
+content = <<'EOT_pf2'
+Second file content.
+Also exists successfully.
+EOT_pf2
+#!end_pf2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf3]
+action = "files_read"
+paths = <<'EOT_pf3'
+/tmp/t_listener_partial_read/exists1.txt
+/tmp/t_listener_partial_read/missing1.txt
+/tmp/t_listener_partial_read/exists2.txt
+/tmp/t_listener_partial_read/missing2.txt
+/tmp/t_listener_partial_read/also_missing.txt
+EOT_pf3
+#!end_pf3
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+pf1 ✅ file_write /tmp/t_listener_partial_read/exists1.txt
+pf2 ✅ file_write /tmp/t_listener_partial_read/exists2.txt
+pf3 ⚠️  files_read (5 files) - Read 2 of 5 files (3 failed)
+=== END ===
+Testing files read with some missing files.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf1]
+action = "file_write"
+path = "/tmp/t_listener_partial_read/exists1.txt"
+content = <<'EOT_pf1'
+This is the first file that exists.
+It has multiple lines.
+Line 3 here.
+EOT_pf1
+#!end_pf1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf2]
+action = "file_write"
+path = "/tmp/t_listener_partial_read/exists2.txt"
+content = <<'EOT_pf2'
+Second file content.
+Also exists successfully.
+EOT_pf2
+#!end_pf2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: pf3]
+action = "files_read"
+paths = <<'EOT_pf3'
+/tmp/t_listener_partial_read/exists1.txt
+/tmp/t_listener_partial_read/missing1.txt
+/tmp/t_listener_partial_read/exists2.txt
+/tmp/t_listener_partial_read/missing2.txt
+/tmp/t_listener_partial_read/also_missing.txt
+EOT_pf3
+#!end_pf3
+```
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+pf1 ✅ file_write /tmp/t_listener_partial_read/exists1.txt
+pf2 ✅ file_write /tmp/t_listener_partial_read/exists2.txt
+pf3 ⚠️  files_read (5 files) - Read 2 of 5 files (3 failed)
+=== END ===
+
+=== OUTPUTS ===
+
+[pf3] files_read:
+Successfully read 2 of 5 files (3 failed):
+
+✅ Successfully read:
+- /tmp/t_listener_partial_read/exists1.txt
+- /tmp/t_listener_partial_read/exists2.txt
+
+❌ Failed to read:
+- /tmp/t_listener_partial_read/missing1.txt: ENOENT: no such file or directory, open '/tmp/t_listener_partial_read/missing1.txt'
+- /tmp/t_listener_partial_read/missing2.txt: ENOENT: no such file or directory, open '/tmp/t_listener_partial_read/missing2.txt'
+- /tmp/t_listener_partial_read/also_missing.txt: ENOENT: no such file or directory, open '/tmp/t_listener_partial_read/also_missing.txt'
+
+=== START FILE: /tmp/t_listener_partial_read/exists1.txt ===
+This is the first file that exists.
+It has multiple lines.
+Line 3 here.
+=== END FILE: /tmp/t_listener_partial_read/exists1.txt ===
+
+=== START FILE: /tmp/t_listener_partial_read/exists2.txt ===
+Second file content.
+Also exists successfully.
+=== END FILE: /tmp/t_listener_partial_read/exists2.txt ===
+=== END ===
+````
+
 ### listener-parsing-errors
 
 #### Initial Content
