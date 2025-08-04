@@ -9,12 +9,7 @@ fawlieuhfa ef
 
 lovely line (two three) contentes!!!!
 lovely line (two three) contentes!!!!six
-line 12 seven
-line 13 eight
-
-asdfia weifuhaw efa wef
-awe fawiehf awef
-awe fiaweuhf;oerihg serg
+---
 sergoiejro;sih ser
 
 
