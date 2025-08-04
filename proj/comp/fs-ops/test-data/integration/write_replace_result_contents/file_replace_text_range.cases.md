@@ -102,12 +102,12 @@ function keepThis() {
 }
 ```
 
-### 003-overlapping-markers
+### 003-overlapping-markers-not-found
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ov1]
 action = "file_write"
-path = "/tmp/t_overlapping-markers/overlap.txt"
+path = "/tmp/t_overlapping-markers-not-found/overlap.txt"
 content = "function foo() { return 42; }"
 #!end_ov1
 ```
@@ -115,7 +115,7 @@ content = "function foo() { return 42; }"
 ```sh nesl
 #!nesl [@three-char-SHA-256: ov2]
 action = "file_replace_text_range"
-path = "/tmp/t_overlapping-markers/overlap.txt"
+path = "/tmp/t_overlapping-markers-not-found/overlap.txt"
 old_text_beginning = "function foo() {"
 old_text_end = "() {"
 new_text = "const foo = () => {"
@@ -124,16 +124,9 @@ new_text = "const foo = () => {"
 
 ```json
 {
-  "success": true,
-  "data": {
-    "path": "/tmp/t_overlapping-markers/overlap.txt",
-    "replacements": 1
-  }
+  "success": false,
+  "error": "file_replace_text_range: old_text_end not found after old_text_beginning"
 }
-```
-
-```
-const foo = () => { return 42; }
 ```
 
 ### 004-empty-range-content

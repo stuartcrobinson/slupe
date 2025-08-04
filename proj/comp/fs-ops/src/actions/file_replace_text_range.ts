@@ -52,8 +52,8 @@ export async function handle__file_replace_text_range(action: SlupeAction): Prom
       };
     }
 
-    // Find the first occurrence of the end marker after the start marker
-    const endIndex = content.indexOf(old_text_end, startIndex);
+    // Find the first occurrence of the end marker after the end of the start marker
+    const endIndex = content.indexOf(old_text_end, startIndex + old_text_beginning.length);
     if (endIndex === -1) {
       return {
         success: false,
