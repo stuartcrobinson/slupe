@@ -14,6 +14,8 @@ Slupe is a file system orchestration tool that enables LLMs to execute file oper
 - **Real-time Monitoring**: Watch input files for action changes and execute NESL blocks automatically
 - **Clipboard Integration**: Optionally copies outputs directly to clipboard and monitor clipboard for input NESL blocks
 
+![gif of slupe usage, LLM generating actions to modify ascii art animation](./assets/gifs_for_readme/too_long.gif)
+
 ## Installation
 
 ```bash

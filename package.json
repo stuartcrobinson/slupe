@@ -1,6 +1,6 @@
 {
   "name": "slupe",
-  "version": "0.1.1-beta.10",
+  "version": "0.1.1-beta.12",
   "description": "LLM coder 'tools' for any model",
   "type": "module",
   "main": "./dist/src/index.js",
