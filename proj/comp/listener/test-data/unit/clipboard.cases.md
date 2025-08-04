@@ -259,7 +259,7 @@ EOT_def
 #!end_def
 ```
 
-1700
+1600
 
 ```sh nesl
 this clipboard content gets ignored because its the bigger one
@@ -491,13 +491,13 @@ path = "/tmp/t_valid_complex/1st.txt"
 #!end_abc
 ```
 
-55
+75
 
 
 ```sh nesl
 ```
 
-55
+75
 
 
 ```sh nesl
