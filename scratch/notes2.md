@@ -148,5 +148,3 @@ the whole point of nice little files is for humans.  w LLM it would be better if
 all the imports and dependency file locationn and formats is a big source of wasted time and mistakes and cognition.  save a lot of tokens and attention to have everythign in one file.  and the LLM just requests/edits specific nodes/classes/functions.  like... i just spent a lot of time doing a refactor to break all the code for tools/actions into their own files.  cos it feels nicer to me.  but v wasteful now in terms of all the imports that an LLM will have to wade through
 
 ---
-
-asdf

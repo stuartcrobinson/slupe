@@ -35,8 +35,12 @@ hooks:
   after:
     - run: |
         git add -A && 
-        git commit -m "$(echo "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files:\n$(git diff --cached --name-only | head -10)")" &&
-        git push -u origin HEAD
+        if git diff --cached --quiet; then 
+          echo "No changes to commit"; 
+        else 
+          git commit -m "$(echo "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files:$(git diff --cached --name-only | head -10)")" && 
+          git push -u origin HEAD; 
+        fi
   
 # Variables available in commands
 vars:
