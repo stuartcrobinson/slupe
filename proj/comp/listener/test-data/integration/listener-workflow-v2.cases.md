@@ -557,7 +557,7 @@ fn2 ❌ file_replace_text /tmp/t_listener_no_match/readme.md - old_text not foun
 
 === OUTPUTS ===
 
-[fn2] file_replace_text /tmp/t_listener_no_match/readme.md (failed - showing file contents):
+[fn2 ❌] /tmp/t_listener_no_match/readme.md:
 === START FILE: /tmp/t_listener_no_match/readme.md ===
 # Project README
 
@@ -656,7 +656,7 @@ rf2 ✅ file_read /tmp/t_listener_read/sample.py
 
 === OUTPUTS ===
 
-[rf2] file_read:
+[rf2 ✅] /tmp/t_listener_read/sample.py:
 === START FILE: /tmp/t_listener_read/sample.py ===
 #!/usr/bin/env python3
 """Sample Python file for testing."""
