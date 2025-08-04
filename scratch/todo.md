@@ -1,3 +1,20 @@
+
+____________________
+aug 4 
+
+
+- fix files_read so it returns what it can even if some of the reads failed. 
+- add cmd line arg to not copy output back to output. .... or maybe we need 2 cmds: --clipboard-input --clipboard-output .... yeah.  default for input is true, default for output is false.  will taht work? can cmd line args have optional parameters? so if missing its treated like "true" ?
+- add parsed structure edit actions
+https://claude.ai/chat/d8212c32-e2ba-4888-b92d-22875549255d
+
+
+
+
+
+
+
+------------------------
 TODO:
 
 X start working in a dev branch?
@@ -9,15 +26,15 @@ X set up the git hooks
 X allow cmd line arg and config arg for custom input/output files
     - critical for using npx slupe in actual slupe repo
 
-- squasher !!!
+X squasher !!!
 
 now... 
 
-- fix build errors
-- clean up README 
+X fix build errors
+X clean up README 
 
-- write hacker news post about it
-- publish sunday morning 
+X write hacker news post about it
+X publish sunday morning 
 
 
 ---
