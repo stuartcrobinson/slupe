@@ -1423,8 +1423,7 @@ ar3 ✅ file_read /tmp/t_listener_append_read/messages.txt
 [ar3 ✅] /tmp/t_listener_append_read/messages.txt:
 === START FILE: /tmp/t_listener_append_read/messages.txt ===
 Message 1: Hello
-Message 2: How are you?
-Message 3: Great to hear!
+Message 2: How are you?Message 3: Great to hear!
 Message 4: See you soon
 === END FILE: /tmp/t_listener_append_read/messages.txt ===
 === END ===
