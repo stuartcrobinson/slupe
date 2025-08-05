@@ -86,10 +86,14 @@ async function setupTerminalInput(
 
   // Prevent the default prompt
   rl.setPrompt('');
-  
+
+  rl.on('SIGINT', () => {
+    process.emit('SIGINT');
+  });
+
   rl.on('line', async (input) => {
     const trimmed = input.trim();
-    
+
     // Handle short commands (< 30 chars)
     if (trimmed.length < 30) {
       switch (trimmed.toLowerCase()) {
@@ -98,13 +102,13 @@ async function setupTerminalInput(
         case 'help':
           showQuickHelp();
           break;
-          
+
         case 'c':
         case 'clear':
           await writeFile(inputFilePath, '', 'utf8');
           console.log('✓ Input file cleared');
           break;
-          
+
         case 's':
         case 'status':
           console.log(`
@@ -114,14 +118,14 @@ async function setupTerminalInput(
 📋 Clipboard: read ${useClipboardRead ? '✓' : '✗'} write ${useClipboardWrite ? '✓' : '✗'}
 `);
           break;
-          
+
         case 'r':
         case 'reload':
           // Force reload by appending a newline
           await appendFile(inputFilePath, '\n', 'utf8');
           console.log('✓ Reloading file...');
           break;
-          
+
         default:
           if (trimmed.length > 0) {
             console.log(`Unknown command: '${trimmed}'. Type ? for help.`);
@@ -149,7 +153,7 @@ async function main(): Promise<void> {
     showHelp();
     process.exit(0);
   }
-  
+
   const getArgValue = (flag: string): string | undefined => {
     const index = args.indexOf(flag);
     if (index >= 0 && index + 1 < args.length) {
@@ -167,16 +171,16 @@ async function main(): Promise<void> {
   const outputFileArg = getArgValue('--output_file');
 
   const config = await loadConfig(process.cwd());
-  
+
   // Generate NESL instructions before any processing
   await updateInstructions(process.cwd(), config['allowed-actions']);
-  
-  const useClipboardRead = hasClipboardReadFlag ? true : 
-                          hasNoClipboardReadFlag ? false : 
-                          (config.clipboard_read ?? true);
+
+  const useClipboardRead = hasClipboardReadFlag ? true :
+    hasNoClipboardReadFlag ? false :
+      (config.clipboard_read ?? true);
   const useClipboardWrite = hasClipboardWriteFlag ? true :
-                           hasNoClipboardWriteFlag ? false :
-                           (config.clipboard_write ?? true);
+    hasNoClipboardWriteFlag ? false :
+      (config.clipboard_write ?? true);
   const inputFile = inputFileArg || config['input_file'] || 'slupe_input.md';
   const outputFile = outputFileArg || config['output_file'] || '.slupe_output.md';
 
@@ -207,7 +211,7 @@ async function main(): Promise<void> {
   }
 
   const debounceMs = config.debounce_ms || parseInt(process.env.SLUPE_DEBOUNCE || '50', 10);
-  
+
   const handle = await startListener({
     filePath,
     debounceMs,
@@ -228,7 +232,19 @@ async function main(): Promise<void> {
   );
 
   process.on('SIGINT', async () => {
-    console.log('\n⛵️ Docking slupe...');
+    const farewells = [
+      '👋 bye-bye',
+      '👋 seeya',
+      '👋 bye bye',
+      '👋 ciao',
+      '👋 peace',
+      '👋 may the wind be at your back and the sun upon your face',
+      '👋 thanks for using slupe!',
+      '👋 l8r',
+    ];
+
+    const randomFarewell = farewells[Math.floor(Math.random() * farewells.length)];
+    console.log('\n' + randomFarewell);
     await handle.stop();
     process.exit(0);
   });
