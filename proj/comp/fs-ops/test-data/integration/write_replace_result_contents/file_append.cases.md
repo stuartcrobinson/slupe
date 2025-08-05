@@ -21,6 +21,7 @@ EOT_aw1
 action = "file_append"
 path = "/tmp/t_append-after-write/log.txt"
 content = <<'EOT_aw2'
+
 [2024-01-01 10:00] User session started
 [2024-01-01 10:30] Transaction completed
 === LOG END ===
