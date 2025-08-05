@@ -3,7 +3,8 @@ export interface ListenerConfig {
   debounceMs?: number;
   outputFilename?: string;
   debug?: boolean;
-  useClipboard?: boolean;
+  useClipboardRead?: boolean;
+  useClipboardWrite?: boolean;
   slupeInstance?: any;
 }
 
@@ -20,7 +21,8 @@ export interface ListenerState {
   inputPath: string;
   actionSchema?: Map<string, ActionDefinition>;
   debug?: boolean;
-  useClipboard: boolean;
+  useClipboardRead: boolean;
+  useClipboardWrite: boolean;
   slupeInstance?: any;
   clipboardMonitor?: {
     lastEntry: { content: string; timestamp: number } | null;
