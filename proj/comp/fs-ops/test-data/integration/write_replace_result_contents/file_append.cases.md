@@ -148,7 +148,7 @@ EOT_ae2
   "success": true,
   "data": {
     "path": "/tmp/t_append-to-existing/log.txt",
-    "bytesWritten": 55
+    "bytesWritten": 56
   }
 }
 ```
@@ -292,7 +292,7 @@ EOT_as2
   "success": true,
   "data": {
     "path": "/tmp/t_append-special/code.js",
-    "bytesWritten": 79
+    "bytesWritten": 80
   }
 }
 ```
