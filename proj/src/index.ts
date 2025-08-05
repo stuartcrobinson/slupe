@@ -10,13 +10,17 @@ function showHelp(): void {
   console.log(`Usage: slupe [options]
 
 Options:
-  --clipboard              Enable clipboard copy on execution
+  --clipboard-read         Enable clipboard monitoring (default: true)
+  --clipboard-write        Enable clipboard writing (default: true)
+  --no-clipboard-read      Disable clipboard monitoring
+  --no-clipboard-write     Disable clipboard writing
   --input_file <path>      Input file path (default: slupe_input.md)
   --output_file <path>     Output file path (default: .slupe_output.md)
   --help                   Show this help message
 
 Config file options (slupe.yml):
-  clipboard: boolean       Enable clipboard by default
+  clipboard_read: boolean  Enable clipboard monitoring (default: true)
+  clipboard_write: boolean Enable clipboard writing (default: true)
   input_file: string       Default input file path
   output_file: string      Default output file path
   debounce_ms: number      File watch debounce in milliseconds (default: 200)
@@ -39,7 +43,10 @@ async function main(): Promise<void> {
     return undefined;
   };
 
-  const hasClipboardFlag = args.includes('--clipboard');
+  const hasClipboardReadFlag = args.includes('--clipboard-read');
+  const hasClipboardWriteFlag = args.includes('--clipboard-write');
+  const hasNoClipboardReadFlag = args.includes('--no-clipboard-read');
+  const hasNoClipboardWriteFlag = args.includes('--no-clipboard-write');
   const inputFileArg = getArgValue('--input_file');
   const outputFileArg = getArgValue('--output_file');
 
@@ -48,7 +55,12 @@ async function main(): Promise<void> {
   // Generate NESL instructions before any processing
   await updateInstructions(process.cwd(), config['allowed-actions']);
   
-  const useClipboard = hasClipboardFlag || (config.clipboard ?? false);
+  const useClipboardRead = hasClipboardReadFlag ? true : 
+                          hasNoClipboardReadFlag ? false : 
+                          (config.clipboard_read ?? true);
+  const useClipboardWrite = hasClipboardWriteFlag ? true :
+                           hasNoClipboardWriteFlag ? false :
+                           (config.clipboard_write ?? true);
   const inputFile = inputFileArg || config['input_file'] || 'slupe_input.md';
   const outputFile = outputFileArg || config['output_file'] || '.slupe_output.md';
 
@@ -63,9 +75,11 @@ async function main(): Promise<void> {
   }
 
   console.log(`Starting listener on: ${filePath}`);
-  console.log(`Clipboard: ${useClipboard ?
-     'enabled. To input nesl actions via clipboard, copy the target content, and then copy some content that includes the original content plus some extra text, within 2 seconds. (either order)' : 
-     'disabled. Use --clipboard to activate'}`);
+  console.log(`Clipboard read: ${useClipboardRead ? 'enabled' : 'disabled'}`);
+  console.log(`Clipboard write: ${useClipboardWrite ? 'enabled' : 'disabled'}`);
+  if (useClipboardRead) {
+    console.log('To input nesl actions via clipboard, copy the target content, and then copy some content that includes the original content plus some extra text, within 2 seconds. (either order)');
+  }
 
   const debounceMs = config.debounce_ms || parseInt(process.env.SLUPE_DEBOUNCE || '50', 10);
   
@@ -75,7 +89,8 @@ async function main(): Promise<void> {
     filePath,
     debounceMs,
     outputFilename: outputFile,
-    useClipboard
+    useClipboardRead,
+    useClipboardWrite
   });
 
   process.on('SIGINT', async () => {
