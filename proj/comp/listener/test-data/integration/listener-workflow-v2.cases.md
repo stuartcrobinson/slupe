@@ -1052,3 +1052,205 @@ goodbye
 === END FILE: /tmp/t_multiple-failures-show-file-contents/file2.txt ===
 === END ===
 ````
+
+
+### successful-file-replace-text-range
+
+#### Initial Content
+````sh
+Testing file replace text range functionality.
+````
+
+#### New Content
+````sh
+Testing file replace text range functionality.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: rr1]
+action = "file_write"
+path = "/tmp/t_listener_replace_range/document.txt"
+content = <<'EOT_rr1'
+This is the beginning of the document.
+Here is some content in the middle.
+We want to replace from here until the end of this line.
+This line should remain unchanged.
+And this is the final line.
+EOT_rr1
+#!end_rr1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: rr2]
+action = "file_replace_text_range"
+path = "/tmp/t_listener_replace_range/document.txt"
+old_text_beginning = "We want to replace"
+old_text_end = "this line."
+new_text = "This entire section has been replaced."
+#!end_rr2
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+rr1 ✅ file_write /tmp/t_listener_replace_range/document.txt
+rr2 ✅ file_replace_text_range /tmp/t_listener_replace_range/document.txt
+=== END ===
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+rr1 ✅ file_write /tmp/t_listener_replace_range/document.txt
+rr2 ✅ file_replace_text_range /tmp/t_listener_replace_range/document.txt
+=== END ===
+
+=== OUTPUTS ===
+=== END ===
+````
+
+### failed-file-replace-text-range-multiple-beginnings
+
+#### Initial Content
+````sh
+Testing file replace text range with multiple beginning matches.
+````
+
+#### New Content
+````sh
+Testing file replace text range with multiple beginning matches.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: rm1]
+action = "file_write"
+path = "/tmp/t_listener_replace_range_multi/code.js"
+content = <<'EOT_rm1'
+function process() {
+  const value = 100;
+  return value;
+}
+
+function validate() {
+  const value = 200;
+  return value > 0;
+}
+EOT_rm1
+#!end_rm1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: rm2]
+action = "file_replace_text_range"
+path = "/tmp/t_listener_replace_range_multi/code.js"
+old_text_beginning = "const value"
+old_text_end = ";"
+new_text = "const value = 999;"
+#!end_rm2
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+rm1 ✅ file_write /tmp/t_listener_replace_range_multi/code.js
+rm2 ❌ file_replace_text_range /tmp/t_listener_replace_range_multi/code.js - old_text_beginning appears 2 times, must appear exactly once
+=== END ===
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+rm1 ✅ file_write /tmp/t_listener_replace_range_multi/code.js
+rm2 ❌ file_replace_text_range /tmp/t_listener_replace_range_multi/code.js - old_text_beginning appears 2 times, must appear exactly once
+=== END ===
+
+=== OUTPUTS ===
+
+[rm2 ❌] /tmp/t_listener_replace_range_multi/code.js:
+=== START FILE: /tmp/t_listener_replace_range_multi/code.js ===
+function process() {
+  const value = 100;
+  return value;
+}
+
+function validate() {
+  const value = 200;
+  return value > 0;
+}
+=== END FILE: /tmp/t_listener_replace_range_multi/code.js ===
+=== END ===
+````
+
+### failed-file-replace-text-range-beginning-not-found
+
+#### Initial Content
+````sh
+Testing file replace text range with beginning not found.
+````
+
+#### New Content
+````sh
+Testing file replace text range with beginning not found.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: rn1]
+action = "file_write"
+path = "/tmp/t_listener_replace_range_notfound/notes.md"
+content = <<'EOT_rn1'
+# Project Notes
+
+## Section 1
+Some important information here.
+
+## Section 2
+More details in this section.
+
+## Section 3
+Final thoughts and conclusions.
+EOT_rn1
+#!end_rn1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: rn2]
+action = "file_replace_text_range"
+path = "/tmp/t_listener_replace_range_notfound/notes.md"
+old_text_beginning = "## Section 4"
+old_text_end = "conclusions."
+new_text = "## Section 4\nNew content here."
+#!end_rn2
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+rn1 ✅ file_write /tmp/t_listener_replace_range_notfound/notes.md
+rn2 ❌ file_replace_text_range /tmp/t_listener_replace_range_notfound/notes.md - old_text_beginning not found in file
+=== END ===
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+rn1 ✅ file_write /tmp/t_listener_replace_range_notfound/notes.md
+rn2 ❌ file_replace_text_range /tmp/t_listener_replace_range_notfound/notes.md - old_text_beginning not found in file
+=== END ===
+
+=== OUTPUTS ===
+
+[rn2 ❌] /tmp/t_listener_replace_range_notfound/notes.md:
+=== START FILE: /tmp/t_listener_replace_range_notfound/notes.md ===
+# Project Notes
+
+## Section 1
+Some important information here.
+
+## Section 2
+More details in this section.
+
+## Section 3
+Final thoughts and conclusions.
+=== END FILE: /tmp/t_listener_replace_range_notfound/notes.md ===
+=== END ===
+````

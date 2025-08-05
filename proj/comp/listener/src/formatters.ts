@@ -364,7 +364,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
       }
       // Failed replace operations with duplicate text
       else if (!result.success &&
-        ['file_replace_text', 'file_replace_all_text'].includes(result.action) &&
+        ['file_replace_text', 'file_replace_all_text', 'file_replace_text_range'].includes(result.action) &&
         result.error?.includes('appears') &&
         result.error?.includes('times') &&
         result.params?.path) {
