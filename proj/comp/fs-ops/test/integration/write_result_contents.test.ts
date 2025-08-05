@@ -78,30 +78,41 @@ describe('write_result_contents tests', () => {
             const blocks = [...codeBlocks];
 
             it(testName, async () => {
-              // Block 0: Write action
-              // Block 1: Expected JSON result
-              // Block 2: Expected file contents (optional)
+              // Find JSON result block (first non-NESL code block)
+              let resultBlockIndex = -1;
+              for (let i = 0; i < blocks.length; i++) {
+                if (!blocks[i].includes('#!nesl')) {
+                  resultBlockIndex = i;
+                  break;
+                }
+              }
 
-              const writeBlock = blocks[0];
-              const resultBlock = blocks[1];
-              const contentsBlock = blocks[2];
+              if (resultBlockIndex === -1) {
+                throw new Error('No JSON result block found');
+              }
+
+              const neslBlocks = blocks.slice(0, resultBlockIndex);
+              const resultBlock = blocks[resultBlockIndex];
+              const contentsBlock = blocks[resultBlockIndex + 1];
 
               let targetPath: string | null = null;
               let testResult;
 
-              // Execute write action
-              const writeResult = await parseNeslResponse(writeBlock);
-              if (writeResult.errors.length > 0) {
-                throw new Error(`Failed to parse write NESL: ${writeResult.errors.map(e => e.message).join(', ')}`);
-              }
+              // Execute all NESL blocks
+              for (const neslBlock of neslBlocks) {
+                const parseResult = await parseNeslResponse(neslBlock);
+                if (parseResult.errors.length > 0) {
+                  throw new Error(`Failed to parse NESL: ${parseResult.errors.map(e => e.message).join(', ')}`);
+                }
 
-              for (const action of writeResult.actions) {
-                testResult = await executor.execute(action);
-                // Track target path
-                if (action.parameters?.path) {
-                  targetPath = action.parameters.path;
-                  const testDirMatch = action.parameters.path.match(/\/tmp\/t_[^\/]+/);
-                  if (testDirMatch) createdPaths.add(testDirMatch[0]);
+                for (const action of parseResult.actions) {
+                  testResult = await executor.execute(action);
+                  // Track target path
+                  if (action.parameters?.path) {
+                    targetPath = action.parameters.path;
+                    const testDirMatch = action.parameters.path.match(/\/tmp\/t_[^\/]+/);
+                    if (testDirMatch) createdPaths.add(testDirMatch[0]);
+                  }
                 }
               }
 
@@ -131,26 +142,41 @@ describe('write_result_contents tests', () => {
         const blocks = [...codeBlocks];
 
         it(testName, async () => {
-          const writeBlock = blocks[0];
-          const resultBlock = blocks[1];
-          const contentsBlock = blocks[2];
+          // Find JSON result block (first non-NESL code block)
+          let resultBlockIndex = -1;
+          for (let i = 0; i < blocks.length; i++) {
+            if (!blocks[i].includes('#!nesl')) {
+              resultBlockIndex = i;
+              break;
+            }
+          }
+
+          if (resultBlockIndex === -1) {
+            throw new Error('No JSON result block found');
+          }
+
+          const neslBlocks = blocks.slice(0, resultBlockIndex);
+          const resultBlock = blocks[resultBlockIndex];
+          const contentsBlock = blocks[resultBlockIndex + 1];
 
           let targetPath: string | null = null;
           let testResult;
 
-          // Execute write action
-          const writeResult = await parseNeslResponse(writeBlock);
-          if (writeResult.errors.length > 0) {
-            throw new Error(`Failed to parse write NESL: ${writeResult.errors.map(e => e.message).join(', ')}`);
-          }
+          // Execute all NESL blocks
+          for (const neslBlock of neslBlocks) {
+            const parseResult = await parseNeslResponse(neslBlock);
+            if (parseResult.errors.length > 0) {
+              throw new Error(`Failed to parse NESL: ${parseResult.errors.map(e => e.message).join(', ')}`);
+            }
 
-          for (const action of writeResult.actions) {
-            testResult = await executor.execute(action);
-            // Track target path
-            if (action.parameters?.path) {
-              targetPath = action.parameters.path;
-              const testDirMatch = action.parameters.path.match(/\/tmp\/t_[^\/]+/);
-              if (testDirMatch) createdPaths.add(testDirMatch[0]);
+            for (const action of parseResult.actions) {
+              testResult = await executor.execute(action);
+              // Track target path
+              if (action.parameters?.path) {
+                targetPath = action.parameters.path;
+                const testDirMatch = action.parameters.path.match(/\/tmp\/t_[^\/]+/);
+                if (testDirMatch) createdPaths.add(testDirMatch[0]);
+              }
             }
           }
 
