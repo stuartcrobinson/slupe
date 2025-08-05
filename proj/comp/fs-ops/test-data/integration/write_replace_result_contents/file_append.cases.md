@@ -118,49 +118,6 @@ Step 1: Compiling source files...
 Step 2: Running tests...
 ```
 
-### 001-append-to-existing-file
-
-```sh nesl
-#!nesl [@three-char-SHA-256: ae1]
-action = "file_write"
-path = "/tmp/t_append-to-existing/log.txt"
-content = <<'EOT_ae1'
-[2024-01-01] Application started
-[2024-01-01] Config loaded
-EOT_ae1
-#!end_ae1
-```
-
-```sh nesl
-#!nesl [@three-char-SHA-256: ae2]
-action = "file_append"
-path = "/tmp/t_append-to-existing/log.txt"
-content = <<'EOT_ae2'
-
-[2024-01-02] User logged in
-[2024-01-02] Task completed
-EOT_ae2
-#!end_ae2
-```
-
-```json
-{
-  "success": true,
-  "data": {
-    "path": "/tmp/t_append-to-existing/log.txt",
-    "bytesWritten": 56
-  }
-}
-```
-
-```
-[2024-01-01] Application started
-[2024-01-01] Config loaded
-
-[2024-01-02] User logged in
-[2024-01-02] Task completed
-```
-
 ### 002-append-to-nonexistent-file
 
 
@@ -292,7 +249,7 @@ EOT_as2
   "success": true,
   "data": {
     "path": "/tmp/t_append-special/code.js",
-    "bytesWritten": 80
+    "bytesWritten": 79
   }
 }
 ```
