@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { parseNeslResponse } from '../../nesl-action-parser/src/index.js';
-import { FsOpsExecutor } from '../../src/index.js';
+import { FsOpsExecutor } from '../src/index.js';
 import type { FsGuard } from '../../fs-guard/src/index.js';
 import { readFileSync } from 'fs';
 
