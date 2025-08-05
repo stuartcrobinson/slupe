@@ -12,6 +12,7 @@ allowed-actions:
   - file_read_numbered
   - file_replace_all_text
   - files_read
+  - file_append
   - exec
 
 # File system guard configuration

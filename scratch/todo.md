@@ -3,9 +3,35 @@ ____________________
 aug 4 
 
 
+// File operations
+write_file(path, content)
+read_file(path)
+read_files(paths: string[])
+delete_file(path)
+move_file(old_path, new_path)
+replace_text_in_file(path, old_text, new_text)
+replace_all_text_in_file(path, old_text, new_text, count?)
+replace_text_range_in_file(path, old_text_beginning, old_text_end, new_text)
+append_to_file(path, content)
+
+// Structure operations
+replace_structure(path, target, content)
+read_structure(path, target)
+read_structures(path, targets: string[])
+delete_structure(path, target)
+move_structure(path, target, new_path, new_target)
+replace_text_in_structure(path, target, old_text, new_text)
+replace_all_text_in_structure(path, target, old_text, new_text, count?)
+insert_before_structure(path, target, content)
+insert_after_structure(path, target, content)
+
+// Execution
+execute_code(code, lang, cwd?, version?, return_output?)
+
+
 - call bank ozk
 X add file_replace_text_range
-- add parsed structure edit actions
+- add parsed structure edit actions and file_append.  cos claude keeps making it up
 https://claude.ai/chat/d8212c32-e2ba-4888-b92d-22875549255d
 - make clipboard-input and clipboard-ouput default to true. 
     pring usage notes whenever slupe is run

@@ -18,6 +18,7 @@ import { handle__file_delete } from './actions/file_delete.js';
 import { handle__file_move } from './actions/file_move.js';
 import { handle__files_read } from './actions/files_read.js';
 import { handle__file_replace_text_range } from './actions/file_replace_text_range.js';
+import { handle__file_append } from './actions/file_append.js';
 
 export interface FileOpResult {
   success: boolean;
@@ -44,7 +45,6 @@ const NOT_IMPLEMENTED = new Set([
   'ls',
   'grep',
   'glob',
-  'file_append',
   'exec',
   'context_add',
   'context_remove',
@@ -77,7 +77,8 @@ export class FsOpsExecutor {
       ['file_delete', handle__file_delete],
       ['file_move', handle__file_move],
       ['files_read', handle__files_read],
-      ['file_replace_text_range', handle__file_replace_text_range]
+      ['file_replace_text_range', handle__file_replace_text_range],
+      ['file_append', handle__file_append]
     ]);
   }
 
