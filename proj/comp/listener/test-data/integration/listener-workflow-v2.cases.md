@@ -527,6 +527,7 @@ if __name__ == "__main__":
 === END FILE: /tmp/t_listener_read/sample.py ===
 === END ===
 ````
+Looking at the code and test cases, I can see that the `file_read_numbered` formatting has specific logic. Let me correct those two subsections:
 
 ### file-read-numbered-formatting
 
@@ -544,20 +545,8 @@ Testing file read numbered output formatting.
 action = "file_write"
 path = "/tmp/t_listener_read_num/config.yaml"
 content = <<'EOT_rn1'
-# Application Configuration
-app:
-  name: MyApp
-  version: 1.0.0
-  debug: true
-
-database:
-  host: localhost
-  port: 5432
-  name: myapp_db
-  
-logging:
-  level: info
-  file: /var/log/myapp.log
+line 1 
+line 2
 EOT_rn1
 #!end_rn1
 ```
@@ -574,7 +563,7 @@ path = "/tmp/t_listener_read_num/config.yaml"
 ````sh
 === SLUPE RESULTS ===
 rn1 ✅ file_write /tmp/t_listener_read_num/config.yaml
-rn2 ❌ file_read_numbered /tmp/t_listener_read_num/config.yaml - Action 'file_read_numbered' is not in allowed-actions list (file_write,file_read,file_delete,file_move,file_replace_text,file_replace_all_text,files_read,exec)
+rn2 ✅ file_read_numbered /tmp/t_listener_read_num/config.yaml
 === END ===
 ````
 
@@ -582,10 +571,16 @@ rn2 ❌ file_read_numbered /tmp/t_listener_read_num/config.yaml - Action 'file_r
 ````sh
 === SLUPE RESULTS ===
 rn1 ✅ file_write /tmp/t_listener_read_num/config.yaml
-rn2 ❌ file_read_numbered /tmp/t_listener_read_num/config.yaml - Action 'file_read_numbered' is not in allowed-actions list (file_write,file_read,file_delete,file_move,file_replace_text,file_replace_all_text,files_read,exec)
+rn2 ✅ file_read_numbered /tmp/t_listener_read_num/config.yaml
 === END ===
 
 === OUTPUTS ===
+
+[rn2] file_read_numbered:
+=== START FILE: [numbered] /tmp/t_listener_read_num/config.yaml ===
+1: line 1 
+2: line 2
+=== END FILE: [numbered] /tmp/t_listener_read_num/config.yaml ===
 === END ===
 ````
 

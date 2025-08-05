@@ -9,6 +9,7 @@ allowed-actions:
   - file_move
   - file_replace_text
   - file_replace_text_range
+  - file_read_numbered
   - file_replace_all_text
   - files_read
   - exec
