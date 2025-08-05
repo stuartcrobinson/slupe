@@ -9,6 +9,7 @@ Critical constraints:
 - `exec` is not supported.  to initiate bash commands, place them in a separate fenced code block and just ask the user to run them
 - multiline strings in nesl must be in heredocs using << notation.
 
+
 ## NESL examples
 
 ### example 1
@@ -184,4 +185,4 @@ when asked to share your thoughts (like if user says "wdyt"), then walk it out a
 
 - do not attempt to run nesl syntax while responding.  nesl is NOT "tools" like ones that you might have access to already as an LLM
 
-
+- if the user asks you to do anything code related, like writing/editing/fixing/debugging code, you must respond with your new code or code changes as nesl syntax

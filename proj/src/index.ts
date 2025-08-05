@@ -6,11 +6,13 @@ import { updateInstructions } from '../comp/instruct-gen/src/index.js';
 import { join, dirname } from 'path';
 import { access, writeFile, readFile, appendFile } from 'fs/promises';
 import * as readline from 'readline';
+import { fileURLToPath } from 'url';
 
 // Get version from package.json
 async function getVersion(): Promise<string> {
   try {
-    const packagePath = join(dirname(new URL(import.meta.url).pathname), '../../package.json');
+    const __filename = fileURLToPath(import.meta.url);
+    const packagePath = join(dirname(__filename), '../../package.json');
     const packageContent = await readFile(packagePath, 'utf-8');
     const packageData = JSON.parse(packageContent);
     return packageData.version || '0.0.0';
@@ -72,7 +74,7 @@ Or paste NESL content directly (30+ characters)
 
 async function setupTerminalInput(
   inputFilePath: string,
-  config: any,
+  config: Record<string, unknown>,
   useClipboardRead: boolean,
   useClipboardWrite: boolean,
   outputFile: string,
