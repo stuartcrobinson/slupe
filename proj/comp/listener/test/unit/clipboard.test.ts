@@ -155,7 +155,7 @@ describe('clipboard integration', async () => {
         logClipboard(`MONITOR: Starting listener with clipboard monitoring`);
         handle = await startListener({
           filePath: inputFile,
-          useClipboard: true,
+          useClipboardRead: true,
           debounceMs: 15,
           outputFilename: `.slupe-output-${testCase.name}.txt`,
           slupeInstance: sharedSlupeInstance
