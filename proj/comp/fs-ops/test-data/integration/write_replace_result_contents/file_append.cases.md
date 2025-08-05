@@ -34,7 +34,7 @@ EOT_aw2
   "success": true,
   "data": {
     "path": "/tmp/t_append-after-write/log.txt",
-    "bytesWritten": 89
+    "bytesWritten": 96
   }
 }
 ```
@@ -70,7 +70,7 @@ EOT_an1
   "success": true,
   "data": {
     "path": "/tmp/t_append-nested/deep/dir/structure/notes.txt",
-    "bytesWritten": 73
+    "bytesWritten": 74
   }
 }
 ```
