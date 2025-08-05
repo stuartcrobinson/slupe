@@ -315,7 +315,8 @@ describe('clipboard integration', async () => {
     
     handle = await startListener({
       filePath: inputFile,
-      useClipboard: true,
+      useClipboardRead: true,
+      useClipboardWrite: true,
       debounceMs: 15,
       outputFilename: '.slupe-output-clipboard-timestamp-test.txt',
       slupeInstance: sharedSlupeInstance
