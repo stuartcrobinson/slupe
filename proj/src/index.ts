@@ -74,7 +74,6 @@ Or paste NESL content directly (30+ characters)
 
 async function setupTerminalInput(
   inputFilePath: string,
-  config: Record<string, unknown>,
   useClipboardRead: boolean,
   useClipboardWrite: boolean,
   outputFile: string,
@@ -179,10 +178,10 @@ async function main(): Promise<void> {
 
   const useClipboardRead = hasClipboardReadFlag ? true :
     hasNoClipboardReadFlag ? false :
-      (config.clipboard_read ?? true);
+      (config.clipboard ?? true);
   const useClipboardWrite = hasClipboardWriteFlag ? true :
     hasNoClipboardWriteFlag ? false :
-      (config.clipboard_write ?? true);
+      (config.clipboard ?? true);
   const inputFile = inputFileArg || config['input_file'] || 'slupe_input.md';
   const outputFile = outputFileArg || config['output_file'] || '.slupe_output.md';
 
@@ -226,7 +225,6 @@ async function main(): Promise<void> {
   // Setup terminal input handling
   await setupTerminalInput(
     filePath,
-    config,
     useClipboardRead,
     useClipboardWrite,
     outputPath,
