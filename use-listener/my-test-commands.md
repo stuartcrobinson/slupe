@@ -1,7 +1,7 @@
 
 === SLUPE RESULTS ===
-x9k ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
-m7p ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
+x9k ✅ replace_text_in_file /Users/stuart/repos/slupe/proj/src/index.ts
+m7p ✅ replace_text_in_file /Users/stuart/repos/slupe/proj/src/index.ts
 === END ===
 
 I can see the issue in your `proj/src/index.ts` file. You have the `showHelp` function declared twice (lines 8 and 24), which is causing the TypeScript compilation error.
@@ -10,7 +10,7 @@ Here's the fix:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: x9k]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/Users/stuart/repos/slupe/proj/src/index.ts"
 old_text = <<'EOT_x9k'
 `);
@@ -47,7 +47,7 @@ Also, I notice you have the help check duplicated as well. Let's fix that:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: m7p]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/Users/stuart/repos/slupe/proj/src/index.ts"
 old_text = <<'EOT_m7p'
   if (args.includes('--help')) {

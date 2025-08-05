@@ -3,15 +3,15 @@ version: 1
 
 # Allowed tools (required for security)
 allowed-actions:
-  - file_write
-  - file_read
-  - file_delete
-  - file_move
-  - file_replace_text
-  - file_replace_text_range
-  - file_read_numbered
-  - file_replace_all_text
-  - files_read
+  - write_file
+  - read_file
+  - delete_file
+  - move_file
+  - replace_text_in_file
+  - replace_text_range_in_file
+  - read_file_numbered
+  - replace_all_text_in_file
+  - read_files
   - append_to_file
   - exec
 

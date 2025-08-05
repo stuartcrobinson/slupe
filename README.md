@@ -55,7 +55,7 @@ NESL was designed to provide LLMs with a robust and conflict-free way to communi
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: x5t]
-action = "file_write"
+action = "write_file"
 path = "/path/to/file.txt"
 content = <<'EOT_x5t'
 Hello, World!
@@ -67,14 +67,14 @@ EOT_x5t
 ## Available Actions
 
 ### File Operations
-- `file_read` - Read file contents
-- `file_write` - Create or overwrite files
-- `file_delete` - Delete files
-- `file_move` - Move or rename files
-- `file_replace_text` - Replace text in files (single occurrence)
-- `file_replace_all_text` - Replace all occurrences of text
+- `read_file` - Read file contents
+- `write_file` - Create or overwrite files
+- `delete_file` - Delete files
+- `move_file` - Move or rename files
+- `replace_text_in_file` - Replace text in files (single occurrence)
+- `replace_all_text_in_file` - Replace all occurrences of text
 - `files_replace_all_text` - Replace text across multiple files
-- `files_read` - Read multiple files at once
+- `read_files` - Read multiple files at once
 
 ## Configuration
 
@@ -86,13 +86,13 @@ version: 1
 
 # Allowed tools (required for security)
 allowed-actions:
-  - file_write
-  - file_read
-  - file_delete
-  - file_move
-  - file_replace_text
-  - file_replace_all_text
-  - files_read
+  - write_file
+  - read_file
+  - delete_file
+  - move_file
+  - replace_text_in_file
+  - replace_all_text_in_file
+  - read_files
 
 # File system guard configuration
 fs-guard:

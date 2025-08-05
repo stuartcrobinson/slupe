@@ -1,24 +1,24 @@
-# files_read Integration Tests
+# read_files Integration Tests
 
-## files_read
+## read_files
 
 ### 001-read-multiple-files
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rm1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-multiple-files/files-read-test/file1.txt"
 content = "Content of file 1"
 #!end_rm1
 
 #!nesl [@three-char-SHA-256: rm2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-multiple-files/files-read-test/file2.txt"
 content = "Content of file 2"
 #!end_rm2
 
 #!nesl [@three-char-SHA-256: rm3]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-multiple-files/files-read-test/subdir/file3.txt"
 content = "Content of file 3 in subdirectory"
 #!end_rm3
@@ -26,7 +26,7 @@ content = "Content of file 3 in subdirectory"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rm4]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_rm4'
 /tmp/t_read-multiple-files/files-read-test/file1.txt
 /tmp/t_read-multiple-files/files-read-test/file2.txt
@@ -57,13 +57,13 @@ EOT_rm4
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: el1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-with-empty-lines/files-read-empty-lines/first.txt"
 content = "First file"
 #!end_el1
 
 #!nesl [@three-char-SHA-256: el2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-with-empty-lines/files-read-empty-lines/second.txt"
 content = "Second file"
 #!end_el2
@@ -71,7 +71,7 @@ content = "Second file"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: el3]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_el3'
 /tmp/t_read-with-empty-lines/files-read-empty-lines/first.txt
 
@@ -101,7 +101,7 @@ EOT_el3
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-with-missing-file/files-read-missing/exists.txt"
 content = "This file exists"
 #!end_mf1
@@ -109,7 +109,7 @@ content = "This file exists"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mf2]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_mf2'
 /tmp/t_read-with-missing-file/files-read-missing/exists.txt
 /tmp/t_read-with-missing-file/files-read-missing/does-not-exist.txt
@@ -145,7 +145,7 @@ EOT_mf2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ep1]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_ep1'
 
 
@@ -156,7 +156,7 @@ EOT_ep1
 ```json
 {
   "success": false,
-  "error": "files_read: No paths provided"
+  "error": "read_files: No paths provided"
 }
 ```
 
@@ -164,7 +164,7 @@ EOT_ep1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-single-file/files-read-single/only.txt"
 content = "Only file content"
 #!end_sf1
@@ -172,7 +172,7 @@ content = "Only file content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sf2]
-action = "files_read"
+action = "read_files"
 paths = "/tmp/t_read-single-file/files-read-single/only.txt"
 #!end_sf2
 ```
@@ -194,7 +194,7 @@ paths = "/tmp/t_read-single-file/files-read-single/only.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: am1]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_am1'
 /tmp/t_read-all-missing/files-read-all-missing/missing1.txt
 /tmp/t_read-all-missing/files-read-all-missing/missing2.txt
@@ -206,7 +206,7 @@ EOT_am1
 ```json
 {
   "success": false,
-  "error": "files_read: Failed to read all 3 file(s):\n  /tmp/t_read-all-missing/files-read-all-missing/missing1.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing1.txt'\n  /tmp/t_read-all-missing/files-read-all-missing/missing2.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing2.txt'\n  /tmp/t_read-all-missing/files-read-all-missing/missing3.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing3.txt'"
+  "error": "read_files: Failed to read all 3 file(s):\n  /tmp/t_read-all-missing/files-read-all-missing/missing1.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing1.txt'\n  /tmp/t_read-all-missing/files-read-all-missing/missing2.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing2.txt'\n  /tmp/t_read-all-missing/files-read-all-missing/missing3.txt: ENOENT: no such file or directory, open '/tmp/t_read-all-missing/files-read-all-missing/missing3.txt'"
 }
 ```
 
@@ -214,13 +214,13 @@ EOT_am1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sc1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-files-with-special-content/files-read-special/quotes.txt"
 content = "File with \"quotes\" and 'apostrophes'"
 #!end_sc1
 
 #!nesl [@three-char-SHA-256: sc2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-files-with-special-content/files-read-special/multiline.txt"
 content = <<'EOT_sc2'
 Line 1
@@ -232,7 +232,7 @@ EOT_sc2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sc3]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_sc3'
 /tmp/t_read-files-with-special-content/files-read-special/quotes.txt
 /tmp/t_read-files-with-special-content/files-read-special/multiline.txt

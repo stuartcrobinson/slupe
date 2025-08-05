@@ -4,7 +4,7 @@ import { readFile } from 'fs/promises';
 import { formatNodeError } from '../utils.js';
 import { extractNumberedLines } from '../extractNumberedLines.js';
 
-export async function handle__file_read_numbered(action: SlupeAction): Promise<FileOpResult> {
+export async function handle__read_file_numbered(action: SlupeAction): Promise<FileOpResult> {
   const { path, lines, delimiter = ": " } = action.parameters;
 
   try {
@@ -17,7 +17,7 @@ export async function handle__file_read_numbered(action: SlupeAction): Promise<F
     if (outOfRange) {
       return {
         success: false,
-        error: `file_read_numbered: Requested lines ${outOfRange.requested} but file only has ${outOfRange.actual} lines`,
+        error: `read_file_numbered: Requested lines ${outOfRange.requested} but file only has ${outOfRange.actual} lines`,
         data: {
           path,
           content: result
@@ -38,7 +38,7 @@ export async function handle__file_read_numbered(action: SlupeAction): Promise<F
     if (error.message && error.message.startsWith('Invalid line')) {
       return {
         success: false,
-        error: `file_read_numbered: ${error.message}`
+        error: `read_file_numbered: ${error.message}`
       };
     }
 

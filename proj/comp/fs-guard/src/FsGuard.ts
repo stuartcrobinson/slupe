@@ -12,25 +12,25 @@ export class FsGuard {
 
   // Permission mapping for each action
   private static readonly ACTION_PERMISSIONS: Record<string, PathPermission[]> = {
-    file_read: [{ type: 'read', path: 'path', paramName: 'path' }],
-    file_write: [{ type: 'write', path: 'path', paramName: 'path' }],
+    read_file: [{ type: 'read', path: 'path', paramName: 'path' }],
+    write_file: [{ type: 'write', path: 'path', paramName: 'path' }],
     file_create: [{ type: 'write', path: 'path', paramName: 'path' }],
-    file_delete: [{ type: 'write', path: 'path', paramName: 'path' }],
-    file_replace_text: [
+    delete_file: [{ type: 'write', path: 'path', paramName: 'path' }],
+    replace_text_in_file: [
       { type: 'read', path: 'path', paramName: 'path' },
       { type: 'write', path: 'path', paramName: 'path' }
     ],
-    file_replace_all_text: [
+    replace_all_text_in_file: [
       { type: 'read', path: 'path', paramName: 'path' },
       { type: 'write', path: 'path', paramName: 'path' }
     ],
-    file_move: [
+    move_file: [
       { type: 'read', path: 'old_path', paramName: 'old_path' },
       { type: 'write', path: 'new_path', paramName: 'new_path' }
     ],
-    files_read: [{ type: 'read', path: 'paths', paramName: 'paths' }],
-    file_read_numbered: [{ type: 'read', path: 'path', paramName: 'path' }],
-    file_replace_lines: [
+    read_files: [{ type: 'read', path: 'paths', paramName: 'paths' }],
+    read_file_numbered: [{ type: 'read', path: 'path', paramName: 'path' }],
+    replace_lines_in_file: [
       { type: 'read', path: 'path', paramName: 'path' },
       { type: 'write', path: 'path', paramName: 'path' }
     ],
@@ -64,7 +64,7 @@ export class FsGuard {
         continue; // Let fs-ops handle missing params
       }
 
-      // Handle multi-path parameters (files_read)
+      // Handle multi-path parameters (read_files)
       const paths = perm.paramName === 'paths'
         ? this.parseMultilinePaths(paramValue)
         : [paramValue];

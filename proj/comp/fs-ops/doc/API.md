@@ -4,7 +4,7 @@
 standard
 
 ## Status
-[IMPLEMENTED] - All file operations (write, read, delete, move, replace_text, replace_all_text, files_read)
+[IMPLEMENTED] - All file operations (write, read, delete, move, replace_text, replace_all_text, read_files)
 [NOT IMPLEMENTED] - Directory operations (dir_create, dir_delete, ls), search operations (grep, glob)
 
 ## Documentation Debt
@@ -130,21 +130,21 @@ interface FileOpError extends Error {
   - `lines`: Line range string ("23-43") or single line ("4")
   - `delimiter`: Optional delimiter between line number and content (default: ": ")
 - **Returns**: FileOpResult with numbered content
-- **Test-data**: `test-data/integration/file_read_numbered.cases.md` [IMPLEMENTED]
+- **Test-data**: `test-data/integration/read_file_numbered.cases.md` [IMPLEMENTED]
 
 ## Action Mapping
 
 ```typescript
 const actionHandlers = {
   // Implemented
-  'file_write': handleFileWrite,
-  'file_replace_text': handleFileReplaceText,
-  'file_replace_all_text': handleFileReplaceAllText,
-  'file_delete': handleFileDelete,
-  'file_move': handleFileMove,
-  'file_read': handleFileRead,
-  'files_read': handleFilesRead,
-  'file_read_numbered': handleFileReadNumbered,
+  'write_file': handleFileWrite,
+  'replace_text_in_file': handleFileReplaceText,
+  'replace_all_text_in_file': handleFileReplaceAllText,
+  'delete_file': handleFileDelete,
+  'move_file': handleFileMove,
+  'read_file': handleFileRead,
+  'read_files': handleFilesRead,
+  'read_file_numbered': handleFileReadNumbered,
   
   // Not implemented
   'dir_create': async (action) => ({ success: false, error: 'Not implemented' }),

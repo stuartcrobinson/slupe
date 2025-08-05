@@ -5,7 +5,7 @@ describe('validateConfig', () => {
   test('accepts valid config', () => {
     const config = {
       version: 1,
-      'allowed-actions': ['file_read', 'file_write', 'exec'],
+      'allowed-actions': ['read_file', 'write_file', 'exec'],
       hooks: {
         before: [{ run: 'echo test' }],
         after: [{ run: 'echo done' }]
@@ -117,7 +117,7 @@ describe('validateConfig', () => {
   test('rejects non-string items in allowed-actions', () => {
     const result = validateConfig({
       version: 1,
-      'allowed-actions': ['file_read', 123, 'file_write']
+      'allowed-actions': ['read_file', 123, 'write_file']
     });
     expect(result.valid).toBe(false);
     expect(result.error).toBe('allowed-actions must contain only strings');
@@ -126,7 +126,7 @@ describe('validateConfig', () => {
   test('accepts valid allowed-actions', () => {
     const result = validateConfig({
       version: 1,
-      'allowed-actions': ['file_read', 'file_write', 'exec']
+      'allowed-actions': ['read_file', 'write_file', 'exec']
     });
     expect(result.valid).toBe(true);
   });

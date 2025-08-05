@@ -31,8 +31,8 @@ describe('After Hooks Lifecycle', () => {
     // Create slupe.yml with after hook that verifies output file exists
     const slupeConfig = `version: 1
 allowed-actions:
-  - file_write
-  - file_read
+  - write_file
+  - read_file
 hooks:
   after:
     - run: test -f "${outputFile}" && echo "OUTPUT_FILE_EXISTS_WHEN_HOOK_RAN" > "${join(testDir, 'hook-verification.txt')}"
@@ -42,19 +42,19 @@ hooks:
 
     // Create NESL input that writes a test file
     const neslInput = `#!nesl [@three-char-SHA-256: h1a]
-action = "file_write"
+action = "write_file"
 path = "${join(testDir, 'test-file.txt')}"
 content = "Test content"
 #!end_h1a`;
 
     // Process content through the listener flow
-    const slupe = await Slupe.create({ 
+    const slupe = await Slupe.create({
       repoPath: testDir,
-      enableHooks: true 
+      enableHooks: true
     });
-    
+
     const result = await processContent(neslInput, '', false, testDir, slupe);
-    
+
     expect(result).not.toBeNull();
     expect(result!.executedActions).toBe(1);
 
@@ -81,7 +81,7 @@ content = "Test content"
     // Create slupe.yml with failing after hook
     const slupeConfig = `version: 1
 allowed-actions:
-  - file_write
+  - write_file
 hooks:
   after:
     - run: echo "AFTER_HOOK_STARTING" > "${join(testDir, 'hook-trace.txt')}"
@@ -92,17 +92,17 @@ hooks:
 
     // Create NESL input
     const neslInput = `#!nesl [@three-char-SHA-256: h2a]
-action = "file_write"  
+action = "write_file"  
 path = "${join(testDir, 'main-action.txt')}"
 content = "Main action executed"
 #!end_h2a`;
 
     // Process through listener
-    const slupe = await Slupe.create({ 
+    const slupe = await Slupe.create({
       repoPath: testDir,
-      enableHooks: true 
+      enableHooks: true
     });
-    
+
     const result = await processContent(neslInput, '', false, testDir, slupe);
     expect(result).not.toBeNull();
     expect(result!.executedActions).toBe(1);
@@ -112,7 +112,7 @@ content = "Main action executed"
 
     // Run after hooks
     const hookResult = await slupe.runAfterHooks(result!.afterHookContext!);
-    
+
     // Verify hook failed
     expect(hookResult.success).toBe(false);
     expect(hookResult.errors).toBeDefined();
@@ -170,7 +170,7 @@ main().catch(err => {
     // Create slupe.yml with failing after hook
     const slupeConfig = `version: 1
 allowed-actions:
-  - file_write
+  - write_file
 hooks:
   after:
     - run: echo "HOOK_RAN" > "${join(testDir, 'after-hook-ran.txt')}"
@@ -181,7 +181,7 @@ hooks:
     // Create input file
     const inputFile = join(testDir, 'input.nesl');
     const neslInput = `#!nesl [@three-char-SHA-256: h3a]
-action = "file_write"
+action = "write_file"
 path = "${join(testDir, 'action-output.txt')}"
 content = "Action completed"
 #!end_h3a`;
@@ -189,7 +189,7 @@ content = "Action completed"
 
     // Find tsx in node_modules to avoid npx overhead
     const tsxPath = join(import.meta.dirname, '../../../../../node_modules/.bin/tsx');
-    
+
     // Spawn the CLI process using tsx directly
     const child = spawn(tsxPath, [
       cliScriptPath,
@@ -211,7 +211,7 @@ content = "Action completed"
     // Wait for process to exit with timeout and cleanup
     const exitCode = await new Promise<number>((resolve, reject) => {
       let settled = false;
-      
+
       // Set up timeout to kill hanging process
       const timeout = setTimeout(() => {
         if (!settled) {
@@ -220,7 +220,7 @@ content = "Action completed"
           reject(new Error('Process timeout - killed after 10s'));
         }
       }, 10000);
-      
+
       child.on('exit', (code) => {
         if (!settled) {
           settled = true;
@@ -228,7 +228,7 @@ content = "Action completed"
           resolve(code || 0);
         }
       });
-      
+
       child.on('error', (err) => {
         if (!settled) {
           settled = true;
@@ -254,7 +254,7 @@ content = "Action completed"
     // Create slupe.yml with multiple after hooks
     const slupeConfig = `version: 1
 allowed-actions:
-  - file_write
+  - write_file
 hooks:
   after:
     - run: echo "HOOK_1" > "${join(testDir, 'hook-order.txt')}"
@@ -266,23 +266,23 @@ hooks:
     writeFileSync(join(testDir, 'slupe.yml'), slupeConfig);
 
     const neslInput = `#!nesl [@three-char-SHA-256: h4a]
-action = "file_write"
+action = "write_file"
 path = "${join(testDir, 'test.txt')}"
 content = "test"
 #!end_h4a`;
 
-    const slupe = await Slupe.create({ 
+    const slupe = await Slupe.create({
       repoPath: testDir,
-      enableHooks: true 
+      enableHooks: true
     });
-    
+
     const result = await processContent(neslInput, '', false, testDir, slupe);
     writeFileSync(outputFile, result!.fullOutput);
 
     const hookResult = await slupe.runAfterHooks(result!.afterHookContext!);
-    
+
     expect(hookResult.success).toBe(false);
-    
+
     // Verify execution order
     const hookOrder = readFileSync(join(testDir, 'hook-order.txt'), 'utf8');
     expect(hookOrder).toContain('HOOK_1');

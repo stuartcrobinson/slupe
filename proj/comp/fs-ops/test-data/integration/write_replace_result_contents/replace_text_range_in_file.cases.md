@@ -1,12 +1,12 @@
-# file_replace_text_range Integration Tests
+# replace_text_range_in_file Integration Tests
 
-## file_replace_text_range
+## replace_text_range_in_file
 
 ### 001-simple-range-replacement
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_simple-range-replacement/range-test.txt"
 content = "prefix [START] middle content [END] suffix"
 #!end_sr1
@@ -14,7 +14,7 @@ content = "prefix [START] middle content [END] suffix"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sr2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_simple-range-replacement/range-test.txt"
 old_text_beginning = "[START]"
 old_text_end = "[END]"
@@ -40,7 +40,7 @@ prefix [REPLACED] suffix
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ml1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiline-range-replacement/multiline.txt"
 content = <<'EOT_ml1'
 function oldImplementation() {
@@ -60,7 +60,7 @@ EOT_ml1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ml2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_multiline-range-replacement/multiline.txt"
 old_text_beginning = <<'EOT_ml2'
   // OLD START
@@ -106,7 +106,7 @@ function keepThis() {
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ov1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_overlapping-markers-not-found/overlap.txt"
 content = "function foo() { return 42; }"
 #!end_ov1
@@ -114,7 +114,7 @@ content = "function foo() { return 42; }"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ov2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_overlapping-markers-not-found/overlap.txt"
 old_text_beginning = "function foo() {"
 old_text_end = "() {"
@@ -125,7 +125,7 @@ new_text = "const foo = () => {"
 ```json
 {
   "success": false,
-  "error": "file_replace_text_range: old_text_end not found after old_text_beginning"
+  "error": "replace_text_range_in_file: old_text_end not found after old_text_beginning"
 }
 ```
 
@@ -133,7 +133,7 @@ new_text = "const foo = () => {"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: em1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_empty-range-content/empty.txt"
 content = "before <!-- START --><!-- END --> after"
 #!end_em1
@@ -141,7 +141,7 @@ content = "before <!-- START --><!-- END --> after"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: em2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_empty-range-content/empty.txt"
 old_text_beginning = "<!-- START -->"
 old_text_end = "<!-- END -->"
@@ -167,7 +167,7 @@ before <!-- CONTENT ADDED --> after
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sn1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_start-marker-not-found/no-start.txt"
 content = "some content with only [END] marker"
 #!end_sn1
@@ -175,7 +175,7 @@ content = "some content with only [END] marker"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sn2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_start-marker-not-found/no-start.txt"
 old_text_beginning = "[START]"
 old_text_end = "[END]"
@@ -186,7 +186,7 @@ new_text = "[REPLACED]"
 ```json
 {
   "success": false,
-  "error": "file_replace_text_range: old_text_beginning not found in file"
+  "error": "replace_text_range_in_file: old_text_beginning not found in file"
 }
 ```
 
@@ -194,7 +194,7 @@ new_text = "[REPLACED]"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: en1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_end-marker-not-found/no-end.txt"
 content = "[END] comes before [START] but no end after"
 #!end_en1
@@ -202,7 +202,7 @@ content = "[END] comes before [START] but no end after"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: en2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_end-marker-not-found/no-end.txt"
 old_text_beginning = "[START]"
 old_text_end = "[END]"
@@ -213,7 +213,7 @@ new_text = "[REPLACED]"
 ```json
 {
   "success": false,
-  "error": "file_replace_text_range: old_text_end not found after old_text_beginning"
+  "error": "replace_text_range_in_file: old_text_end not found after old_text_beginning"
 }
 ```
 
@@ -221,7 +221,7 @@ new_text = "[REPLACED]"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ms1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiple-start-markers/multi-start.txt"
 content = "[START] first [END] then [START] second [END]"
 #!end_ms1
@@ -229,7 +229,7 @@ content = "[START] first [END] then [START] second [END]"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ms2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_multiple-start-markers/multi-start.txt"
 old_text_beginning = "[START]"
 old_text_end = "[END]"
@@ -240,7 +240,7 @@ new_text = "[REPLACED]"
 ```json
 {
   "success": false,
-  "error": "file_replace_text_range: old_text_beginning appears 2 times, must appear exactly once"
+  "error": "replace_text_range_in_file: old_text_beginning appears 2 times, must appear exactly once"
 }
 ```
 
@@ -248,7 +248,7 @@ new_text = "[REPLACED]"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: me1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiple-end-markers/multi-end.txt"
 content = "prefix [START] content [END] middle [END] suffix"
 #!end_me1
@@ -256,7 +256,7 @@ content = "prefix [START] content [END] middle [END] suffix"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: me2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_multiple-end-markers/multi-end.txt"
 old_text_beginning = "[START]"
 old_text_end = "[END]"
@@ -267,7 +267,7 @@ new_text = "[REPLACED]"
 ```json
 {
   "success": false,
-  "error": "file_replace_text_range: old_text_end appears 2 times after old_text_beginning, must appear exactly once"
+  "error": "replace_text_range_in_file: old_text_end appears 2 times after old_text_beginning, must appear exactly once"
 }
 ```
 
@@ -275,7 +275,7 @@ new_text = "[REPLACED]"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: eb1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_end-before-start-ignored/end-before.txt"
 content = "[END] ignored [END] also ignored [START] content [END] this is the one"
 #!end_eb1
@@ -283,7 +283,7 @@ content = "[END] ignored [END] also ignored [START] content [END] this is the on
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: eb2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_end-before-start-ignored/end-before.txt"
 old_text_beginning = "[START]"
 old_text_end = "[END]"
@@ -309,7 +309,7 @@ new_text = "[REPLACED]"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: es1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_empty-start-marker/empty-start.txt"
 content = "some content"
 #!end_es1
@@ -317,7 +317,7 @@ content = "some content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: es2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_empty-start-marker/empty-start.txt"
 old_text_beginning = ""
 old_text_end = "content"
@@ -328,7 +328,7 @@ new_text = "replaced"
 ```json
 {
   "success": false,
-  "error": "file_replace_text_range: old_text_beginning cannot be empty"
+  "error": "replace_text_range_in_file: old_text_beginning cannot be empty"
 }
 ```
 
@@ -336,7 +336,7 @@ new_text = "replaced"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ee1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_empty-end-marker/empty-end.txt"
 content = "some content"
 #!end_ee1
@@ -344,7 +344,7 @@ content = "some content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ee2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_empty-end-marker/empty-end.txt"
 old_text_beginning = "some"
 old_text_end = ""
@@ -355,7 +355,7 @@ new_text = "replaced"
 ```json
 {
   "success": false,
-  "error": "file_replace_text_range: old_text_end cannot be empty"
+  "error": "replace_text_range_in_file: old_text_end cannot be empty"
 }
 ```
 
@@ -363,7 +363,7 @@ new_text = "replaced"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: id1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_identical-markers/identical.txt"
 content = "before ### content ### after"
 #!end_id1
@@ -371,7 +371,7 @@ content = "before ### content ### after"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: id2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_identical-markers/identical.txt"
 old_text_beginning = "###"
 old_text_end = "###"
@@ -382,7 +382,7 @@ new_text = "---"
 ```json
 {
   "success": false,
-  "error": "file_replace_text_range: old_text_beginning appears 2 times, must appear exactly once"
+  "error": "replace_text_range_in_file: old_text_beginning appears 2 times, must appear exactly once"
 }
 ```
 
@@ -390,7 +390,7 @@ new_text = "---"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cc1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_complex-code-block/complex.ts"
 content = <<'EOT_cc1'
 export class UserService {
@@ -416,7 +416,7 @@ EOT_cc1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cc2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_complex-code-block/complex.ts"
 old_text_beginning = <<'EOT_cc2'
   // BEGIN: deprecated methods
@@ -470,7 +470,7 @@ export class UserService {
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ws1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_whitespace-sensitive-range/whitespace.txt"
 content = <<'EOT_ws1'
   class Component {
@@ -491,7 +491,7 @@ EOT_ws1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ws2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_whitespace-sensitive-range/whitespace.txt"
 old_text_beginning = "          {/* START SECTION */}"
 old_text_end = "          {/* END SECTION */}"
@@ -533,7 +533,7 @@ EOT_ws2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fb1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_range-at-boundaries/boundaries.txt"
 content = "<!-- BEGIN -->entire file content<!-- END -->"
 #!end_fb1
@@ -541,7 +541,7 @@ content = "<!-- BEGIN -->entire file content<!-- END -->"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fb2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_range-at-boundaries/boundaries.txt"
 old_text_beginning = "<!-- BEGIN -->"
 old_text_end = "<!-- END -->"
@@ -567,7 +567,7 @@ just this
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nf1]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_nonexistent-file/does-not-exist.txt"
 old_text_beginning = "[START]"
 old_text_end = "[END]"
@@ -586,7 +586,7 @@ new_text = "content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: po1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_partial-marker-overlap/partial.txt"
 content = "BEGIN_MARKER some content that ends with MARKER suffix"
 #!end_po1
@@ -594,7 +594,7 @@ content = "BEGIN_MARKER some content that ends with MARKER suffix"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: po2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_partial-marker-overlap/partial.txt"
 old_text_beginning = "BEGIN_MARKER"
 old_text_end = "MARKER"

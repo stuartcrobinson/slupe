@@ -4,7 +4,10 @@
       "name": "generates filtered instructions file",
       "input": {
         "repoPath": "/tmp/t_instruct-gen-integration",
-        "allowedTools": ["file_write", "file_read"]
+        "allowedTools": [
+          "write_file",
+          "read_file"
+        ]
       },
       "setup": {
         "createTempDir": true
@@ -12,11 +15,11 @@
       "verify": {
         "fileExists": "/tmp/t_instruct-gen-integration/NESL_INSTRUCTIONS.md",
         "fileContains": [
-          "### `file_write`",
-          "### `file_read`"
+          "### `write_file`",
+          "### `read_file`"
         ],
         "fileNotContains": [
-          "### `file_delete`",
+          "### `delete_file`",
           "### `exec`"
         ]
       }

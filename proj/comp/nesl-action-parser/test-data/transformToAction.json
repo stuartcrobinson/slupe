@@ -6,7 +6,7 @@
         {
           "id": "str",
           "properties": {
-            "action": "file_write",
+            "action": "write_file",
             "path": "/tmp/test.txt",
             "content": "hello world"
           },
@@ -29,7 +29,7 @@
         }
       ],
       "expected": {
-        "action": "file_write",
+        "action": "write_file",
         "parameters": {
           "path": "/tmp/test.txt",
           "content": "hello world"
@@ -47,7 +47,7 @@
         {
           "id": "ann",
           "properties": {
-            "action": "file_delete",
+            "action": "delete_file",
             "path": "/tmp/remove.txt",
             "@three-char-SHA-256": "abc"
           },
@@ -66,7 +66,7 @@
         }
       ],
       "expected": {
-        "action": "file_delete",
+        "action": "delete_file",
         "parameters": {
           "path": "/tmp/remove.txt"
         },
@@ -83,7 +83,7 @@
         {
           "id": "int",
           "properties": {
-            "action": "file_replace_all_text",
+            "action": "replace_all_text_in_file",
             "path": "/tmp/edit.txt",
             "old_text": "foo",
             "new_text": "bar",
@@ -116,7 +116,7 @@
         }
       ],
       "expected": {
-        "action": "file_replace_all_text",
+        "action": "replace_all_text_in_file",
         "parameters": {
           "path": "/tmp/edit.txt",
           "old_text": "foo",
@@ -181,7 +181,7 @@
         {
           "id": "bad",
           "properties": {
-            "action": "file_replace_all_text",
+            "action": "replace_all_text_in_file",
             "path": "/tmp/edit.txt",
             "old_text": "foo",
             "new_text": "bar",

@@ -2,7 +2,7 @@
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_replace-line-range/code.js"
 content = <<'EOT_rr1'
 function oldImplementation() {
@@ -17,7 +17,7 @@ EOT_rr1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rr2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_replace-line-range/code.js"
 lines = "2-5"
 new_content = <<'EOT_rr2'

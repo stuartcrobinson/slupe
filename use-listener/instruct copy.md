@@ -35,11 +35,11 @@ equivalent json:
 
 ## Actions
 
-### `file_write`
+### `write_file`
 Create/overwrite file
 ```sh nesl
 #!nesl [@three-char-SHA-256: fw1]
-action = "file_write"
+action = "write_file"
 path = "/home/user/script.py"
 
 content = <<'EOT_fw1'
@@ -50,11 +50,11 @@ EOT_fw1
 #!end_fw1
 ```
 
-### `file_replace_text`
+### `replace_text_in_file`
 Replace the only one occurrence
 ```sh nesl
 #!nesl [@three-char-SHA-256: fr2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/etc/config.ini"
 
 old_text = <<'EOT_fr2'
@@ -68,11 +68,11 @@ EOT_fr2
 #!end_fr2
 ```
 
-### `file_replace_all_text` 
+### `replace_all_text_in_file` 
 Replace every matching occurrence
 ```sh nesl
 #!nesl [@three-char-SHA-256: fr2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/etc/config.ini"
 
 old_text = <<'EOT_fr2'
@@ -86,20 +86,20 @@ EOT_fr2
 #!end_fr2
 ```
 
-### `file_read` 
+### `read_file` 
 Read single file
 ```sh nesl
 #!nesl [@three-char-SHA-256: rd3]
-action = "file_read"
+action = "read_file"
 path = "/var/log/app.log"
 #!end_rd3
 ```
 
-### `files_read` 
+### `read_files` 
 Read multiple files
 ```sh nesl
 #!nesl [@three-char-SHA-256: rm4]
-action = "files_read"
+action = "read_files"
 
 paths = <<'EOT_rm4'
 /tmp/file1.txt

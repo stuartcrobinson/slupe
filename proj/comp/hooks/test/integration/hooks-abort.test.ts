@@ -16,7 +16,7 @@ describe('Hooks Abort Behavior', () => {
     // Create slupe.yml with a failing command
     const slupeConfig = `version: 1
 allowed-actions:
- - file_write
+ - write_file
 hooks:
  before:
    - run: echo "FIRST_HOOK_RAN" > ${TEST_PATH}/first.txt
@@ -31,7 +31,7 @@ hooks:
 
     // NESL that would create files if executed
     const neslInput = `#!nesl [@three-char-SHA-256: hfa]
-action = "file_write"
+action = "write_file"
 path = "${TEST_PATH}/nesl-output.txt"
 content = "This should not be written"
 #!end_hfa`;

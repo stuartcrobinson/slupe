@@ -34,15 +34,15 @@ Specificity = count of non-wildcard path segments.
 ### Permission Model
 ```typescript
 const actionPermissions = {
-  file_read: ['read'],
-  file_write: ['write'],
+  read_file: ['read'],
+  write_file: ['write'],
   file_create: ['write'],
-  file_delete: ['write'],
-  file_replace_text: ['read', 'write'],
-  file_replace_all_text: ['read', 'write'],
-  file_move: ['read:old_path', 'write:new_path'],
-  files_read: ['read:paths'],
-  file_read_numbered: ['read'],
+  delete_file: ['write'],
+  replace_text_in_file: ['read', 'write'],
+  replace_all_text_in_file: ['read', 'write'],
+  move_file: ['read:old_path', 'write:new_path'],
+  read_files: ['read:paths'],
+  read_file_numbered: ['read'],
   // dir operations similar
 }
 ```
@@ -119,12 +119,12 @@ Use `minimatch` with options:
 
 ## Operation-Specific Logic
 
-### file_move
+### move_file
 - Check read permission on `old_path`
 - Check write permission on `new_path`
 - Both must pass
 
-### files_read
+### read_files
 - Extract each path from multi-line `paths` parameter
 - Check read permission on each
 - Fail fast on first denial

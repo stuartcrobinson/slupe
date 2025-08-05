@@ -5,7 +5,7 @@
       "setup": {
         "lastExecutionTime": "now-1500",
         "filePath": "/tmp/t_cooldown/test.md",
-        "fileContent": "```sh nesl\n#!nesl [@three-char-SHA-256: cd1]\naction = \"file_write\"\npath = \"/tmp/t_cooldown/out.txt\"\ncontent = \"test\"\n#!end_cd1\n```"
+        "fileContent": "```sh nesl\n#!nesl [@three-char-SHA-256: cd1]\naction = \"write_file\"\npath = \"/tmp/t_cooldown/out.txt\"\ncontent = \"test\"\n#!end_cd1\n```"
       },
       "expected": {
         "processed": false,
@@ -17,7 +17,7 @@
       "setup": {
         "isProcessing": true,
         "filePath": "/tmp/t_concurrent/test.md",
-        "fileContent": "```sh nesl\n#!nesl [@three-char-SHA-256: cp1]\naction = \"file_write\"\npath = \"/tmp/t_concurrent/out.txt\"\ncontent = \"test\"\n#!end_cp1\n```"
+        "fileContent": "```sh nesl\n#!nesl [@three-char-SHA-256: cp1]\naction = \"write_file\"\npath = \"/tmp/t_concurrent/out.txt\"\ncontent = \"test\"\n#!end_cp1\n```"
       },
       "expected": {
         "processed": false,
@@ -40,7 +40,7 @@
       "name": "clipboard failure handled gracefully",
       "setup": {
         "filePath": "/tmp/t_clipfail/test.md",
-        "fileContent": "```sh nesl\n#!nesl [@three-char-SHA-256: cf1]\naction = \"file_write\"\npath = \"/tmp/t_clipfail/out.txt\"\ncontent = \"test\"\n#!end_cf1\n```",
+        "fileContent": "```sh nesl\n#!nesl [@three-char-SHA-256: cf1]\naction = \"write_file\"\npath = \"/tmp/t_clipfail/out.txt\"\ncontent = \"test\"\n#!end_cf1\n```",
         "forceClipboardFailure": true
       },
       "expected": {

@@ -117,7 +117,7 @@ describe('Hooks Integration', () => {
             const summary = readFileSync(summaryPath, 'utf8');
             expect(summary).toContain('Total blocks: 2');
             expect(summary).toContain('Executed: 2');
-            expect(summary).toContain('Operations: file_write,file_read');
+            expect(summary).toContain('Operations: write_file,read_file');
             break;
           }
 

@@ -20,7 +20,7 @@ add malformed sha id error to nesl-js  so it reeturns a good error for:
 
 ```sh nesl
 #!nesl [@nesl-id: 567]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/replace-test.txt"
 old_text = "Hello"
 new_text = "Hi"
@@ -32,7 +32,7 @@ new_text = "Hi"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: 567]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/replace-test.txt"
 old_text = "Hello"
 new_text = "Hi"

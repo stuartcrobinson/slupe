@@ -1,12 +1,12 @@
-# file_delete Integration Tests
+# delete_file Integration Tests
 
-## file_delete
+## delete_file
 
 ### 001-delete-existing-file
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cre]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_delete-existing-file/to-delete.txt"
 content = "This file will be deleted"
 #!end_cre
@@ -14,7 +14,7 @@ content = "This file will be deleted"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: del]
-action = "file_delete"
+action = "delete_file"
 path = "/tmp/t_delete-existing-file/to-delete.txt"
 #!end_del
 ```
@@ -35,7 +35,7 @@ path = "/tmp/t_delete-existing-file/to-delete.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: dnf]
-action = "file_delete"
+action = "delete_file"
 path = "/tmp/t_delete-nonexistent-file/does-not-exist.txt"
 #!end_dnf
 ```

@@ -4,14 +4,14 @@ import { readFile, writeFile } from 'fs/promises';
 import { formatNodeError } from '../utils.js';
 import { replaceText } from '../replaceText.js';
 
-export async function handle__file_replace_text(action: SlupeAction): Promise<FileOpResult> {
+export async function handle__replace_text_in_file(action: SlupeAction): Promise<FileOpResult> {
   const { path, old_text, new_text } = action.parameters;
 
   // Validate old_text is not empty
   if (!old_text || old_text.length === 0) {
     return {
       success: false,
-      error: 'file_replace_text: old_text cannot be empty'
+      error: 'replace_text_in_file: old_text cannot be empty'
     };
   }
 
@@ -33,13 +33,13 @@ export async function handle__file_replace_text(action: SlupeAction): Promise<Fi
     if (count === 0) {
       return {
         success: false,
-        error: `file_replace_text: old_text not found in file`
+        error: `replace_text_in_file: old_text not found in file`
       };
     }
     if (count > 1) {
       return {
         success: false,
-        error: `file_replace_text: old_text appears ${count} times, must appear exactly once`
+        error: `replace_text_in_file: old_text appears ${count} times, must appear exactly once`
       };
     }
 
@@ -62,7 +62,7 @@ export async function handle__file_replace_text(action: SlupeAction): Promise<Fi
     if (error.message === 'old_text cannot be empty') {
       return {
         success: false,
-        error: 'file_replace_text: old_text cannot be empty'
+        error: 'replace_text_in_file: old_text cannot be empty'
       };
     }
 

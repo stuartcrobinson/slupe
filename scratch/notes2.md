@@ -43,11 +43,11 @@ WHAT TO DO WHILE WAITING FOR NPM ACCESS?
 
 - update all 'path' vars to support wildcard/glob expansion.  
     - maybe have param for all such actions like "dont_support_path_wildcards" or soemthing.  just meniotn it once and then share reminder in error or warning message if there's a real file continaign a * or soemthing
-- file_replace_text_range
-- file_read_node
+- replace_text_range_in_file
+- read_file_node
 - file_overwrite_node
 - file_replace_in_node
-- file_delete_node_
+- delete_file_node_
 - file_insert_node_after
 - and then something to do like sed using file pattern and regex?
 - sd
@@ -59,7 +59,7 @@ v2: add some more tools, like:
 
 - file_replace_in_node
 - file_overwrite_node
-- file_delete_node
+- delete_file_node
 
 -----
 
@@ -83,10 +83,10 @@ X tools allowlist (to block cmd line stuff for file security)
 LATER:
 
 
-- secretly allow synonyms for tools (like file_create == file_write cos llm really wants to use file_create)
+- secretly allow synonyms for tools (like file_create == write_file cos llm really wants to use file_create)
     - new feature maybe... synonyms.. (create_file write_file ???? idk if overkill)
     - .  file_create and file_copy  -
-- search/replace by range file_replace_text_range
+- search/replace by range replace_text_range_in_file
 - copy paste mode 
     - include clipboard watcher to automatically execute outputs that have been copied and then if user copies "nesl" 
 - git squash stuff
@@ -106,13 +106,13 @@ TODO:
 
 - the error message should also show the intended file path
 ```
-e5f ✅ file_write /Users/stuart/repos/slupe/proj/comp/hooks/src/interpolateCommand.ts
-a1b ❌ FILE_WRITE ERROR: Unknown action: FILE_WRITE (line 25)
+e5f ✅ write_file /Users/stuart/repos/slupe/proj/comp/hooks/src/interpolateCommand.ts
+a1b ❌ write_file ERROR: Unknown action: write_file (line 25)
 
 ...
 
 #!nesl [@three-char-SHA-256: a1b]
-action = "FILE_WRITE"
+action = "write_file"
 path = "/Users/stuart/repos/slupe/proj/comp/hooks/src/formatHookResult.ts"
 content = <<'EOT_a1b'
 import type { CommandResult, HookResult } from './types.js';

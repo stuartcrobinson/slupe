@@ -58,8 +58,8 @@ example after copy:
 ```
 📋 Copied to clipboard
 === SLUPE RESULTS ===
-c8i ✅ file_write /path/to/file.md
-qb2 ❌ file_write /path/to/other.rs - Permission denied
+c8i ✅ write_file /path/to/file.md
+qb2 ❌ write_file /path/to/other.rs - Permission denied
 v84 ✅ exec javascript - 17 lines
 === END ===
 ```

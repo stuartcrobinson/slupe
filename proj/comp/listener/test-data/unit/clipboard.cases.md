@@ -23,7 +23,7 @@ The system monitors clipboard changes and looks for paired clipboard entries tha
 
 4. **NESL Execution**:
    - Once a valid NESL command is assembled, it's executed
-   - Results are displayed with success indicators (e.g., "✅ file_write /path/to/file")
+   - Results are displayed with success indicators (e.g., "✅ write_file /path/to/file")
    - The output includes "=== SLUPE RESULTS ===" header when execution occurs
 
 ### Key Behaviors from Test Cases:
@@ -114,7 +114,7 @@ xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
 ```sh
 #!nesl [@three-char-SHA-256: d748f3s]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_simple_works/2.txt"
 content = "hi"
 #!end_d748f3s
@@ -123,7 +123,7 @@ content = "hi"
 
 ### output contains
 ```
-✅ file_write /tmp/t_simple_works/2.txt
+✅ write_file /tmp/t_simple_works/2.txt
 ```
 
 
@@ -133,7 +133,7 @@ content = "hi"
 
 ```sh
 #!nesl [@three-char-SHA-256: b8fw34t]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_simple_fails/1.txt"
 content = "hi"
 #!end_b8fw34t
@@ -160,7 +160,7 @@ null
 
 ```sh
 #!nesl [@three-char-SHA-256: as7]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_simple_fails2/1.txt"
 content = "hi"
 #!end_as7
@@ -187,7 +187,7 @@ null
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: f73js6]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_target_copied_first/out.txt"
 content = <<'EOT_f73js6'
 hello
@@ -200,7 +200,7 @@ EOT_f73js6
 ```sh nesl
 lalala
 #!nesl [@three-char-SHA-256: f73js6]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_target_copied_first/out.txt"
 #!end_f73js6
 this clipboard content gets ignored because its the bigger one
@@ -210,7 +210,7 @@ this clipboard content gets ignored because its the bigger one
 
 ### output contains
 ```
-✅ file_write /tmp/t_target_copied_first/out.txt
+✅ write_file /tmp/t_target_copied_first/out.txt
 ```
 
 ## target_copied_second_fast
@@ -221,7 +221,7 @@ this clipboard content gets ignored because its the bigger one
 lalala
 this clipboard content gets ignored because its the bigger one
 #!nesl [@three-char-SHA-256: xyz]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_target_copied_second_fast/first.txt"
 content = <<'EOT_xyz'
 test content
@@ -233,7 +233,7 @@ EOT_xyz
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: xyz]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_target_copied_second_fast/second.txt"
 content = <<'EOT_xyz'
 test content
@@ -243,7 +243,7 @@ EOT_xyz
 
 ### output contains
 ```
-✅ file_write /tmp/t_target_copied_second_fast/second.txt
+✅ write_file /tmp/t_target_copied_second_fast/second.txt
 ```
 
 ## near_timeout_boundary
@@ -251,7 +251,7 @@ EOT_xyz
 ### inputs
 ```sh nesl
 #!nesl [@three-char-SHA-256: def]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_near_timeout_boundary/first.txt"
 content = <<'EOT_def'
 slow
@@ -264,7 +264,7 @@ EOT_def
 ```sh nesl
 this clipboard content gets ignored because its the bigger one
 #!nesl [@three-char-SHA-256: def]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_near_timeout_boundary/second.txt"
 content = <<'EOT_def'
 ignored content
@@ -274,7 +274,7 @@ EOT_def
 
 ### output contains
 ```
-✅ file_write /tmp/t_near_timeout_boundary/first.txt
+✅ write_file /tmp/t_near_timeout_boundary/first.txt
 ```
 
 ## exceeds_1800_timeout_no_trigger
@@ -282,7 +282,7 @@ EOT_def
 ### inputs
 ```sh nesl
 #!nesl [@three-char-SHA-256: ghi]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_exceeds_timeout_no_trigger/test.txt"
 content = <<'EOT_ghi'
 timeout
@@ -295,7 +295,7 @@ EOT_ghi
 ```sh nesl
 asdifasdfkasdf
 #!nesl [@three-char-SHA-256: ghi]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_exceeds_timeout_no_trigger/ignored.txt"
 content = <<'EOT_ghi'
 ignored
@@ -311,7 +311,7 @@ null
 ### inputs
 ```sh nesl
 #!nesl [@three-char-SHA-256: jkl]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_mismatched_delimiters_no_trigger/test.txt"
 content = <<'EOT_jkl'
 mismatch
@@ -324,7 +324,7 @@ EOT_jkl
 ```sh nesl
 as;doifjsodfij
 #!nesl [@three-char-SHA-256: 56d]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_mismatched_delimiters_no_trigger/different.txt"
 content = <<'EOT_56d'
 different delimiter
@@ -342,7 +342,7 @@ null
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: 34g]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_valid_target_content_separated_by_empty_clipboard_1/1st.txt"
 content = <<'EOT_34g'
 hello
@@ -363,7 +363,7 @@ hey hey hey hey hey hey hey hey
 ```sh nesl
 lalala
 #!nesl [@three-char-SHA-256: 34g]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_valid_target_content_separated_by_empty_clipboard_1/3rd.txt"
 #!end_34g
 this clipboard content gets ignored because its the bigger one
@@ -373,7 +373,7 @@ this clipboard content gets ignored because its the bigger one
 
 ### output contains
 ```
-✅ file_write /tmp/t_valid_target_content_separated_by_empty_clipboard_1/1st.txt
+✅ write_file /tmp/t_valid_target_content_separated_by_empty_clipboard_1/1st.txt
 ```
 
 
@@ -384,7 +384,7 @@ this clipboard content gets ignored because its the bigger one
 ```sh nesl
 lalala
 #!nesl [@three-char-SHA-256: abc]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_valid_target_content_separated_by_empty_clipboard_2/1st.txt"
 #!end_abc
 this clipboard content gets ignored because its the bigger one
@@ -410,7 +410,7 @@ hi
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_valid_target_content_separated_by_empty_clipboard_2/4th.txt"
 content = <<'EOT_abc'
 hello
@@ -421,7 +421,7 @@ EOT_abc
 
 ### output contains
 ```
-✅ file_write /tmp/t_valid_target_content_separated_by_empty_clipboard_2/4th.txt
+✅ write_file /tmp/t_valid_target_content_separated_by_empty_clipboard_2/4th.txt
 ```
 
 
@@ -432,7 +432,7 @@ EOT_abc
 ```sh nesl
 lalala
 #!nesl [@three-char-SHA-256: abc]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_invalid_target_content_separated_by_empty_clipboard_timeout/1st.txt"
 #!end_abc
 this clipboard content gets ignored because its the bigger one
@@ -458,7 +458,7 @@ hi
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_invalid_target_content_separated_by_empty_clipboard_timeout/4th.txt"
 content = <<'EOT_abc'
 hello
@@ -478,7 +478,7 @@ null
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: qxr]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_valid_complex/1.txt"
 content = <<'EOT_qxr'
 hello
@@ -486,7 +486,7 @@ EOT_qxr
 #!end_qxr
 
 #!nesl [@three-char-SHA-256: abc]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_valid_complex/1st.txt"
 #!end_abc
 ```
@@ -503,7 +503,7 @@ path = "/tmp/t_valid_complex/1st.txt"
 ```sh nesl
 
 #!nesl [@three-char-SHA-256: abc]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_valid_complex/DNE.txt"
 #!end_abc
 

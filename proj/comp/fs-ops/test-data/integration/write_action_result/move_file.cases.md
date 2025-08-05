@@ -1,12 +1,12 @@
-# file_move Integration Tests
+# move_file Integration Tests
 
-## file_move
+## move_file
 
 ### 001-move-file-simple
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_move-file-simple/source.txt"
 content = "Content to be moved"
 #!end_cr1
@@ -14,7 +14,7 @@ content = "Content to be moved"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mvs]
-action = "file_move"
+action = "move_file"
 old_path = "/tmp/t_move-file-simple/source.txt"
 new_path = "/tmp/t_move-file-simple/destination.txt"
 #!end_mvs
@@ -34,7 +34,7 @@ new_path = "/tmp/t_move-file-simple/destination.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cr2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_move-file-to-new-directory/original.txt"
 content = "File to move to new directory"
 #!end_cr2
@@ -42,7 +42,7 @@ content = "File to move to new directory"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mvd]
-action = "file_move"
+action = "move_file"
 old_path = "/tmp/t_move-file-to-new-directory/original.txt"
 new_path = "/tmp/t_move-file-to-new-directory/new-dir/moved.txt"
 #!end_mvd
@@ -65,7 +65,7 @@ new_path = "/tmp/t_move-file-to-new-directory/new-dir/moved.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mnf]
-action = "file_move"
+action = "move_file"
 old_path = "/tmp/t_move-nonexistent-file/ghost.txt"
 new_path = "/tmp/t_move-nonexistent-file/nowhere.txt"
 #!end_mnf
@@ -74,7 +74,7 @@ new_path = "/tmp/t_move-nonexistent-file/nowhere.txt"
 ```json
 {
   "success": false,
-  "error": "file_move: Source file not found '/tmp/t_move-nonexistent-file/ghost.txt' (ENOENT)"
+  "error": "move_file: Source file not found '/tmp/t_move-nonexistent-file/ghost.txt' (ENOENT)"
 }
 ```
 
@@ -82,13 +82,13 @@ new_path = "/tmp/t_move-nonexistent-file/nowhere.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cr4]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_move-to-existing-file/source-exists.txt"
 content = "Source file content"
 #!end_cr4
 
 #!nesl [@three-char-SHA-256: cr4]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_move-to-existing-file/dest-exists.txt"
 content = "Destination file to be overwritten"
 #!end_cr4
@@ -96,7 +96,7 @@ content = "Destination file to be overwritten"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mef]
-action = "file_move"
+action = "move_file"
 old_path = "/tmp/t_move-to-existing-file/source-exists.txt"
 new_path = "/tmp/t_move-to-existing-file/dest-exists.txt"
 #!end_mef

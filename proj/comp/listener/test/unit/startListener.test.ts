@@ -59,7 +59,7 @@ describe('startListener', () => {
 
   it('file not found error', async () => {
     const nonExistentFile = join(testDir, 'does-not-exist.md');
-    
+
     const config: ListenerConfig = {
       filePath: nonExistentFile
     };
@@ -87,7 +87,7 @@ describe('startListener', () => {
 
 \`\`\`sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/test-initial.txt"
 content = <<'EOT_abc'
 Initial test file
@@ -106,18 +106,18 @@ EOT_abc
 
     // Wait for initial processing
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     const outputPath = join(testDir, '.slupe-output-latest.txt');
     const initialOutput = await readFile(outputPath, 'utf-8');
     // The output file contains SLUPE execution results
     expect(initialOutput).toContain('SLUPE RESULTS');
-    expect(initialOutput).toContain('file_write /tmp/test-initial.txt');
-    
+    expect(initialOutput).toContain('write_file /tmp/test-initial.txt');
+
     // The original content is written back to the input file with summary prepended
     const inputFileContent = await readFile(testFile, 'utf-8');
     expect(inputFileContent).toContain('Initial content');
     expect(inputFileContent).toContain('SLUPE RESULTS');
-    
+
     // Update the file
     await writeFile(testFile, `# Updated content
 
@@ -125,7 +125,7 @@ This is the new content
 
 \`\`\`sh nesl
 #!nesl [@three-char-SHA-256: def]
-action = "file_write"
+action = "write_file"
 path = "/tmp/test-updated.txt"
 content = <<'EOT_def'
 Updated test file
@@ -133,15 +133,15 @@ EOT_def
 #!end_def
 \`\`\`
 `);
-    
+
     // Wait longer than debounce time
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     // Check that the output was updated
     const updatedOutput = await readFile(outputPath, 'utf-8');
     expect(updatedOutput).toContain('SLUPE RESULTS');
-    expect(updatedOutput).toContain('file_write /tmp/test-updated.txt');
-    
+    expect(updatedOutput).toContain('write_file /tmp/test-updated.txt');
+
     // Check the input file has the updated content
     const updatedInputContent = await readFile(testFile, 'utf-8');
     expect(updatedInputContent).toContain('Updated content');

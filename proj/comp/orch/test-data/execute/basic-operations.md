@@ -6,7 +6,7 @@
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/001-simple-file-write/test.txt"
 content = "Hello, World!"
 #!end_abc
@@ -20,7 +20,7 @@ content = "Hello, World!"
   "results": [{
     "seq": 1,
     "blockId": "abc",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/001-simple-file-write/test.txt",
       "content": "Hello, World!"
@@ -41,7 +41,7 @@ content = "Hello, World!"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fw1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/002-mixed-implemented-unimplemented/first.txt"
 content = "First file"
 #!end_fw1
@@ -53,7 +53,7 @@ lang = "bash"
 #!end_ex1
 
 #!nesl [@three-char-SHA-256: fw2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/002-mixed-implemented-unimplemented/second.txt"
 content = "Second file"
 #!end_fw2
@@ -67,7 +67,7 @@ content = "Second file"
   "results": [{
     "seq": 1,
     "blockId": "fw1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/002-mixed-implemented-unimplemented/first.txt",
       "content": "First file"
@@ -95,7 +95,7 @@ content = "Second file"
   }, {
     "seq": 3,
     "blockId": "fw2",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/002-mixed-implemented-unimplemented/second.txt",
       "content": "Second file"
@@ -116,13 +116,13 @@ content = "Second file"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: bad]
-action = "file_write"
+action = "write_file"
 path = "/tmp/003-parse-error-with-valid-action/bad.txt"
 path = "/tmp/003-parse-error-with-valid-action/duplicate.txt"
 #!end_bad
 
 #!nesl [@three-char-SHA-256: gud]
-action = "file_write"
+action = "write_file"
 path = "/tmp/003-parse-error-with-valid-action/good.txt"
 content = "Valid content"
 #!end_gud
@@ -136,7 +136,7 @@ content = "Valid content"
   "results": [{
     "seq": 1,
     "blockId": "gud",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/003-parse-error-with-valid-action/good.txt",
       "content": "Valid content"
@@ -149,11 +149,11 @@ content = "Valid content"
   }],
   "parseErrors": [{
     "blockId": "bad",
-    "action": "file_write",
+    "action": "write_file",
     "errorType": "syntax",
     "message": "Duplicate key 'path' in block 'bad'",
     "blockStartLine": 1,
-    "neslContent": "#!nesl [@three-char-SHA-256: bad]\naction = \"file_write\"\npath = \"/tmp/003-parse-error-with-valid-action/bad.txt\"\npath = \"/tmp/003-parse-error-with-valid-action/duplicate.txt\"\n#!end_bad"
+    "neslContent": "#!nesl [@three-char-SHA-256: bad]\naction = \"write_file\"\npath = \"/tmp/003-parse-error-with-valid-action/bad.txt\"\npath = \"/tmp/003-parse-error-with-valid-action/duplicate.txt\"\n#!end_bad"
   }]
 }
 ```
@@ -164,7 +164,7 @@ content = "Valid content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nop]
-action = "file_delete"
+action = "delete_file"
 path = "/tmp/004-file-operation-failure/does-not-exist.txt"
 #!end_nop
 ```
@@ -177,7 +177,7 @@ path = "/tmp/004-file-operation-failure/does-not-exist.txt"
   "results": [{
     "seq": 1,
     "blockId": "nop",
-    "action": "file_delete",
+    "action": "delete_file",
     "params": {
       "path": "/tmp/004-file-operation-failure/does-not-exist.txt"
     },
@@ -212,13 +212,13 @@ This is just regular text without any NESL blocks.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rd1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/006-file-read-success/read-test.txt"
 content = "Content to read later"
 #!end_rd1
 
 #!nesl [@three-char-SHA-256: rd2]
-action = "file_read"
+action = "read_file"
 path = "/tmp/006-file-read-success/read-test.txt"
 #!end_rd2
 ```
@@ -231,7 +231,7 @@ path = "/tmp/006-file-read-success/read-test.txt"
   "results": [{
     "seq": 1,
     "blockId": "rd1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/006-file-read-success/read-test.txt",
       "content": "Content to read later"
@@ -244,7 +244,7 @@ path = "/tmp/006-file-read-success/read-test.txt"
   }, {
     "seq": 2,
     "blockId": "rd2",
-    "action": "file_read",
+    "action": "read_file",
     "params": {
       "path": "/tmp/006-file-read-success/read-test.txt"
     },
@@ -262,13 +262,13 @@ path = "/tmp/006-file-read-success/read-test.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mv1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/007-file-move-success/source-file.txt"
 content = "File to be moved"
 #!end_mv1
 
 #!nesl [@three-char-SHA-256: mv2]
-action = "file_move"
+action = "move_file"
 old_path = "/tmp/007-file-move-success/source-file.txt"
 new_path = "/tmp/007-file-move-success/destination-file.txt"
 #!end_mv2
@@ -282,7 +282,7 @@ new_path = "/tmp/007-file-move-success/destination-file.txt"
   "results": [{
     "seq": 1,
     "blockId": "mv1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/007-file-move-success/source-file.txt",
       "content": "File to be moved"
@@ -295,7 +295,7 @@ new_path = "/tmp/007-file-move-success/destination-file.txt"
   }, {
     "seq": 2,
     "blockId": "mv2",
-    "action": "file_move",
+    "action": "move_file",
     "params": {
       "old_path": "/tmp/007-file-move-success/source-file.txt",
       "new_path": "/tmp/007-file-move-success/destination-file.txt"
@@ -314,13 +314,13 @@ new_path = "/tmp/007-file-move-success/destination-file.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rp1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/008-file-replace-text-single/replace-single.txt"
 content = "Hello world! This is a test."
 #!end_rp1
 
 #!nesl [@three-char-SHA-256: rp2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/008-file-replace-text-single/replace-single.txt"
 old_text = "world"
 new_text = "universe"
@@ -335,7 +335,7 @@ new_text = "universe"
   "results": [{
     "seq": 1,
     "blockId": "rp1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/008-file-replace-text-single/replace-single.txt",
       "content": "Hello world! This is a test."
@@ -348,7 +348,7 @@ new_text = "universe"
   }, {
     "seq": 2,
     "blockId": "rp2",
-    "action": "file_replace_text",
+    "action": "replace_text_in_file",
     "params": {
       "path": "/tmp/008-file-replace-text-single/replace-single.txt",
       "old_text": "world",
@@ -368,13 +368,13 @@ new_text = "universe"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ra1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/009-file-replace-all-text/replace-all.txt"
 content = "foo bar foo baz foo"
 #!end_ra1
 
 #!nesl [@three-char-SHA-256: ra2]
-action = "file_replace_all_text"
+action = "replace_all_text_in_file"
 path = "/tmp/009-file-replace-all-text/replace-all.txt"
 old_text = "foo"
 new_text = "qux"
@@ -389,7 +389,7 @@ new_text = "qux"
   "results": [{
     "seq": 1,
     "blockId": "ra1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/009-file-replace-all-text/replace-all.txt",
       "content": "foo bar foo baz foo"
@@ -402,7 +402,7 @@ new_text = "qux"
   }, {
     "seq": 2,
     "blockId": "ra2",
-    "action": "file_replace_all_text",
+    "action": "replace_all_text_in_file",
     "params": {
       "path": "/tmp/009-file-replace-all-text/replace-all.txt",
       "old_text": "foo",
@@ -422,7 +422,7 @@ new_text = "qux"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ml1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/010-multiline-content-handling/multiline.txt"
 content = <<'EOT_ml1'
 Line one
@@ -432,7 +432,7 @@ EOT_ml1
 #!end_ml1
 
 #!nesl [@three-char-SHA-256: ml2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/010-multiline-content-handling/multiline.txt"
 old_text = <<'EOT_ml2'
 Line two
@@ -451,7 +451,7 @@ EOT_ml2
   "results": [{
     "seq": 1,
     "blockId": "ml1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/010-multiline-content-handling/multiline.txt",
       "content": "Line one\nLine two\nLine three"
@@ -464,7 +464,7 @@ EOT_ml2
   }, {
     "seq": 2,
     "blockId": "ml2",
-    "action": "file_replace_text",
+    "action": "replace_text_in_file",
     "params": {
       "path": "/tmp/010-multiline-content-handling/multiline.txt",
       "old_text": "Line two",
@@ -484,13 +484,13 @@ EOT_ml2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/011-file-replace-text-multiple-occurrences-failure/multiple-foo.txt"
 content = "foo bar foo baz"
 #!end_rf1
 
 #!nesl [@three-char-SHA-256: rf2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/011-file-replace-text-multiple-occurrences-failure/multiple-foo.txt"
 old_text = "foo"
 new_text = "qux"
@@ -505,7 +505,7 @@ new_text = "qux"
   "results": [{
     "seq": 1,
     "blockId": "rf1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/011-file-replace-text-multiple-occurrences-failure/multiple-foo.txt",
       "content": "foo bar foo baz"
@@ -518,14 +518,14 @@ new_text = "qux"
   }, {
     "seq": 2,
     "blockId": "rf2",
-    "action": "file_replace_text",
+    "action": "replace_text_in_file",
     "params": {
       "path": "/tmp/011-file-replace-text-multiple-occurrences-failure/multiple-foo.txt",
       "old_text": "foo",
       "new_text": "qux"
     },
     "success": false,
-    "error": "file_replace_text: old_text appears 2 times, must appear exactly once"
+    "error": "replace_text_in_file: old_text appears 2 times, must appear exactly once"
   }],
   "parseErrors": []
 }
@@ -535,13 +535,13 @@ new_text = "qux"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rc1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/012-file-replace-all-text-with-count/count-test.txt"
 content = "test test test"
 #!end_rc1
 
 #!nesl [@three-char-SHA-256: rc2]
-action = "file_replace_all_text"
+action = "replace_all_text_in_file"
 path = "/tmp/012-file-replace-all-text-with-count/count-test.txt"
 old_text = "test"
 new_text = "check"
@@ -557,7 +557,7 @@ count = "2"
   "results": [{
     "seq": 1,
     "blockId": "rc1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/012-file-replace-all-text-with-count/count-test.txt",
       "content": "test test test"
@@ -570,7 +570,7 @@ count = "2"
   }, {
     "seq": 2,
     "blockId": "rc2",
-    "action": "file_replace_all_text",
+    "action": "replace_all_text_in_file",
     "params": {
       "path": "/tmp/012-file-replace-all-text-with-count/count-test.txt",
       "old_text": "test",
@@ -578,7 +578,7 @@ count = "2"
       "count": 2
     },
     "success": false,
-    "error": "file_replace_all_text: expected 2 occurrences but found 3"
+    "error": "replace_all_text_in_file: expected 2 occurrences but found 3"
   }],
   "parseErrors": []
 }
@@ -588,19 +588,19 @@ count = "2"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ow1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/013-file-move-overwrite-existing/move-source.txt"
 content = "source content"
 #!end_ow1
 
 #!nesl [@three-char-SHA-256: ow2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/013-file-move-overwrite-existing/move-dest.txt"
 content = "will be overwritten"
 #!end_ow2
 
 #!nesl [@three-char-SHA-256: ow3]
-action = "file_move"
+action = "move_file"
 old_path = "/tmp/013-file-move-overwrite-existing/move-source.txt"
 new_path = "/tmp/013-file-move-overwrite-existing/move-dest.txt"
 #!end_ow3
@@ -614,7 +614,7 @@ new_path = "/tmp/013-file-move-overwrite-existing/move-dest.txt"
   "results": [{
     "seq": 1,
     "blockId": "ow1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/013-file-move-overwrite-existing/move-source.txt",
       "content": "source content"
@@ -627,7 +627,7 @@ new_path = "/tmp/013-file-move-overwrite-existing/move-dest.txt"
   }, {
     "seq": 2,
     "blockId": "ow2",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/013-file-move-overwrite-existing/move-dest.txt",
       "content": "will be overwritten"
@@ -640,7 +640,7 @@ new_path = "/tmp/013-file-move-overwrite-existing/move-dest.txt"
   }, {
     "seq": 3,
     "blockId": "ow3",
-    "action": "file_move",
+    "action": "move_file",
     "params": {
       "old_path": "/tmp/013-file-move-overwrite-existing/move-source.txt",
       "new_path": "/tmp/013-file-move-overwrite-existing/move-dest.txt"
@@ -660,20 +660,20 @@ new_path = "/tmp/013-file-move-overwrite-existing/move-dest.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: et1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/014-empty-old-text-validation/empty-replace.txt"
 content = "some content"
 #!end_et1
 
 #!nesl [@three-char-SHA-256: et2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/014-empty-old-text-validation/empty-replace.txt"
 old_text = ""
 new_text = "replacement"
 #!end_et2
 
 #!nesl [@three-char-SHA-256: et3]
-action = "file_replace_all_text"
+action = "replace_all_text_in_file"
 path = "/tmp/014-empty-old-text-validation/empty-replace.txt"
 old_text = ""
 new_text = "replacement"
@@ -688,7 +688,7 @@ new_text = "replacement"
   "results": [{
     "seq": 1,
     "blockId": "et1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/014-empty-old-text-validation/empty-replace.txt",
       "content": "some content"
@@ -701,25 +701,25 @@ new_text = "replacement"
   }, {
     "seq": 2,
     "blockId": "et2",
-    "action": "file_replace_text",
+    "action": "replace_text_in_file",
     "params": {
       "path": "/tmp/014-empty-old-text-validation/empty-replace.txt",
       "old_text": "",
       "new_text": "replacement"
     },
     "success": false,
-    "error": "file_replace_text: old_text cannot be empty"
+    "error": "replace_text_in_file: old_text cannot be empty"
   }, {
     "seq": 3,
     "blockId": "et3",
-    "action": "file_replace_all_text",
+    "action": "replace_all_text_in_file",
     "params": {
       "path": "/tmp/014-empty-old-text-validation/empty-replace.txt",
       "old_text": "",
       "new_text": "replacement"
     },
     "success": false,
-    "error": "file_replace_all_text: old_text cannot be empty"
+    "error": "replace_all_text_in_file: old_text cannot be empty"
   }],
   "parseErrors": []
 }
@@ -729,7 +729,7 @@ new_text = "replacement"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rnx]
-action = "file_read"
+action = "read_file"
 path = "/tmp/015-file-read-nonexistent/does-not-exist-read.txt"
 #!end_rnx
 ```
@@ -742,7 +742,7 @@ path = "/tmp/015-file-read-nonexistent/does-not-exist-read.txt"
   "results": [{
     "seq": 1,
     "blockId": "rnx",
-    "action": "file_read",
+    "action": "read_file",
     "params": {
       "path": "/tmp/015-file-read-nonexistent/does-not-exist-read.txt"
     },
@@ -757,13 +757,13 @@ path = "/tmp/015-file-read-nonexistent/does-not-exist-read.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pd1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/016-file-move-creates-parent-dirs/parent-test.txt"
 content = "moving to new dir"
 #!end_pd1
 
 #!nesl [@three-char-SHA-256: pd2]
-action = "file_move"
+action = "move_file"
 old_path = "/tmp/016-file-move-creates-parent-dirs/parent-test.txt"
 new_path = "/tmp/016-file-move-creates-parent-dirs/new/deeply/nested/moved-file.txt"
 #!end_pd2
@@ -777,7 +777,7 @@ new_path = "/tmp/016-file-move-creates-parent-dirs/new/deeply/nested/moved-file.
   "results": [{
     "seq": 1,
     "blockId": "pd1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/016-file-move-creates-parent-dirs/parent-test.txt",
       "content": "moving to new dir"
@@ -790,7 +790,7 @@ new_path = "/tmp/016-file-move-creates-parent-dirs/new/deeply/nested/moved-file.
   }, {
     "seq": 2,
     "blockId": "pd2",
-    "action": "file_move",
+    "action": "move_file",
     "params": {
       "old_path": "/tmp/016-file-move-creates-parent-dirs/parent-test.txt",
       "new_path": "/tmp/016-file-move-creates-parent-dirs/new/deeply/nested/moved-file.txt"
@@ -809,19 +809,19 @@ new_path = "/tmp/016-file-move-creates-parent-dirs/new/deeply/nested/moved-file.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/017-files-read-multiple/first.txt"
 content = "First file content"
 #!end_fr1
 
 #!nesl [@three-char-SHA-256: fr2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/017-files-read-multiple/second.txt"
 content = "Second file content"
 #!end_fr2
 
 #!nesl [@three-char-SHA-256: fr3]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_fr3'
 /tmp/017-files-read-multiple/first.txt
 /tmp/017-files-read-multiple/second.txt
@@ -837,7 +837,7 @@ EOT_fr3
   "results": [{
     "seq": 1,
     "blockId": "fr1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/017-files-read-multiple/first.txt",
       "content": "First file content"
@@ -850,7 +850,7 @@ EOT_fr3
   }, {
     "seq": 2,
     "blockId": "fr2",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/017-files-read-multiple/second.txt",
       "content": "Second file content"
@@ -863,7 +863,7 @@ EOT_fr3
   }, {
     "seq": 3,
     "blockId": "fr3",
-    "action": "files_read",
+    "action": "read_files",
     "params": {
       "paths": "/tmp/017-files-read-multiple/first.txt\n/tmp/017-files-read-multiple/second.txt"
     },
@@ -887,13 +887,13 @@ EOT_fr3
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fm1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/018-files-read-with-missing/exists.txt"
 content = "This file exists"
 #!end_fm1
 
 #!nesl [@three-char-SHA-256: fm2]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_fm2'
 /tmp/018-files-read-with-missing/exists.txt
 /tmp/018-files-read-with-missing/missing.txt
@@ -909,7 +909,7 @@ EOT_fm2
   "results": [{
     "seq": 1,
     "blockId": "fm1",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
       "path": "/tmp/018-files-read-with-missing/exists.txt",
       "content": "This file exists"
@@ -922,7 +922,7 @@ EOT_fm2
   }, {
     "seq": 2,
     "blockId": "fm2",
-    "action": "files_read",
+    "action": "read_files",
     "params": {
       "paths": "/tmp/018-files-read-with-missing/exists.txt\n/tmp/018-files-read-with-missing/missing.txt"
     },

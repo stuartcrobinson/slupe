@@ -18,7 +18,7 @@ Nothing special here.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_simple/output.txt"
 content = "Hello from NESL!"
 #!end_sf1
@@ -29,14 +29,14 @@ content = "Hello from NESL!"
 #### input file
 ````sh
 === SLUPE RESULTS ===
-sf1 ✅ file_write /tmp/t_listener_simple/output.txt
+sf1 ✅ write_file /tmp/t_listener_simple/output.txt
 === END ===
 Just a simple text file.
 Nothing special here.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_simple/output.txt"
 content = "Hello from NESL!"
 #!end_sf1
@@ -46,7 +46,7 @@ content = "Hello from NESL!"
 #### output file
 ````sh
 === SLUPE RESULTS ===
-sf1 ✅ file_write /tmp/t_listener_simple/output.txt
+sf1 ✅ write_file /tmp/t_listener_simple/output.txt
 === END ===
 
 === OUTPUTS ===
@@ -67,7 +67,7 @@ Empty file to start.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: wr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_multi/created.txt"
 content = "This will succeed"
 #!end_wr1
@@ -75,7 +75,7 @@ content = "This will succeed"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rd1]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_listener_multi/missing.txt"
 #!end_rd1
 ```
@@ -92,15 +92,15 @@ code = "echo 'Hello from bash'"
 #### input file
 ````sh
 === SLUPE RESULTS ===
-wr1 ✅ file_write /tmp/t_listener_multi/created.txt
-rd1 ❌ file_read /tmp/t_listener_multi/missing.txt - File not found
+wr1 ✅ write_file /tmp/t_listener_multi/created.txt
+rd1 ❌ read_file /tmp/t_listener_multi/missing.txt - File not found
 ex1 ✅ exec bash
 === END ===
 Empty file to start.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: wr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_multi/created.txt"
 content = "This will succeed"
 #!end_wr1
@@ -108,7 +108,7 @@ content = "This will succeed"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rd1]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_listener_multi/missing.txt"
 #!end_rd1
 ```
@@ -125,8 +125,8 @@ code = "echo 'Hello from bash'"
 #### output file
 ````sh
 === SLUPE RESULTS ===
-wr1 ✅ file_write /tmp/t_listener_multi/created.txt
-rd1 ❌ file_read /tmp/t_listener_multi/missing.txt - File not found
+wr1 ✅ write_file /tmp/t_listener_multi/created.txt
+rd1 ❌ read_file /tmp/t_listener_multi/missing.txt - File not found
 ex1 ✅ exec bash
 === END ===
 
@@ -151,7 +151,7 @@ Testing parse errors.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: bad]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_parse/test.txt"
 content = "missing closing quote
 #!end_bad
@@ -161,14 +161,14 @@ content = "missing closing quote
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-bad ❌ file_write ERROR: Unclosed quoted string (line 4)
+bad ❌ write_file ERROR: Unclosed quoted string (line 4)
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-bad ❌ file_write ERROR: Unclosed quoted string (line 4)
+bad ❌ write_file ERROR: Unclosed quoted string (line 4)
 === END ===
 
 === OUTPUTS ===
@@ -188,7 +188,7 @@ Testing hash-based execution.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nc1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_nochange/counter.txt"
 content = "1"
 #!end_nc1
@@ -200,14 +200,14 @@ Adding a comment outside NESL blocks.
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-nc1 ✅ file_write /tmp/t_listener_nochange/counter.txt
+nc1 ✅ write_file /tmp/t_listener_nochange/counter.txt
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-nc1 ✅ file_write /tmp/t_listener_nochange/counter.txt
+nc1 ✅ write_file /tmp/t_listener_nochange/counter.txt
 === END ===
 
 === OUTPUTS ===
@@ -228,7 +228,7 @@ Testing file replacement functionality.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_replace/config.yaml"
 content = <<'EOT_fr1'
 # Configuration file
@@ -246,7 +246,7 @@ EOT_fr1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fr2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_listener_replace/config.yaml"
 old_text = <<'EOT_fr2'
 database:
@@ -267,16 +267,16 @@ EOT_fr2
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-fr1 ✅ file_write /tmp/t_listener_replace/config.yaml
-fr2 ✅ file_replace_text /tmp/t_listener_replace/config.yaml
+fr1 ✅ write_file /tmp/t_listener_replace/config.yaml
+fr2 ✅ replace_text_in_file /tmp/t_listener_replace/config.yaml
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-fr1 ✅ file_write /tmp/t_listener_replace/config.yaml
-fr2 ✅ file_replace_text /tmp/t_listener_replace/config.yaml
+fr1 ✅ write_file /tmp/t_listener_replace/config.yaml
+fr2 ✅ replace_text_in_file /tmp/t_listener_replace/config.yaml
 === END ===
 
 === OUTPUTS ===
@@ -296,7 +296,7 @@ Testing multiple match failure.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fm1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_multi_match/app.js"
 content = <<'EOT_fm1'
 // Application code
@@ -321,7 +321,7 @@ EOT_fm1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fm2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_listener_multi_match/app.js"
 old_text = <<'EOT_fm2'
   const value = 100;
@@ -336,16 +336,16 @@ EOT_fm2
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-fm1 ✅ file_write /tmp/t_listener_multi_match/app.js
-fm2 ❌ file_replace_text /tmp/t_listener_multi_match/app.js - old_text appears 2 times, must appear exactly once
+fm1 ✅ write_file /tmp/t_listener_multi_match/app.js
+fm2 ❌ replace_text_in_file /tmp/t_listener_multi_match/app.js - old_text appears 2 times, must appear exactly once
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-fm1 ✅ file_write /tmp/t_listener_multi_match/app.js
-fm2 ❌ file_replace_text /tmp/t_listener_multi_match/app.js - old_text appears 2 times, must appear exactly once
+fm1 ✅ write_file /tmp/t_listener_multi_match/app.js
+fm2 ❌ replace_text_in_file /tmp/t_listener_multi_match/app.js - old_text appears 2 times, must appear exactly once
 === END ===
 
 === OUTPUTS ===
@@ -385,7 +385,7 @@ Testing no match failure.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fn1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_no_match/readme.md"
 content = <<'EOT_fn1'
 # Project README
@@ -407,7 +407,7 @@ EOT_fn1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fn2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_listener_no_match/readme.md"
 old_text = <<'EOT_fn2'
 ## Configuration
@@ -426,16 +426,16 @@ EOT_fn2
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-fn1 ✅ file_write /tmp/t_listener_no_match/readme.md
-fn2 ❌ file_replace_text /tmp/t_listener_no_match/readme.md - old_text not found in file
+fn1 ✅ write_file /tmp/t_listener_no_match/readme.md
+fn2 ❌ replace_text_in_file /tmp/t_listener_no_match/readme.md - old_text not found in file
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-fn1 ✅ file_write /tmp/t_listener_no_match/readme.md
-fn2 ❌ file_replace_text /tmp/t_listener_no_match/readme.md - old_text not found in file
+fn1 ✅ write_file /tmp/t_listener_no_match/readme.md
+fn2 ❌ replace_text_in_file /tmp/t_listener_no_match/readme.md - old_text not found in file
 === END ===
 
 === OUTPUTS ===
@@ -472,7 +472,7 @@ Testing file read output formatting.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_read/sample.py"
 content = <<'EOT_rf1'
 #!/usr/bin/env python3
@@ -490,7 +490,7 @@ EOT_rf1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rf2]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_listener_read/sample.py"
 #!end_rf2
 ```
@@ -499,16 +499,16 @@ path = "/tmp/t_listener_read/sample.py"
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-rf1 ✅ file_write /tmp/t_listener_read/sample.py
-rf2 ✅ file_read /tmp/t_listener_read/sample.py
+rf1 ✅ write_file /tmp/t_listener_read/sample.py
+rf2 ✅ read_file /tmp/t_listener_read/sample.py
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-rf1 ✅ file_write /tmp/t_listener_read/sample.py
-rf2 ✅ file_read /tmp/t_listener_read/sample.py
+rf1 ✅ write_file /tmp/t_listener_read/sample.py
+rf2 ✅ read_file /tmp/t_listener_read/sample.py
 === END ===
 
 === OUTPUTS ===
@@ -527,7 +527,7 @@ if __name__ == "__main__":
 === END FILE: /tmp/t_listener_read/sample.py ===
 === END ===
 ````
-Looking at the code and test cases, I can see that the `file_read_numbered` formatting has specific logic. Let me correct those two subsections:
+Looking at the code and test cases, I can see that the `read_file_numbered` formatting has specific logic. Let me correct those two subsections:
 
 ### file-read-numbered-formatting
 
@@ -542,7 +542,7 @@ Testing file read numbered output formatting.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rn1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_read_num/config.yaml"
 content = <<'EOT_rn1'
 line 1 
@@ -553,7 +553,7 @@ EOT_rn1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rn2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_listener_read_num/config.yaml"
 #!end_rn2
 ```
@@ -562,21 +562,21 @@ path = "/tmp/t_listener_read_num/config.yaml"
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-rn1 ✅ file_write /tmp/t_listener_read_num/config.yaml
-rn2 ✅ file_read_numbered /tmp/t_listener_read_num/config.yaml
+rn1 ✅ write_file /tmp/t_listener_read_num/config.yaml
+rn2 ✅ read_file_numbered /tmp/t_listener_read_num/config.yaml
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-rn1 ✅ file_write /tmp/t_listener_read_num/config.yaml
-rn2 ✅ file_read_numbered /tmp/t_listener_read_num/config.yaml
+rn1 ✅ write_file /tmp/t_listener_read_num/config.yaml
+rn2 ✅ read_file_numbered /tmp/t_listener_read_num/config.yaml
 === END ===
 
 === OUTPUTS ===
 
-[rn2] file_read_numbered:
+[rn2] read_file_numbered:
 === START FILE: [numbered] /tmp/t_listener_read_num/config.yaml ===
 1: line 1 
 2: line 2
@@ -598,7 +598,7 @@ Testing files read output formatting with multiple files.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_multi_read/README.md"
 content = <<'EOT_mr1'
 # Project Documentation
@@ -615,7 +615,7 @@ EOT_mr1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mr2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_multi_read/main.py"
 content = <<'EOT_mr2'
 #!/usr/bin/env python3
@@ -631,7 +631,7 @@ EOT_mr2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mr3]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_multi_read/.gitignore"
 content = <<'EOT_mr3'
 *.pyc
@@ -644,7 +644,7 @@ EOT_mr3
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mr4]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_mr4'
 /tmp/t_listener_multi_read/README.md
 /tmp/t_listener_multi_read/main.py
@@ -657,25 +657,25 @@ EOT_mr4
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-mr1 ✅ file_write /tmp/t_listener_multi_read/README.md
-mr2 ✅ file_write /tmp/t_listener_multi_read/main.py
-mr3 ✅ file_write /tmp/t_listener_multi_read/.gitignore
-mr4 ✅ files_read (3 files)
+mr1 ✅ write_file /tmp/t_listener_multi_read/README.md
+mr2 ✅ write_file /tmp/t_listener_multi_read/main.py
+mr3 ✅ write_file /tmp/t_listener_multi_read/.gitignore
+mr4 ✅ read_files (3 files)
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-mr1 ✅ file_write /tmp/t_listener_multi_read/README.md
-mr2 ✅ file_write /tmp/t_listener_multi_read/main.py
-mr3 ✅ file_write /tmp/t_listener_multi_read/.gitignore
-mr4 ✅ files_read (3 files)
+mr1 ✅ write_file /tmp/t_listener_multi_read/README.md
+mr2 ✅ write_file /tmp/t_listener_multi_read/main.py
+mr3 ✅ write_file /tmp/t_listener_multi_read/.gitignore
+mr4 ✅ read_files (3 files)
 === END ===
 
 === OUTPUTS ===
 
-[mr4] files_read:
+[mr4] read_files:
 Reading 3 files:
 - /tmp/t_listener_multi_read/README.md
 - /tmp/t_listener_multi_read/main.py
@@ -724,7 +724,7 @@ Testing files read with some missing files.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_partial_read/exists1.txt"
 content = <<'EOT_pf1'
 This is the first file that exists.
@@ -736,7 +736,7 @@ EOT_pf1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pf2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_partial_read/exists2.txt"
 content = <<'EOT_pf2'
 Second file content.
@@ -747,7 +747,7 @@ EOT_pf2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pf3]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_pf3'
 /tmp/t_listener_partial_read/exists1.txt
 /tmp/t_listener_partial_read/missing1.txt
@@ -762,23 +762,23 @@ EOT_pf3
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-pf1 ✅ file_write /tmp/t_listener_partial_read/exists1.txt
-pf2 ✅ file_write /tmp/t_listener_partial_read/exists2.txt
-pf3 ⚠️  files_read (5 files) - Read 2 of 5 files (3 failed)
+pf1 ✅ write_file /tmp/t_listener_partial_read/exists1.txt
+pf2 ✅ write_file /tmp/t_listener_partial_read/exists2.txt
+pf3 ⚠️  read_files (5 files) - Read 2 of 5 files (3 failed)
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-pf1 ✅ file_write /tmp/t_listener_partial_read/exists1.txt
-pf2 ✅ file_write /tmp/t_listener_partial_read/exists2.txt
-pf3 ⚠️  files_read (5 files) - Read 2 of 5 files (3 failed)
+pf1 ✅ write_file /tmp/t_listener_partial_read/exists1.txt
+pf2 ✅ write_file /tmp/t_listener_partial_read/exists2.txt
+pf3 ⚠️  read_files (5 files) - Read 2 of 5 files (3 failed)
 === END ===
 
 === OUTPUTS ===
 
-[pf3] files_read:
+[pf3] read_files:
 Successfully read 2 of 5 files (3 failed):
 
 ✅ Successfully read:
@@ -816,7 +816,7 @@ Testing multiple parse error types.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pe1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_parse_errors/test1.txt"
 content = "missing closing quote
 #!end_pe1
@@ -824,7 +824,7 @@ content = "missing closing quote
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pe2]
-action := "file_read"
+action := "read_file"
 path = "/tmp/t_parse_errors/test2.txt"
 #!end_pe2
 ```
@@ -837,7 +837,7 @@ just some random text without assignment
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pe4]
-action = "file_write"
+action = "write_file"
 path = <<EOT_pe4
 /tmp/test.txt
 EOT_pe4
@@ -864,10 +864,10 @@ code = "echo 'test'"
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-pe1 ❌ file_write ERROR: Unclosed quoted string (line 4)
+pe1 ❌ write_file ERROR: Unclosed quoted string (line 4)
 pe2 ❌ -          ERROR: Invalid assignment operator ':=' - only '=' is allowed (line 12)
 pe3 ❌ -          ERROR: Invalid line format in block 'pe3': not a valid key-value assignment or empty line (line 19)
-pe4 ❌ file_write ERROR: 3 syntax errors (line 25)
+pe4 ❌ write_file ERROR: 3 syntax errors (line 25)
                     - Value must be a quoted string or heredoc
                     - Invalid line format in block 'pe4': not a valid key-value assignment or empty line (2 occurrences)
 pe5 ❌ exec       ERROR: Unexpected content after quoted value (line 34)
@@ -878,10 +878,10 @@ unknown ❌ -          ERROR: Block ID must be exactly 3 characters (line 42)
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-pe1 ❌ file_write ERROR: Unclosed quoted string (line 4)
+pe1 ❌ write_file ERROR: Unclosed quoted string (line 4)
 pe2 ❌ -          ERROR: Invalid assignment operator ':=' - only '=' is allowed (line 12)
 pe3 ❌ -          ERROR: Invalid line format in block 'pe3': not a valid key-value assignment or empty line (line 19)
-pe4 ❌ file_write ERROR: 3 syntax errors (line 25)
+pe4 ❌ write_file ERROR: 3 syntax errors (line 25)
                     - Value must be a quoted string or heredoc
                     - Invalid line format in block 'pe4': not a valid key-value assignment or empty line (2 occurrences)
 pe5 ❌ exec       ERROR: Unexpected content after quoted value (line 34)
@@ -895,10 +895,10 @@ unknown ❌ -          ERROR: Block ID must be exactly 3 characters (line 42)
 #### Expected Clipboard
 ````sh
 === SLUPE RESULTS ===
-pe1 ❌ file_write ERROR: Unclosed quoted string (line 4)
+pe1 ❌ write_file ERROR: Unclosed quoted string (line 4)
 pe2 ❌ -          ERROR: Invalid assignment operator ':=' - only '=' is allowed (line 12)
 pe3 ❌ -          ERROR: Invalid line format in block 'pe3': not a valid key-value assignment or empty line (line 19)
-pe4 ❌ file_write ERROR: 3 syntax errors (line 25)
+pe4 ❌ write_file ERROR: 3 syntax errors (line 25)
                     - Value must be a quoted string or heredoc
                     - Invalid line format in block 'pe4': not a valid key-value assignment or empty line (2 occurrences)
 pe5 ❌ exec       ERROR: Unexpected content after quoted value (line 34)
@@ -925,7 +925,7 @@ Testing multiple file replacement failures.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
 content = <<'EOT_mf1'
 foo bar
@@ -937,7 +937,7 @@ EOT_mf1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mf2]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
 content = <<'EOT_mf2'
 hello world
@@ -949,7 +949,7 @@ EOT_mf2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mf3]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
 content = <<'EOT_mf3'
 cat dog
@@ -961,7 +961,7 @@ EOT_mf3
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fs1]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
 old_text = "foo"
 new_text = "bar"
@@ -970,7 +970,7 @@ new_text = "bar"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fs2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_multiple-failures-show-file-contents/file2.txt"
 old_text = "missing text"
 new_text = "replacement"
@@ -979,7 +979,7 @@ new_text = "replacement"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fs3]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_multiple-failures-show-file-contents/file3.txt"
 old_text = "cat dog"
 new_text = "dog cat"
@@ -988,7 +988,7 @@ new_text = "dog cat"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fs4]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
 old_text = "missing line"
 new_text = "replacement"
@@ -997,7 +997,7 @@ new_text = "replacement"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: fs5]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
 #!end_fs5
 ```
@@ -1006,28 +1006,28 @@ path = "/tmp/t_multiple-failures-show-file-contents/file1.txt"
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-mf1 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file1.txt
-mf2 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file2.txt
-mf3 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file3.txt
-fs1 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text appears 2 times, must appear exactly once
-fs2 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file2.txt - old_text not found in file
-fs3 ✅ file_replace_text /tmp/t_multiple-failures-show-file-contents/file3.txt
-fs4 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text not found in file
-fs5 ✅ file_read /tmp/t_multiple-failures-show-file-contents/file1.txt
+mf1 ✅ write_file /tmp/t_multiple-failures-show-file-contents/file1.txt
+mf2 ✅ write_file /tmp/t_multiple-failures-show-file-contents/file2.txt
+mf3 ✅ write_file /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs1 ❌ replace_text_in_file /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text appears 2 times, must appear exactly once
+fs2 ❌ replace_text_in_file /tmp/t_multiple-failures-show-file-contents/file2.txt - old_text not found in file
+fs3 ✅ replace_text_in_file /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs4 ❌ replace_text_in_file /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text not found in file
+fs5 ✅ read_file /tmp/t_multiple-failures-show-file-contents/file1.txt
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-mf1 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file1.txt
-mf2 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file2.txt
-mf3 ✅ file_write /tmp/t_multiple-failures-show-file-contents/file3.txt
-fs1 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text appears 2 times, must appear exactly once
-fs2 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file2.txt - old_text not found in file
-fs3 ✅ file_replace_text /tmp/t_multiple-failures-show-file-contents/file3.txt
-fs4 ❌ file_replace_text /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text not found in file
-fs5 ✅ file_read /tmp/t_multiple-failures-show-file-contents/file1.txt
+mf1 ✅ write_file /tmp/t_multiple-failures-show-file-contents/file1.txt
+mf2 ✅ write_file /tmp/t_multiple-failures-show-file-contents/file2.txt
+mf3 ✅ write_file /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs1 ❌ replace_text_in_file /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text appears 2 times, must appear exactly once
+fs2 ❌ replace_text_in_file /tmp/t_multiple-failures-show-file-contents/file2.txt - old_text not found in file
+fs3 ✅ replace_text_in_file /tmp/t_multiple-failures-show-file-contents/file3.txt
+fs4 ❌ replace_text_in_file /tmp/t_multiple-failures-show-file-contents/file1.txt - old_text not found in file
+fs5 ✅ read_file /tmp/t_multiple-failures-show-file-contents/file1.txt
 === END ===
 
 === OUTPUTS ===
@@ -1062,7 +1062,7 @@ Testing file replace text range functionality.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_replace_range/document.txt"
 content = <<'EOT_rr1'
 This is the beginning of the document.
@@ -1076,7 +1076,7 @@ EOT_rr1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rr2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_listener_replace_range/document.txt"
 old_text_beginning = "We want to replace"
 old_text_end = "this line."
@@ -1088,16 +1088,16 @@ new_text = "This entire section has been replaced."
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-rr1 ✅ file_write /tmp/t_listener_replace_range/document.txt
-rr2 ✅ file_replace_text_range /tmp/t_listener_replace_range/document.txt
+rr1 ✅ write_file /tmp/t_listener_replace_range/document.txt
+rr2 ✅ replace_text_range_in_file /tmp/t_listener_replace_range/document.txt
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-rr1 ✅ file_write /tmp/t_listener_replace_range/document.txt
-rr2 ✅ file_replace_text_range /tmp/t_listener_replace_range/document.txt
+rr1 ✅ write_file /tmp/t_listener_replace_range/document.txt
+rr2 ✅ replace_text_range_in_file /tmp/t_listener_replace_range/document.txt
 === END ===
 
 === OUTPUTS ===
@@ -1117,7 +1117,7 @@ Testing file replace text range with multiple beginning matches.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rm1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_replace_range_multi/code.js"
 content = <<'EOT_rm1'
 function process() {
@@ -1135,7 +1135,7 @@ EOT_rm1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rm2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_listener_replace_range_multi/code.js"
 old_text_beginning = "const value"
 old_text_end = ";"
@@ -1147,16 +1147,16 @@ new_text = "const value = 999;"
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-rm1 ✅ file_write /tmp/t_listener_replace_range_multi/code.js
-rm2 ❌ file_replace_text_range /tmp/t_listener_replace_range_multi/code.js - old_text_beginning appears 2 times, must appear exactly once
+rm1 ✅ write_file /tmp/t_listener_replace_range_multi/code.js
+rm2 ❌ replace_text_range_in_file /tmp/t_listener_replace_range_multi/code.js - old_text_beginning appears 2 times, must appear exactly once
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-rm1 ✅ file_write /tmp/t_listener_replace_range_multi/code.js
-rm2 ❌ file_replace_text_range /tmp/t_listener_replace_range_multi/code.js - old_text_beginning appears 2 times, must appear exactly once
+rm1 ✅ write_file /tmp/t_listener_replace_range_multi/code.js
+rm2 ❌ replace_text_range_in_file /tmp/t_listener_replace_range_multi/code.js - old_text_beginning appears 2 times, must appear exactly once
 === END ===
 
 === OUTPUTS ===
@@ -1189,7 +1189,7 @@ Testing file replace text range with beginning not found.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rn1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_replace_range_notfound/notes.md"
 content = <<'EOT_rn1'
 # Project Notes
@@ -1208,7 +1208,7 @@ EOT_rn1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rn2]
-action = "file_replace_text_range"
+action = "replace_text_range_in_file"
 path = "/tmp/t_listener_replace_range_notfound/notes.md"
 old_text_beginning = "## Section 4"
 old_text_end = "conclusions."
@@ -1220,16 +1220,16 @@ new_text = "## Section 4\nNew content here."
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-rn1 ✅ file_write /tmp/t_listener_replace_range_notfound/notes.md
-rn2 ❌ file_replace_text_range /tmp/t_listener_replace_range_notfound/notes.md - old_text_beginning not found in file
+rn1 ✅ write_file /tmp/t_listener_replace_range_notfound/notes.md
+rn2 ❌ replace_text_range_in_file /tmp/t_listener_replace_range_notfound/notes.md - old_text_beginning not found in file
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-rn1 ✅ file_write /tmp/t_listener_replace_range_notfound/notes.md
-rn2 ❌ file_replace_text_range /tmp/t_listener_replace_range_notfound/notes.md - old_text_beginning not found in file
+rn1 ✅ write_file /tmp/t_listener_replace_range_notfound/notes.md
+rn2 ❌ replace_text_range_in_file /tmp/t_listener_replace_range_notfound/notes.md - old_text_beginning not found in file
 === END ===
 
 === OUTPUTS ===
@@ -1264,7 +1264,7 @@ Testing file append functionality.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ap1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_append/journal.txt"
 content = <<'EOT_ap1'
 === Daily Journal ===
@@ -1289,7 +1289,7 @@ EOT_ap2
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-ap1 ✅ file_write /tmp/t_listener_append/journal.txt
+ap1 ✅ write_file /tmp/t_listener_append/journal.txt
 ap2 ✅ append_to_file /tmp/t_listener_append/journal.txt
 === END ===
 ````
@@ -1297,7 +1297,7 @@ ap2 ✅ append_to_file /tmp/t_listener_append/journal.txt
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-ap1 ✅ file_write /tmp/t_listener_append/journal.txt
+ap1 ✅ write_file /tmp/t_listener_append/journal.txt
 ap2 ✅ append_to_file /tmp/t_listener_append/journal.txt
 === END ===
 
@@ -1373,7 +1373,7 @@ Testing append with subsequent read.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ar1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_listener_append_read/messages.txt"
 content = <<'EOT_ar1'
 Message 1: Hello
@@ -1395,7 +1395,7 @@ EOT_ar2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ar3]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_listener_append_read/messages.txt"
 #!end_ar3
 ```
@@ -1404,18 +1404,18 @@ path = "/tmp/t_listener_append_read/messages.txt"
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-ar1 ✅ file_write /tmp/t_listener_append_read/messages.txt
+ar1 ✅ write_file /tmp/t_listener_append_read/messages.txt
 ar2 ✅ append_to_file /tmp/t_listener_append_read/messages.txt
-ar3 ✅ file_read /tmp/t_listener_append_read/messages.txt
+ar3 ✅ read_file /tmp/t_listener_append_read/messages.txt
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-ar1 ✅ file_write /tmp/t_listener_append_read/messages.txt
+ar1 ✅ write_file /tmp/t_listener_append_read/messages.txt
 ar2 ✅ append_to_file /tmp/t_listener_append_read/messages.txt
-ar3 ✅ file_read /tmp/t_listener_append_read/messages.txt
+ar3 ✅ read_file /tmp/t_listener_append_read/messages.txt
 === END ===
 
 === OUTPUTS ===

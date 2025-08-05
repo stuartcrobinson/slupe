@@ -6,7 +6,7 @@
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: aw1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_append-after-write/log.txt"
 content = <<'EOT_aw1'
 === LOG START ===
@@ -83,7 +83,7 @@ This tests parent directory creation.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ma1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiple-appends/build.log"
 content = "=== BUILD LOG ==="
 #!end_ma1
@@ -149,7 +149,7 @@ This creates a new file
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: aw1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_append-newlines/data.txt"
 content = "First line"
 #!end_aw1
@@ -187,7 +187,7 @@ Third line
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ae3]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_append-empty/test.txt"
 content = "Original content"
 #!end_ae3
@@ -219,7 +219,7 @@ Original content
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: as1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_append-special/code.js"
 content = <<'EOT_as1'
 function test() {
