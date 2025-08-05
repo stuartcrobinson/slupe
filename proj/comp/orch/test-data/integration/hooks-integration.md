@@ -17,7 +17,7 @@ config:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: bhe]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_hooks_integration_001/test.txt"
 content = "Hello from NESL"
 #!end_bhe
@@ -32,7 +32,7 @@ content = "Hello from NESL"
     {
       "seq": 1,
       "blockId": "bhe",
-      "action": "file_write",
+      "action": "write_file",
       "params": {
         "path": "test.txt",
         "content": "Hello from NESL"
@@ -64,7 +64,7 @@ config:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: hwf]
-action = "file_write"
+action = "write_file"
 path = "/dev/null/cannot/create/subdirs/test.txt"
 content = "This will fail"
 #!end_hwf
@@ -79,7 +79,7 @@ content = "This will fail"
     {
       "seq": 1,
       "blockId": "hwf",
-      "action": "file_write",
+      "action": "write_file",
       "params": {
         "path": "/invalid\\0path/test.txt",
         "content": "This will fail"
@@ -111,7 +111,7 @@ config:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: bhf]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_hooks_integration_003/test.txt"
 content = "Should not be written"
 #!end_bhf
@@ -156,13 +156,13 @@ config:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cv1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_hooks_integration_004/file1.txt"
 content = "First file"
 #!end_cv1
 
 #!nesl [@three-char-SHA-256: cv2]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_hooks_integration_004/file1.txt"
 #!end_cv2
 ```
@@ -176,7 +176,7 @@ path = "/tmp/t_hooks_integration_004/file1.txt"
     {
       "seq": 1,
       "blockId": "cv1",
-      "action": "file_write",
+      "action": "write_file",
       "params": {
         "path": "file1.txt",
         "content": "First file"
@@ -186,7 +186,7 @@ path = "/tmp/t_hooks_integration_004/file1.txt"
     {
       "seq": 2,
       "blockId": "cv2",
-      "action": "file_read",
+      "action": "read_file",
       "params": {
         "path": "file1.txt"
       },
@@ -203,7 +203,7 @@ Verify:
   ```
   Total blocks: 2
   Executed: 2
-  Operations: file_write,file_read
+  Operations: write_file,read_file
   ```
 
 ## 005-slupe-yml-default-config
@@ -218,7 +218,7 @@ config:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: lac]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_hooks_integration_005/test.txt"
 content = "Trigger config creation"
 #!end_lac
@@ -233,7 +233,7 @@ content = "Trigger config creation"
     {
       "seq": 1,
       "blockId": "lac",
-      "action": "file_write",
+      "action": "write_file",
       "params": {
         "path": "test.txt",
         "content": "Trigger config creation"

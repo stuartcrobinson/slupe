@@ -11,7 +11,7 @@ await writeFile(testFile, `# Speed Test
 
 \`\`\`sh nesl
 #!nesl [@three-char-SHA-256: tst]
-action = "file_write"
+action = "write_file"
 path = "/tmp/speed-test.txt"
 content = <<'EOT_tst'
 Speed test content
@@ -35,7 +35,7 @@ setTimeout(async () => {
 
 \`\`\`sh nesl
 #!nesl [@three-char-SHA-256: upd]
-action = "file_write"
+action = "write_file"
 path = "/tmp/speed-test-updated.txt"
 content = <<'EOT_upd'
 Updated speed test content
@@ -43,7 +43,7 @@ EOT_upd
 #!end_upd
 \`\`\`
 `);
-  
+
   // Check when output appears
   const checkInterval = setInterval(async () => {
     try {
@@ -56,6 +56,6 @@ EOT_upd
         await handle.stop();
         process.exit(0);
       }
-    } catch (e) {}
+    } catch (e) { }
   }, 10);
 }, 1000);

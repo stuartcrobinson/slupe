@@ -4,7 +4,7 @@
 IMPORTANT TOOL TESTING NOTES:
 
 - for test specific slupe tools, each tool must get its own test case file, for easy visibility into which tools have been implemented and tested yet.
-- aka `proj/comp/fs-ops/test-data/integration/file_delete.cases.md`
+- aka `proj/comp/fs-ops/test-data/integration/delete_file.cases.md`
 
 ## Core Design Decisions
 
@@ -31,7 +31,7 @@ interface NeslParseResult {
 interface NeslBlock {
   id: string           // 3-char SHA-256
   properties: {
-    action: string     // Maps to tool name (e.g., "file_write")
+    action: string     // Maps to tool name (e.g., "write_file")
     [key: string]: any // Tool-specific parameters
   }
   startLine: number
@@ -58,7 +58,7 @@ interface NeslError {
 
 ### Action Mapping
 - NESL `action` property maps directly to tool names from unified-design.yaml
-- Use canonical names: `file_write`, `exec`, etc.
+- Use canonical names: `write_file`, `exec`, etc.
 
 ### Context Management
 - **V1**: Simple `Set<string>` of file paths

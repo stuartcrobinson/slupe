@@ -1,11 +1,11 @@
 📋 Copied to clipboard
 
 === SLUPE RESULTS ===
-fy1 ❌ file_replace_text /Users/stuart/repos/slupe/proj/comp/orch/src/createStarterConfig.ts - old_text not found in file
+fy1 ❌ replace_text_in_file /Users/stuart/repos/slupe/proj/comp/orch/src/createStarterConfig.ts - old_text not found in file
 === END ===
 
 #!nesl [@three-char-SHA-256: fy1]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/Users/stuart/repos/slupe/proj/comp/orch/src/createStarterConfig.ts"
 old_text = <<'EOT_fy1'
 const STARTER_SLUPE_YML = `# Slupe configuration

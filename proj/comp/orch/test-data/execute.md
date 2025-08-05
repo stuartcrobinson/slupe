@@ -6,7 +6,7 @@
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/test.txt"
 content = "hello world"
 #!end_abc
@@ -20,9 +20,9 @@ content = "hello world"
   "results": [{
     "seq": 1,
     "blockId": "abc",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
-      "action": "file_write",
+      "action": "write_file",
       "path": "/tmp/test.txt",
       "content": "hello world"
     },
@@ -36,7 +36,7 @@ content = "hello world"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: f1r]
-action = "file_write"
+action = "write_file"
 path = "/tmp/first.txt"
 content = "first"
 #!end_f1r
@@ -44,7 +44,7 @@ content = "first"
 Some text between blocks
 
 #!nesl [@three-char-SHA-256: s3c]
-action = "file_write"
+action = "write_file"
 path = "/tmp/nonexistent/second.txt"
 content = "fails"
 #!end_s3c
@@ -58,9 +58,9 @@ content = "fails"
   "results": [{
     "seq": 1,
     "blockId": "f1r",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
-      "action": "file_write",
+      "action": "write_file",
       "path": "/tmp/first.txt",
       "content": "first"
     },
@@ -68,9 +68,9 @@ content = "fails"
   }, {
     "seq": 2,
     "blockId": "s3c",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
-      "action": "file_write",
+      "action": "write_file",
       "path": "/tmp/nonexistent/second.txt",
       "content": "fails"
     },
@@ -121,7 +121,7 @@ key = "second"
 #!end_dup
 
 #!nesl [@three-char-SHA-256: ok]
-action = "file_write"
+action = "write_file"
 path = "/tmp/after-error.txt"
 content = "should work"
 #!end_ok
@@ -135,9 +135,9 @@ content = "should work"
   "results": [{
     "seq": 1,
     "blockId": "ok",
-    "action": "file_write",
+    "action": "write_file",
     "params": {
-      "action": "file_write",
+      "action": "write_file",
       "path": "/tmp/after-error.txt",
       "content": "should work"
     },

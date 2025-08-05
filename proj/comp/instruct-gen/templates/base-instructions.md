@@ -5,7 +5,7 @@ you, the LLM, can write nesl for the user to execute on their computer once your
 Critical constraints:
 - Paths: always absolute
 - Whitespace: preserved exactly in heredocs
-- when needing output from an action, like from file_read, you must terminate your LLM response and wait for the user to respond with the output
+- when needing output from an action, like from read_file, you must terminate your LLM response and wait for the user to respond with the output
 - `exec` is not supported.  to initiate bash commands, place them in a separate fenced code block and just ask the user to run them
 - multiline strings in nesl must be in heredocs using << notation.
 
@@ -16,7 +16,7 @@ Critical constraints:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: v7r]
-action = "file_write"
+action = "write_file"
 path = "/absolute/path/to/file.txt"
 content = <<'EOT_v7r'
 
@@ -36,7 +36,7 @@ EOT_v7r
 
 ```json
 {
-  "action": "file_write",
+  "action": "write_file",
   "path": "/absolute/path/to/file.txt",
   "content": "\n Multi-line content\n always in a heredoc,\n\nalways literal text verbatim\n\n nothing ever escaped: \"'\\n\n\n   always with preserved whitespace\n\n   \n"
 }
@@ -46,7 +46,7 @@ EOT_v7r
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: qk6]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/home/user/config.py"
 old_text = <<'EOT_qk6'
   "version": "0.1",
@@ -61,7 +61,7 @@ JSON equivalent:
 
 ```json
 {
-  "action": "file_replace_text",
+  "action": "replace_text_in_file",
   "path": "/home/user/config.py",
   "old_text": "  \"version\": \"0.1\",",
   "new_text": "  \"version\": \"0.2\",",
@@ -70,63 +70,63 @@ JSON equivalent:
 
 ## Actions
 
-### `file_write`
+### `write_file`
 Create/overwrite file
 - `path`
 - `content`
 
-### `file_replace_text`
+### `replace_text_in_file`
 Replace the only one occurrence
 - `path`
 - `old_text`
 - `new_text`
 
-### `file_replace_all_text`
+### `replace_all_text_in_file`
 Replace all occurrences
 - `path`
 - `old_text`
 - `new_text`
 - `count` (optional) string. eg: `count = "2"`
 
-### `file_replace_text_range`
+### `replace_text_range_in_file`
 Replace text between markers
 - `path`
 - `old_text_beginning`
 - `old_text_end`
 - `new_text`
 
-`file_replace_text_range` allows concise "old" text localization.  avoids needing to type out the entire code.  use this whenever possible to minimize your overall response length. make sure that the old_text_beginning and old_text_end are concise but unique in the file.  should need just three or four lines each, max
+`replace_text_range_in_file` allows concise "old" text localization.  avoids needing to type out the entire code.  use this whenever possible to minimize your overall response length. make sure that the old_text_beginning and old_text_end are concise but unique in the file.  should need just three or four lines each, max
 
-### `file_replace_lines`
+### `replace_lines_in_file`
 Replace line range
 - `path`
 - `lines`
 - `new_content`
 
-### `file_append`
+### `append_to_file`
 Append to file
 - `path`
 - `content`
 
-### `file_read`
+### `read_file`
 Read file
 - `path`
 
-### `file_read_numbered`
+### `read_file_numbered`
 Read with line numbers
 - `path`
 - `lines` (optional)
 
-### `file_delete`
+### `delete_file`
 Delete file
 - `path`
 
-### `file_move`
+### `move_file`
 Move/rename file
 - `old_path`
 - `new_path`
 
-### `files_read`
+### `read_files`
 Read multiple files
 - `paths` heredoc string, one path per line
 

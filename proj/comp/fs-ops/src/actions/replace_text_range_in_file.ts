@@ -3,21 +3,21 @@ import type { FileOpResult } from '../index.js';
 import { readFile, writeFile } from 'fs/promises';
 import { formatNodeError } from '../utils.js';
 
-export async function handle__file_replace_text_range(action: SlupeAction): Promise<FileOpResult> {
+export async function handle__replace_text_range_in_file(action: SlupeAction): Promise<FileOpResult> {
   const { path, old_text_beginning, old_text_end, new_text } = action.parameters;
 
   // Validate markers are not empty
   if (!old_text_beginning || old_text_beginning.length === 0) {
     return {
       success: false,
-      error: 'file_replace_text_range: old_text_beginning cannot be empty'
+      error: 'replace_text_range_in_file: old_text_beginning cannot be empty'
     };
   }
 
   if (!old_text_end || old_text_end.length === 0) {
     return {
       success: false,
-      error: 'file_replace_text_range: old_text_end cannot be empty'
+      error: 'replace_text_range_in_file: old_text_end cannot be empty'
     };
   }
 
@@ -30,7 +30,7 @@ export async function handle__file_replace_text_range(action: SlupeAction): Prom
     if (startIndex === -1) {
       return {
         success: false,
-        error: 'file_replace_text_range: old_text_beginning not found in file'
+        error: 'replace_text_range_in_file: old_text_beginning not found in file'
       };
     }
 
@@ -48,7 +48,7 @@ export async function handle__file_replace_text_range(action: SlupeAction): Prom
       }
       return {
         success: false,
-        error: `file_replace_text_range: old_text_beginning appears ${count} times, must appear exactly once`
+        error: `replace_text_range_in_file: old_text_beginning appears ${count} times, must appear exactly once`
       };
     }
 
@@ -57,7 +57,7 @@ export async function handle__file_replace_text_range(action: SlupeAction): Prom
     if (endIndex === -1) {
       return {
         success: false,
-        error: 'file_replace_text_range: old_text_end not found after old_text_beginning'
+        error: 'replace_text_range_in_file: old_text_end not found after old_text_beginning'
       };
     }
 
@@ -76,7 +76,7 @@ export async function handle__file_replace_text_range(action: SlupeAction): Prom
       }
       return {
         success: false,
-        error: `file_replace_text_range: old_text_end appears ${count} times after old_text_beginning, must appear exactly once`
+        error: `replace_text_range_in_file: old_text_end appears ${count} times after old_text_beginning, must appear exactly once`
       };
     }
 

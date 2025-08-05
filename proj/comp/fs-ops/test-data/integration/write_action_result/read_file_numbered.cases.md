@@ -1,12 +1,12 @@
-# file_read_numbered Integration Tests
+# read_file_numbered Integration Tests
 
-## file_read_numbered
+## read_file_numbered
 
 ### 001-read-single-line
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rs1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-single-line/numbered.txt"
 content = <<'EOT_rs1'
 Line 1
@@ -20,7 +20,7 @@ EOT_rs1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rs2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-single-line/numbered.txt"
 lines = "3"
 #!end_rs2
@@ -40,7 +40,7 @@ lines = "3"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-line-range/numbered.txt"
 content = <<'EOT_rr1'
 First line
@@ -56,7 +56,7 @@ EOT_rr1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rr2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-line-range/numbered.txt"
 lines = "3-5"
 #!end_rr2
@@ -76,7 +76,7 @@ lines = "3-5"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cd1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-with-custom-delimiter/numbered.txt"
 content = <<'EOT_cd1'
 import os
@@ -93,7 +93,7 @@ EOT_cd1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cd2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-with-custom-delimiter/numbered.txt"
 lines = "4-7"
 delimiter = "    "
@@ -114,7 +114,7 @@ delimiter = "    "
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ed1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-with-empty-delimiter/numbered.txt"
 content = <<'EOT_ed1'
 apple
@@ -127,7 +127,7 @@ EOT_ed1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ed2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-with-empty-delimiter/numbered.txt"
 lines = "2-3"
 delimiter = ""
@@ -148,7 +148,7 @@ delimiter = ""
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: or1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-out-of-range-lines/numbered.txt"
 content = <<'EOT_or1'
 Only
@@ -160,7 +160,7 @@ EOT_or1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: or2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-out-of-range-lines/numbered.txt"
 lines = "2-10"
 #!end_or2
@@ -169,7 +169,7 @@ lines = "2-10"
 ```json
 {
   "success": false,
-  "error": "file_read_numbered: Requested lines 2-10 but file only has 3 lines",
+  "error": "read_file_numbered: Requested lines 2-10 but file only has 3 lines",
   "data": {
     "path": "/tmp/t_read-out-of-range-lines/numbered.txt",
     "content": "2: Three\n3: Lines"
@@ -181,7 +181,7 @@ lines = "2-10"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sl1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-single-line-file/numbered.txt"
 content = "Just one line"
 #!end_sl1
@@ -189,7 +189,7 @@ content = "Just one line"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sl2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-single-line-file/numbered.txt"
 lines = "1"
 #!end_sl2
@@ -209,7 +209,7 @@ lines = "1"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ef1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-empty-file/numbered.txt"
 content = ""
 #!end_ef1
@@ -217,7 +217,7 @@ content = ""
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ef2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-empty-file/numbered.txt"
 lines = "1"
 #!end_ef2
@@ -237,7 +237,7 @@ lines = "1"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: if1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_invalid-line-format/numbered.txt"
 content = "Some content"
 #!end_if1
@@ -245,7 +245,7 @@ content = "Some content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: if2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_invalid-line-format/numbered.txt"
 lines = "abc"
 #!end_if2
@@ -254,7 +254,7 @@ lines = "abc"
 ```json
 {
   "success": false,
-  "error": "file_read_numbered: Invalid line specification 'abc'"
+  "error": "read_file_numbered: Invalid line specification 'abc'"
 }
 ```
 
@@ -262,7 +262,7 @@ lines = "abc"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ir1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_invalid-line-range/numbered.txt"
 content = "Some content"
 #!end_ir1
@@ -270,7 +270,7 @@ content = "Some content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ir2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_invalid-line-range/numbered.txt"
 lines = "5-3"
 #!end_ir2
@@ -279,7 +279,7 @@ lines = "5-3"
 ```json
 {
   "success": false,
-  "error": "file_read_numbered: Invalid line range '5-3' (start must be <= end)"
+  "error": "read_file_numbered: Invalid line range '5-3' (start must be <= end)"
 }
 ```
 
@@ -290,7 +290,7 @@ lines = "5-3"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nf1]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-nonexistent-file/does-not-exist.txt"
 lines = "1-5"
 #!end_nf1
@@ -307,7 +307,7 @@ lines = "1-5"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: co1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-completely-out-of-range/numbered.txt"
 content = <<'EOT_co1'
 Line 1
@@ -318,7 +318,7 @@ EOT_co1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: co2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-completely-out-of-range/numbered.txt"
 lines = "5-10"
 #!end_co2
@@ -327,7 +327,7 @@ lines = "5-10"
 ```json
 {
   "success": false,
-  "error": "file_read_numbered: Requested lines 5-10 but file only has 2 lines",
+  "error": "read_file_numbered: Requested lines 5-10 but file only has 2 lines",
   "data": {
     "path": "/tmp/t_read-completely-out-of-range/numbered.txt",
     "content": ""
@@ -339,7 +339,7 @@ lines = "5-10"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: al1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-all-lines-missing-parameter/numbered.txt"
 content = <<'EOT_al1'
 First line
@@ -353,7 +353,7 @@ EOT_al1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: al2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-all-lines-missing-parameter/numbered.txt"
 #!end_al2
 ```
@@ -372,7 +372,7 @@ path = "/tmp/t_read-all-lines-missing-parameter/numbered.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ll1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-large-line-numbers/numbered.txt"
 content = <<'EOT_ll1'
 Line 1
@@ -393,7 +393,7 @@ EOT_ll1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ll2]
-action = "file_read_numbered"
+action = "read_file_numbered"
 path = "/tmp/t_read-large-line-numbers/numbered.txt"
 lines = "9-11"
 #!end_ll2

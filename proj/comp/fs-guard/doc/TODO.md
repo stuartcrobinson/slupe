@@ -30,7 +30,7 @@ I was wrong - executors maintain no state between calls, but that's fine. They'r
 **Option 1: Executor Factory** (Current hooks pattern)
 ```typescript
 const fsOps = new FsOpsExecutor({ guard: fsGuardConfig });
-executors.set('file_read', (action) => fsOps.execute(action));
+executors.set('read_file', (action) => fsOps.execute(action));
 ```
 
 **Option 2: Context Parameter**
@@ -171,8 +171,8 @@ export class FsOpsExecutor {
   
   constructor(private guard: FsGuard) {
     this.handlers = new Map([
-      ['file_write', this.handleFileWrite.bind(this)],
-      ['file_read', this.handleFileRead.bind(this)],
+      ['write_file', this.handleFileWrite.bind(this)],
+      ['read_file', this.handleFileRead.bind(this)],
       // ... move all existing handlers here
     ]);
   }

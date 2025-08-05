@@ -6,7 +6,7 @@
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/test.txt"
 content = <<'EOT_abc'
 Hello world!
@@ -17,7 +17,7 @@ EOT_abc
 ```json
 {
   "actions": [{
-    "action": "file_write",
+    "action": "write_file",
     "parameters": {
       "path": "/tmp/test.txt",
       "content": "Hello world!"
@@ -43,7 +43,7 @@ EOT_abc
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: gd1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/good.txt"
 content = "valid"
 #!end_gd1
@@ -57,7 +57,7 @@ path = "/tmp/bad.txt"
 ```json
 {
   "actions": [{
-    "action": "file_write",
+    "action": "write_file",
     "parameters": {
       "path": "/tmp/good.txt",
       "content": "valid"
@@ -90,7 +90,7 @@ path = "/tmp/bad.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mis]
-action = "file_write"
+action = "write_file"
 content = "missing path"
 #!end_mis
 ```
@@ -100,11 +100,11 @@ content = "missing path"
   "actions": [],
   "errors": [{
     "blockId": "mis",
-    "action": "file_write",
+    "action": "write_file",
     "errorType": "validation",
     "message": "Missing required parameter: path",
     "blockStartLine": 1,
-    "neslContent": "#!nesl [@three-char-SHA-256: mis]\naction = \"file_write\"\ncontent = \"missing path\"\n#!end_mis"
+    "neslContent": "#!nesl [@three-char-SHA-256: mis]\naction = \"write_file\"\ncontent = \"missing path\"\n#!end_mis"
   }],
   "summary": {
     "totalBlocks": 1,

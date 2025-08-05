@@ -1,12 +1,12 @@
-# file_replace_text Integration Tests
+# replace_text_in_file Integration Tests
 
-## file_replace_text
+## replace_text_in_file
 
 ### 001-simple-text-replacement
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: st1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_simple-text-replacement/replace-test.txt"
 content = "Hello World"
 #!end_st1
@@ -14,7 +14,7 @@ content = "Hello World"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rpl]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_simple-text-replacement/replace-test.txt"
 old_text = "Hello"
 new_text = "Goodbye"
@@ -39,7 +39,7 @@ Goodbye World
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rc1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_replace-with-count-limit/multi-replace.txt"
 content = "foo bar foo baz foo qux foo"
 #!end_rc1
@@ -47,7 +47,7 @@ content = "foo bar foo baz foo qux foo"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cnt]
-action = "file_replace_all_text"
+action = "replace_all_text_in_file"
 path = "/tmp/t_replace-with-count-limit/multi-replace.txt"
 old_text = "foo"
 new_text = "bar"
@@ -58,7 +58,7 @@ count = "2"
 ```json
 {
   "success": false,
-  "error": "file_replace_all_text: expected 2 occurrences but found 4"
+  "error": "replace_all_text_in_file: expected 2 occurrences but found 4"
 }
 ```
 
@@ -66,7 +66,7 @@ count = "2"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nf1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_replace-text-not-found/no-match.txt"
 content = "This file has no matches"
 #!end_nf1
@@ -74,7 +74,7 @@ content = "This file has no matches"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nfr]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_replace-text-not-found/no-match.txt"
 old_text = "nonexistent"
 new_text = "replacement"
@@ -84,7 +84,7 @@ new_text = "replacement"
 ```json
 {
   "success": false,
-  "error": "file_replace_text: old_text not found in file"
+  "error": "replace_text_in_file: old_text not found in file"
 }
 ```
 
@@ -92,7 +92,7 @@ new_text = "replacement"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rnf]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_replace-in-nonexistent-file/does-not-exist-replace.txt"
 old_text = "text"
 new_text = "other"
@@ -110,7 +110,7 @@ new_text = "other"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ml1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiline-replacement/multiline-replace.txt"
 content = <<'EOT_ml1'
 export function oldName() {
@@ -129,7 +129,7 @@ EOT_ml1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mlr]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_multiline-replacement/multiline-replace.txt"
 old_text = <<'EOT_mlr'
 export function oldName() {
@@ -173,7 +173,7 @@ const x = oldName();
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: em1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_empty-old-text-error/empty-search.txt"
 content = "Some content here"
 #!end_em1
@@ -181,7 +181,7 @@ content = "Some content here"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: emt]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_empty-old-text-error/empty-search.txt"
 old_text = ""
 new_text = "something"
@@ -191,7 +191,7 @@ new_text = "something"
 ```json
 {
   "success": false,
-  "error": "file_replace_text: old_text cannot be empty"
+  "error": "replace_text_in_file: old_text cannot be empty"
 }
 ```
 
@@ -199,7 +199,7 @@ new_text = "something"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mo1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_file-replace-text-multiple-occurrences/multiple-occurrences.txt"
 content = "duplicate text with duplicate word and duplicate again"
 #!end_mo1
@@ -207,7 +207,7 @@ content = "duplicate text with duplicate word and duplicate again"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mul]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_file-replace-text-multiple-occurrences/multiple-occurrences.txt"
 old_text = "duplicate"
 new_text = "unique"
@@ -217,7 +217,7 @@ new_text = "unique"
 ```json
 {
   "success": false,
-  "error": "file_replace_text: old_text appears 3 times, must appear exactly once"
+  "error": "replace_text_in_file: old_text appears 3 times, must appear exactly once"
 }
 ```
 
@@ -225,7 +225,7 @@ new_text = "unique"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ra1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_file-replace-all-text-no-count/replace-all.txt"
 content = "foo bar foo baz foo"
 #!end_ra1
@@ -233,7 +233,7 @@ content = "foo bar foo baz foo"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: all]
-action = "file_replace_all_text"
+action = "replace_all_text_in_file"
 path = "/tmp/t_file-replace-all-text-no-count/replace-all.txt"
 old_text = "foo"
 new_text = "bar"
@@ -258,7 +258,7 @@ bar bar bar baz bar
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cm1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_file-replace-all-text-count-mismatch/count-mismatch.txt"
 content = "test this test case"
 #!end_cm1
@@ -266,7 +266,7 @@ content = "test this test case"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mis]
-action = "file_replace_all_text"
+action = "replace_all_text_in_file"
 path = "/tmp/t_file-replace-all-text-count-mismatch/count-mismatch.txt"
 old_text = "test"
 new_text = "check"
@@ -277,7 +277,7 @@ count = "5"
 ```json
 {
   "success": false,
-  "error": "file_replace_all_text: expected 5 occurrences but found 2"
+  "error": "replace_all_text_in_file: expected 5 occurrences but found 2"
 }
 ```
 
@@ -285,7 +285,7 @@ count = "5"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cm1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_complex-multiline-multiple-occurrences/listener.txt"
 content = <<'EOT_cm1'
 async function startListener(config) {
@@ -309,7 +309,7 @@ EOT_cm1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cm2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_complex-multiline-multiple-occurrences/listener.txt"
 old_text = <<'EOT_cm2'
 async function startListener(config) {
@@ -360,7 +360,7 @@ async function startListener(altConfig) {
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ws1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_whitespace-sensitive-replacement/indented.txt"
 content = <<'EOT_ws1'
 class FileProcessor {
@@ -380,7 +380,7 @@ EOT_ws1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ws2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_whitespace-sensitive-replacement/indented.txt"
 old_text = <<'EOT_ws2'
   processFile(path) {
@@ -427,7 +427,7 @@ class FileProcessor {
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pm1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_partial-match-should-not-replace/partial.txt"
 content = <<'EOT_pm1'
 export function validateInput(data) {
@@ -446,7 +446,7 @@ EOT_pm1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pm2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_partial-match-should-not-replace/partial.txt"
 old_text = <<'EOT_pm2'
 export function validateInput(data) {
@@ -482,7 +482,7 @@ new_text = "// This should not match"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nl1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_exact-newline-matching/newlines.txt"
 content = <<'EOT_nl1'
 function one() {
@@ -499,7 +499,7 @@ EOT_nl1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nl2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_exact-newline-matching/newlines.txt"
 old_text = <<'EOT_nl2'
 }
@@ -518,7 +518,7 @@ EOT_nl2
 ```json
 {
   "success": false,
-  "error": "file_replace_text: old_text not found in file"
+  "error": "replace_text_in_file: old_text not found in file"
 }
 ```
 
@@ -526,7 +526,7 @@ EOT_nl2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cb1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_complex-code-block-replacement/complex.txt"
 content = <<'EOT_cb1'
 const handler = {
@@ -548,7 +548,7 @@ EOT_cb1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: cb2]
-action = "file_replace_all_text"
+action = "replace_all_text_in_file"
 path = "/tmp/t_complex-code-block-replacement/complex.txt"
 old_text = <<'EOT_cb2'
   async process(data) {
@@ -611,7 +611,7 @@ const handler = {
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: tw1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_trailing-whitespace-sensitivity/trailing.txt"
 content = "function test() {  \n  return true;\n}\n"
 #!end_tw1
@@ -619,7 +619,7 @@ content = "function test() {  \n  return true;\n}\n"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: tw2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_trailing-whitespace-sensitivity/trailing.txt"
 old_text = "function test() {\n  return true;\n}"
 new_text = "function test() {\n  return false;\n}"
@@ -629,7 +629,7 @@ new_text = "function test() {\n  return false;\n}"
 ```json
 {
   "success": false,
-  "error": "file_replace_text: old_text not found in file"
+  "error": "replace_text_in_file: old_text not found in file"
 }
 ```
 
@@ -637,7 +637,7 @@ new_text = "function test() {\n  return false;\n}"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mv1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_file-replace-text-multiple-identical-values/app.js"
 content = <<'EOT_mv1'
 // Application code
@@ -660,7 +660,7 @@ EOT_mv1
 #!end_mv1
 
 #!nesl [@three-char-SHA-256: mv2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_file-replace-text-multiple-identical-values/app.js"
 old_text = <<'EOT_mv2'
   const value = 100;
@@ -674,7 +674,7 @@ EOT_mv2
 ```json
 {
   "success": false,
-  "error": "file_replace_text: old_text appears 2 times, must appear exactly once"
+  "error": "replace_text_in_file: old_text appears 2 times, must appear exactly once"
 }
 ```
 
@@ -682,7 +682,7 @@ EOT_mv2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sn1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_file-replace-text-section-not-found/readme.md"
 content = <<'EOT_sn1'
 # Project README
@@ -704,7 +704,7 @@ EOT_sn1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: sn2]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/tmp/t_file-replace-text-section-not-found/readme.md"
 old_text = <<'EOT_sn2'
 ## Configuration
@@ -722,6 +722,6 @@ EOT_sn2
 ```json
 {
   "success": false,
-  "error": "file_replace_text: old_text not found in file"
+  "error": "replace_text_in_file: old_text not found in file"
 }
 ```

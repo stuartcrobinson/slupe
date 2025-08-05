@@ -4,7 +4,7 @@ import { appendFile, mkdir } from 'fs/promises';
 import { dirname } from 'path';
 import { formatNodeError } from '../utils.js';
 
-export async function handle__file_append(action: SlupeAction): Promise<FileOpResult> {
+export async function handle__append_to_file(action: SlupeAction): Promise<FileOpResult> {
   const { path, content } = action.parameters;
 
   try {

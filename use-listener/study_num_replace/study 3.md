@@ -19,32 +19,32 @@ Constraints:
 
 ## Tools
 
-### `file_write`
+### `write_file`
 Write content to file (creates or overwrites)  
 - `path`
 - `content`
 
-### `file_replace_text`
+### `replace_text_in_file`
 Replace exactly one text occurrence  
 - `path`
 - `old_text`
 - `new_text` 
 
-### `file_replace_lines`
+### `replace_lines_in_file`
 Replace the given line(s) with the supplied `new_content` string
 - `path`
 - `lines` eg "3" or a range like "2-13"
 - `new_content` 
 
-### `file_read`
+### `read_file`
 Read file contents  
 - `path` 
 
-### `file_read_numbered`
+### `read_file_numbered`
 Read file with line numbers  
 - `path`
 
-### `files_read`
+### `read_files`
 Read multiple files  
 - `paths`
 

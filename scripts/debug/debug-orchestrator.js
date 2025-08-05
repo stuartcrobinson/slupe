@@ -7,7 +7,7 @@ Some content here.
 
 \`\`\`sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/debug_orch/output.txt"
 content = "Hello from listener!"
 #!end_abc

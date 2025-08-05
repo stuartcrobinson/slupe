@@ -22,8 +22,8 @@ describe('loadConfig', () => {
   test('loads valid config', async () => {
     const configContent = `version: 1
 allowed-actions:
-  - file_read
-  - file_write
+  - read_file
+  - write_file
 hooks:
   before:
     - run: echo "test"

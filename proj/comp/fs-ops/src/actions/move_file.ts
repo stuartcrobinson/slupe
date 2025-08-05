@@ -4,7 +4,7 @@ import { rename, mkdir } from 'fs/promises';
 import { dirname } from 'path';
 import { formatNodeError, fileExists } from '../utils.js';
 
-export async function handle__file_move(action: SlupeAction): Promise<FileOpResult> {
+export async function handle__move_file(action: SlupeAction): Promise<FileOpResult> {
   const { old_path, new_path } = action.parameters;
 
   try {
@@ -14,7 +14,7 @@ export async function handle__file_move(action: SlupeAction): Promise<FileOpResu
     if (!sourceExists) {
       return {
         success: false,
-        error: `file_move: Source file not found '${old_path}' (ENOENT)`
+        error: `move_file: Source file not found '${old_path}' (ENOENT)`
       };
     }
 

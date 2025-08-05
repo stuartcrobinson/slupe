@@ -7,12 +7,12 @@
 ## Key Design Decisions
 
 ### Parent Directory Creation
-- `file_write` automatically creates parent directories.  creates parent directory if it doesn't exist
+- `write_file` automatically creates parent directories.  creates parent directory if it doesn't exist
 
 ### Text Replacement Strategy  
 - Use exact string matching for both replace actions
-- `file_replace_text`: Must find EXACTLY ONE occurrence (fails if 0 or 2+)
-- `file_replace_all_text`: Replaces all occurrences, validates count if provided
+- `replace_text_in_file`: Must find EXACTLY ONE occurrence (fails if 0 or 2+)
+- `replace_all_text_in_file`: Replaces all occurrences, validates count if provided
 - Empty old_text validation: Both actions reject empty search strings
 - Return actual number of replacements made
 - No regex support (keep it simple, predictable)
@@ -78,13 +78,13 @@
 ## File Move Behavior
 
 ### Overwrite Semantics
-- `file_move` overwrites existing destination files without warning
+- `move_file` overwrites existing destination files without warning
 - Matches Unix `mv` behavior and Node.js `rename()` semantics  
 - Rationale: LLM can check first if needed, but overwrite-by-default enables single-shot operations
 - Return data includes `overwrote: true` when destination existed
 
 ### Directory Creation
-- `file_move` automatically creates parent directories for destination path
+- `move_file` automatically creates parent directories for destination path
 - Diverges from standard `rename()` which fails with ENOENT
 - Rationale: Reduces LLM round-trips for common "move to new location" pattern
 
@@ -98,9 +98,9 @@ Node.js returns ENOENT for multiple distinct failures:
 
 ### Solution: Pre-flight Checks
 Operations perform checks before system calls to provide specific errors:
-- `file_move`: Check source exists → "Source file not found" vs generic ENOENT
-- `file_write`: Already creates parent dirs, avoiding ambiguity
-- `file_delete`: Pass through Node errors (unambiguous)
+- `move_file`: Check source exists → "Source file not found" vs generic ENOENT
+- `write_file`: Already creates parent dirs, avoiding ambiguity
+- `delete_file`: Pass through Node errors (unambiguous)
 
 ### Error Format
 When enhancing errors for LLM clarity:
@@ -108,4 +108,4 @@ When enhancing errors for LLM clarity:
 {operation}: {specific_issue} '{path}' ({error_code})
 ```
 
-Example: `file_move: Source file not found '/tmp/ghost.txt' (ENOENT)`
+Example: `move_file: Source file not found '/tmp/ghost.txt' (ENOENT)`

@@ -10,7 +10,7 @@ describe('stripSummarySection', () => {
 
   it('strips summary at start of file', () => {
     const content = `=== SLUPE RESULTS ===
-abc ✅ file_write /tmp/test.txt
+abc ✅ write_file /tmp/test.txt
 === END ===
 
 # My Document
@@ -26,7 +26,7 @@ Some content here.`;
 
   it('handles file ending with summary', () => {
     const content = `=== SLUPE RESULTS ===
-abc ✅ file_write /tmp/test.txt
+abc ✅ write_file /tmp/test.txt
 === END ===`;
 
     expect(stripSummarySection(content)).toBe('');
@@ -34,7 +34,7 @@ abc ✅ file_write /tmp/test.txt
 
   it('handles no blank line after summary', () => {
     const content = `=== SLUPE RESULTS ===
-abc ✅ file_write /tmp/test.txt
+abc ✅ write_file /tmp/test.txt
 === END ===
 # Document`;
 
@@ -55,7 +55,7 @@ More text here.`;
     const content = `   
     
 === SLUPE RESULTS ===
-abc ✅ file_write /tmp/test.txt
+abc ✅ write_file /tmp/test.txt
 === END ===
 
 # Document`;

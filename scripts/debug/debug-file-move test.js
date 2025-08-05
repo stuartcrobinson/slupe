@@ -1,4 +1,4 @@
-// Debug script to trace file_move execution
+// Debug script to trace move_file execution
 import { fileExists } from '../../proj/comp/fs-ops/src/fileSystemUtils.js';
 import { mkdir, writeFile, existsSync } from 'fs/promises';
 import { dirname } from 'path';

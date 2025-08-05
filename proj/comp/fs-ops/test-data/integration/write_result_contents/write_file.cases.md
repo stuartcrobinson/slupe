@@ -1,12 +1,12 @@
-# file_write Integration Tests
+# write_file Integration Tests
 
-## file_write
+## write_file
 
 ### 001-simple-file-create
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_simple-file-create/test.txt"
 content = "Hello, World!"
 #!end_abc
@@ -30,7 +30,7 @@ Hello, World!
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pdr]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_create-with-parent-dirs/deeply/nested/dir/file.txt"
 content = "Creates parent directories"
 #!end_pdr
@@ -54,7 +54,7 @@ Creates parent directories
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: spc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_write-with-special-characters/special-chars.txt"
 content = "Line with \"quotes\" and 'apostrophes'"
 #!end_spc
@@ -78,7 +78,7 @@ Line with "quotes" and 'apostrophes'
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mlt]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiline-content/multiline.txt"
 content = <<'EOT_mlt'
 Line 1

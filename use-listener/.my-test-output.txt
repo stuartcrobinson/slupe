@@ -1,6 +1,6 @@
 === SLUPE RESULTS ===
-x9k ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
-m7p ✅ file_replace_text /Users/stuart/repos/slupe/proj/src/index.ts
+x9k ✅ replace_text_in_file /Users/stuart/repos/slupe/proj/src/index.ts
+m7p ✅ replace_text_in_file /Users/stuart/repos/slupe/proj/src/index.ts
 === END ===
 
 === OUTPUTS ===

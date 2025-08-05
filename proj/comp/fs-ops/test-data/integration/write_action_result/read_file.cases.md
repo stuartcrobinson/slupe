@@ -1,12 +1,12 @@
-# file_read Integration Tests
+# read_file Integration Tests
 
-## file_read
+## read_file
 
 ### 001-read-existing-file
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: crf]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_read-existing-file/readable.txt"
 content = "This is readable content"
 #!end_crf
@@ -14,7 +14,7 @@ content = "This is readable content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rdf]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_read-existing-file/readable.txt"
 #!end_rdf
 ```
@@ -36,7 +36,7 @@ path = "/tmp/t_read-existing-file/readable.txt"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rnx]
-action = "file_read"
+action = "read_file"
 path = "/tmp/t_read-nonexistent-file/not-there.txt"
 #!end_rnx
 ```

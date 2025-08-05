@@ -5,7 +5,7 @@ you, the LLM, can write nesl for the user to execute on their computer once your
 Critical constraints:
 - Paths: always absolute
 - Whitespace: preserved exactly in heredocs
-- when needing output from an action, like from file_read, you must terminate your LLM response and wait for the user to respond with the output
+- when needing output from an action, like from read_file, you must terminate your LLM response and wait for the user to respond with the output
 - `exec` is not supported.  to initiate bash commands, place them in a separate fenced code block and just ask the user to run them
 
 ## NESL examples
@@ -14,7 +14,7 @@ Critical constraints:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: v7r]
-action = "file_write"
+action = "write_file"
 path = "/absolute/path/to/file.txt"
 content = <<'EOT_v7r'
 
@@ -34,7 +34,7 @@ EOT_v7r
 
 ```json
 {
-  "action": "file_write",
+  "action": "write_file",
   "path": "/absolute/path/to/file.txt",
   "content": "\n Multi-line content\n always in a heredoc,\n\nalways literal text verbatim\n\n nothing ever escaped: \"'\\n\n\n   always with preserved whitespace\n\n   \n"
 }
@@ -44,7 +44,7 @@ EOT_v7r
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: qk6]
-action = "file_replace_text"
+action = "replace_text_in_file"
 path = "/home/user/config.py"
 old_text = <<'EOT_qk6'
   "version": "0.1",
@@ -59,7 +59,7 @@ JSON equivalent:
 
 ```json
 {
-  "action": "file_replace_text",
+  "action": "replace_text_in_file",
   "path": "/home/user/config.py",
   "old_text": "  \"version\": \"0.1\",",
   "new_text": "  \"version\": \"0.2\",",
@@ -71,7 +71,7 @@ JSON equivalent:
 **1. Reading multiple files at once**
 ```sh nesl
 #!nesl [@three-char-SHA-256: a7x]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_a7x'
 /home/user/config.json
 /home/user/src/main.py
@@ -83,7 +83,7 @@ EOT_a7x
 **2. Appending a log entry**
 ```sh nesl
 #!nesl [@three-char-SHA-256: m2p]
-action = "file_append"
+action = "append_to_file"
 path = "/var/log/app.log"
 content = <<'EOT_m2p'
 [2025-01-29 10:15:23] Process completed successfully
@@ -93,43 +93,43 @@ EOT_m2p
 
 ## Actions
 
-### `file_write`
+### `write_file`
 Create/overwrite file
 - `path`
 - `content`
 
-### `file_replace_text`
+### `replace_text_in_file`
 Replace the only one occurrence
 - `path`
 - `old_text`
 - `new_text`
 
-### `file_replace_all_text`
+### `replace_all_text_in_file`
 Replace all occurrences
 - `path`
 - `old_text`
 - `new_text`
 - `count` (optional) string. eg: `count = "2"`
 
-### `file_append`
+### `append_to_file`
 Append to file
 - `path`
 - `content`
 
-### `file_read`
+### `read_file`
 Read file
 - `path`
 
-### `file_delete`
+### `delete_file`
 Delete file
 - `path`
 
-### `file_move`
+### `move_file`
 Move/rename file
 - `old_path`
 - `new_path`
 
-### `files_read`
+### `read_files`
 Read multiple files
 - `paths` heredoc string, one path per line
 

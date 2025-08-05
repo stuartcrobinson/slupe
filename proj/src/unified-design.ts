@@ -2,7 +2,7 @@
 // NESL SYNTAX EXAMPLE
 // ```sh nesl
 // #!nesl [@three-char-SHA-256: k7m]
-// action = "file_write"
+// action = "write_file"
 // path = "/tmp/\\"hello\\".txt"
 // content = <<'EOT_k7m'
 // Hello world!
@@ -12,7 +12,7 @@
 // ```
 
 export const ActionDefinitions = {
-  file_write: {
+  write_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Create new file while creating any necessary parent dirs. overwrites if already exists',
@@ -26,7 +26,7 @@ export const ActionDefinitions = {
     returns: { success: 'boolean', error: 'string?' }
   },
 
-  file_replace_text: {
+  replace_text_in_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Replace first and only instance of substring in file. must exist only once',
@@ -41,7 +41,7 @@ export const ActionDefinitions = {
     returns: { success: 'boolean', replacements_made: 'integer?', error: 'string?' }
   },
 
-  file_replace_all_text: {
+  replace_all_text_in_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Replace each matching substring in file. Number of matches (count) should usually be known and declared ahead of time.',
@@ -57,7 +57,7 @@ export const ActionDefinitions = {
     returns: { success: 'boolean', replacements_made: 'integer?', error: 'string?' }
   },
 
-  file_delete: {
+  delete_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Delete file',
@@ -70,7 +70,7 @@ export const ActionDefinitions = {
     returns: { success: 'boolean', error: 'string?' }
   },
 
-  file_read: {
+  read_file: {
     type: 'read' as const,
     executor: 'fs-ops' as const,
     description: 'Read single file content',
@@ -84,7 +84,7 @@ export const ActionDefinitions = {
   },
 
   // TODO - this sucks, LLMs abuse it. should delete
-  file_read_numbered: {
+  read_file_numbered: {
     type: 'read' as const,
     executor: 'fs-ops' as const,
     description: 'Read file content with line numbers for specified line range',
@@ -100,7 +100,7 @@ export const ActionDefinitions = {
   },
 
   // TODO - this sucks, LLMs abuse it. should delete
-  file_replace_lines: {
+  replace_lines_in_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Replace specified line range in file with new content',
@@ -114,8 +114,8 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', lines_replaced: 'integer?', error: 'string?' }
   },
-  
-  file_replace_text_range: {
+
+  replace_text_range_in_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Replace text range from start marker to end marker (inclusive). Both markers must appear exactly once, with end after start.',
@@ -131,7 +131,7 @@ export const ActionDefinitions = {
     returns: { success: 'boolean', replacements: 'integer?', error: 'string?' }
   },
 
-  files_read: {
+  read_files: {
     type: 'read' as const,
     executor: 'fs-ops' as const,
     description: 'Read and concatenate contents of multiple files into a single string, with clear file delimiters',
@@ -157,7 +157,7 @@ export const ActionDefinitions = {
   },
 
 
-  file_move: {
+  move_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Move/rename file',
@@ -171,7 +171,7 @@ export const ActionDefinitions = {
     returns: { success: 'boolean', error: 'string?' }
   },
 
-  file_append: {
+  append_to_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Append content to existing file. Creates file if it does not exist.',
@@ -184,7 +184,7 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', error: 'string?' }
   },
-  
+
   exec: {
     type: 'dynamic' as const,
     description: 'Execute code',

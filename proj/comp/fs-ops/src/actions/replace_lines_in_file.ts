@@ -3,7 +3,7 @@ import type { FileOpResult } from '../index.js';
 import { readFile, writeFile } from 'fs/promises';
 import { formatNodeError } from '../utils.js';
 
-export async function handle__file_replace_lines(action: SlupeAction): Promise<FileOpResult> {
+export async function handle__replace_lines_in_file(action: SlupeAction): Promise<FileOpResult> {
   const { path, lines, new_content } = action.parameters;
 
   try {
@@ -14,7 +14,7 @@ export async function handle__file_replace_lines(action: SlupeAction): Promise<F
     if (content === '') {
       return {
         success: false,
-        error: `file_replace_lines: Line range ${lines} is out of bounds (file has 0 lines)`
+        error: `replace_lines_in_file: Line range ${lines} is out of bounds (file has 0 lines)`
       };
     }
 
@@ -38,7 +38,7 @@ export async function handle__file_replace_lines(action: SlupeAction): Promise<F
     if (!lines || lines === '') {
       return {
         success: false,
-        error: `file_replace_lines: Invalid line specification '${lines}'`
+        error: `replace_lines_in_file: Invalid line specification '${lines}'`
       };
     }
 
@@ -48,7 +48,7 @@ export async function handle__file_replace_lines(action: SlupeAction): Promise<F
       if (parts.length !== 2) {
         return {
           success: false,
-          error: `file_replace_lines: Invalid line specification '${lines}'`
+          error: `replace_lines_in_file: Invalid line specification '${lines}'`
         };
       }
 
@@ -58,21 +58,21 @@ export async function handle__file_replace_lines(action: SlupeAction): Promise<F
       if (isNaN(startLine) || isNaN(endLine)) {
         return {
           success: false,
-          error: `file_replace_lines: Invalid line specification '${lines}'`
+          error: `replace_lines_in_file: Invalid line specification '${lines}'`
         };
       }
 
       if (startLine < 1 || endLine < 1) {
         return {
           success: false,
-          error: `file_replace_lines: Invalid line specification '${lines}'`
+          error: `replace_lines_in_file: Invalid line specification '${lines}'`
         };
       }
 
       if (startLine > endLine) {
         return {
           success: false,
-          error: `file_replace_lines: Invalid line range '${lines}' (start must be <= end)`
+          error: `replace_lines_in_file: Invalid line range '${lines}' (start must be <= end)`
         };
       }
     } else {
@@ -81,7 +81,7 @@ export async function handle__file_replace_lines(action: SlupeAction): Promise<F
       if (isNaN(startLine) || startLine < 1) {
         return {
           success: false,
-          error: `file_replace_lines: Invalid line specification '${lines}'`
+          error: `replace_lines_in_file: Invalid line specification '${lines}'`
         };
       }
       endLine = startLine;
@@ -91,7 +91,7 @@ export async function handle__file_replace_lines(action: SlupeAction): Promise<F
     if (startLine > totalLines || endLine > totalLines) {
       return {
         success: false,
-        error: `file_replace_lines: Line range ${lines} is out of bounds (file has ${totalLines} lines)`
+        error: `replace_lines_in_file: Line range ${lines} is out of bounds (file has ${totalLines} lines)`
       };
     }
 

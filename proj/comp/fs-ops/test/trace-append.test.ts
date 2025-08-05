@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync, appendFileSync, existsSync, mkdirSync } fr
 import { dirname } from 'path';
 
 describe('Direct append test', () => {
-  it('manually test file_append behavior', () => {
+  it('manually test append_to_file behavior', () => {
     const testPath = '/tmp/test-append-trace/log.txt';
     const dir = dirname(testPath);
     

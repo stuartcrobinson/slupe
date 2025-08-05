@@ -1,12 +1,12 @@
-# file_replace_lines Integration Tests
+# replace_lines_in_file Integration Tests
 
-## file_replace_lines
+## replace_lines_in_file
 
 ### 001-replace-single-line
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rs1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_replace-single-line/test.txt"
 content = <<'EOT_rs1'
 Line 1
@@ -20,7 +20,7 @@ EOT_rs1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rs2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_replace-single-line/test.txt"
 lines = "3"
 new_content = "This is the new line 3"
@@ -49,7 +49,7 @@ Line 5
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rr1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_replace-line-range/code.js"
 content = <<'EOT_rr1'
 function oldImplementation() {
@@ -64,7 +64,7 @@ EOT_rr1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rr2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_replace-line-range/code.js"
 lines = "2-5"
 new_content = <<'EOT_rr2'
@@ -95,7 +95,7 @@ function oldImplementation() {
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: re1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_replace-entire-file/small.txt"
 content = <<'EOT_re1'
 Old line 1
@@ -107,7 +107,7 @@ EOT_re1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: re2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_replace-entire-file/small.txt"
 lines = "1-3"
 new_content = <<'EOT_re2'
@@ -136,7 +136,7 @@ With multiple lines
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ec1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_replace-with-empty-content/deletable.txt"
 content = <<'EOT_ec1'
 Keep this line
@@ -148,7 +148,7 @@ EOT_ec1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ec2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_replace-with-empty-content/deletable.txt"
 lines = "2"
 new_content = ""
@@ -178,7 +178,7 @@ Keep this line too
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ne1]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_replace-nonexistent-file/missing.txt"
 lines = "1-5"
 new_content = "This should fail"
@@ -196,7 +196,7 @@ new_content = "This should fail"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: il1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_invalid-line-specification/test.txt"
 content = <<'EOT_il1'
 Line 1
@@ -208,7 +208,7 @@ EOT_il1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: il2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_invalid-line-specification/test.txt"
 lines = "abc"
 new_content = "This should fail"
@@ -218,7 +218,7 @@ new_content = "This should fail"
 ```json
 {
   "success": false,
-  "error": "file_replace_lines: Invalid line specification 'abc'"
+  "error": "replace_lines_in_file: Invalid line specification 'abc'"
 }
 ```
 
@@ -226,7 +226,7 @@ new_content = "This should fail"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: or1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_out-of-range-lines/short.txt"
 content = <<'EOT_or1'
 Only one line
@@ -236,7 +236,7 @@ EOT_or1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: or2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_out-of-range-lines/short.txt"
 lines = "5-10"
 new_content = "Out of range"
@@ -246,7 +246,7 @@ new_content = "Out of range"
 ```json
 {
   "success": false,
-  "error": "file_replace_lines: Line range 5-10 is out of bounds (file has 1 lines)"
+  "error": "replace_lines_in_file: Line range 5-10 is out of bounds (file has 1 lines)"
 }
 ```
 
@@ -254,7 +254,7 @@ new_content = "Out of range"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: po1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_partial-out-of-range/partial.txt"
 content = <<'EOT_po1'
 Line 1
@@ -266,7 +266,7 @@ EOT_po1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: po2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_partial-out-of-range/partial.txt"
 lines = "2-5"
 new_content = "Partial replacement"
@@ -276,7 +276,7 @@ new_content = "Partial replacement"
 ```json
 {
   "success": false,
-  "error": "file_replace_lines: Line range 2-5 is out of bounds (file has 3 lines)"
+  "error": "replace_lines_in_file: Line range 2-5 is out of bounds (file has 3 lines)"
 }
 ```
 
@@ -284,7 +284,7 @@ new_content = "Partial replacement"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rv1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_reversed-line-range/reverse.txt"
 content = <<'EOT_rv1'
 Line 1
@@ -296,7 +296,7 @@ EOT_rv1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rv2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_reversed-line-range/reverse.txt"
 lines = "3-1"
 new_content = "Invalid range"
@@ -306,7 +306,7 @@ new_content = "Invalid range"
 ```json
 {
   "success": false,
-  "error": "file_replace_lines: Invalid line range '3-1' (start must be <= end)"
+  "error": "replace_lines_in_file: Invalid line range '3-1' (start must be <= end)"
 }
 ```
 
@@ -314,7 +314,7 @@ new_content = "Invalid range"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ml1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiline-replacement/function.py"
 content = <<'EOT_ml1'
 def old_function():
@@ -328,7 +328,7 @@ EOT_ml1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ml2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_multiline-replacement/function.py"
 lines = "2-4"
 new_content = <<'EOT_ml2'
@@ -367,7 +367,7 @@ def old_function():
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pl1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_preserve-line-endings/mixed.txt"
 content = "Line 1\r\nLine 2\r\nLine 3\r\n"
 #!end_pl1
@@ -375,7 +375,7 @@ content = "Line 1\r\nLine 2\r\nLine 3\r\n"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: pl2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_preserve-line-endings/mixed.txt"
 lines = "2"
 new_content = "New Line 2"
@@ -403,7 +403,7 @@ Line 3
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ef1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_empty-file/empty.txt"
 content = ""
 #!end_ef1
@@ -411,7 +411,7 @@ content = ""
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ef2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_empty-file/empty.txt"
 lines = "1"
 new_content = "Cannot replace in empty file"
@@ -421,7 +421,7 @@ new_content = "Cannot replace in empty file"
 ```json
 {
   "success": false,
-  "error": "file_replace_lines: Line range 1 is out of bounds (file has 0 lines)"
+  "error": "replace_lines_in_file: Line range 1 is out of bounds (file has 0 lines)"
 }
 ```
 
@@ -429,7 +429,7 @@ new_content = "Cannot replace in empty file"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: zl1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_zero-line-number/test.txt"
 content = <<'EOT_zl1'
 Line 1
@@ -440,7 +440,7 @@ EOT_zl1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: zl2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_zero-line-number/test.txt"
 lines = "0"
 new_content = "Invalid line number"
@@ -450,7 +450,7 @@ new_content = "Invalid line number"
 ```json
 {
   "success": false,
-  "error": "file_replace_lines: Invalid line specification '0'"
+  "error": "replace_lines_in_file: Invalid line specification '0'"
 }
 ```
 
@@ -458,7 +458,7 @@ new_content = "Invalid line number"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nl1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_negative-line-number/test.txt"
 content = <<'EOT_nl1'
 Line 1
@@ -469,7 +469,7 @@ EOT_nl1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: nl2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_negative-line-number/test.txt"
 lines = "-1"
 new_content = "Invalid line number"
@@ -479,7 +479,7 @@ new_content = "Invalid line number"
 ```json
 {
   "success": false,
-  "error": "file_replace_lines: Invalid line specification '-1'"
+  "error": "replace_lines_in_file: Invalid line specification '-1'"
 }
 ```
 
@@ -487,7 +487,7 @@ new_content = "Invalid line number"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ln1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_last-line-no-newline/no-newline.txt"
 content = "Line 1\nLine 2\nLine 3"
 #!end_ln1
@@ -495,7 +495,7 @@ content = "Line 1\nLine 2\nLine 3"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ln2]
-action = "file_replace_lines"
+action = "replace_lines_in_file"
 path = "/tmp/t_last-line-no-newline/no-newline.txt"
 lines = "3"
 new_content = "New last line without newline"

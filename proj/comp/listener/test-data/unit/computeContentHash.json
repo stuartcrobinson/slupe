@@ -17,14 +17,14 @@
     {
       "name": "NESL block content",
       "input": [
-        "```sh nesl\n#!nesl [@three-char-SHA-256: abc]\naction = \"file_write\"\npath = \"/tmp/test.txt\"\ncontent = \"hello\"\n#!end_abc\n```"
+        "```sh nesl\n#!nesl [@three-char-SHA-256: abc]\naction = \"write_file\"\npath = \"/tmp/test.txt\"\ncontent = \"hello\"\n#!end_abc\n```"
       ],
       "expected": "verify_hash_consistency"
     },
     {
       "name": "multiple NESL blocks",
       "input": [
-        "```sh nesl\n#!nesl [@three-char-SHA-256: abc]\naction = \"file_write\"\npath = \"/tmp/a.txt\"\ncontent = \"test\"\n#!end_abc\n```\n\n```sh nesl\n#!nesl [@three-char-SHA-256: def]\naction = \"file_read\"\npath = \"/tmp/a.txt\"\n#!end_def\n```"
+        "```sh nesl\n#!nesl [@three-char-SHA-256: abc]\naction = \"write_file\"\npath = \"/tmp/a.txt\"\ncontent = \"test\"\n#!end_abc\n```\n\n```sh nesl\n#!nesl [@three-char-SHA-256: def]\naction = \"read_file\"\npath = \"/tmp/a.txt\"\n#!end_def\n```"
       ],
       "expected": "verify_hash_consistency"
     },

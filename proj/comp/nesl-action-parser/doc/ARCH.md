@@ -55,7 +55,7 @@ All NESL values are strings, requiring conversion:
 ## Action Mapping
 
 NESL actions map directly to slupe tool names from unified-design.yaml:
-- Must use exact tool names (e.g., `file_write`, not `write_file`)
+- Must use exact tool names (e.g., `write_file`, not `write_file`)
 - No aliasing or fuzzy matching to avoid ambiguity
 
 ## Constraints

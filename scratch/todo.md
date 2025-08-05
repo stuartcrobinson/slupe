@@ -31,7 +31,7 @@ execute_code(code, lang, cwd?, version?, return_output?)
 
 - call bank ozk
 X add file_replace_text_range
-- add parsed structure edit actions and file_append.  cos claude keeps making it up
+- add parsed structure edit actions and append_to_file.  cos claude keeps making it up
 https://claude.ai/chat/d8212c32-e2ba-4888-b92d-22875549255d
 - make clipboard-input and clipboard-ouput default to true. 
     pring usage notes whenever slupe is run

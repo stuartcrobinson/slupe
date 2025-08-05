@@ -10,7 +10,7 @@
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: abc]
-action = "file_write"
+action = "write_file"
 path = "/tmp/slupe-entry-tests/test.txt"
 content = "hello world"
 #!end_abc
@@ -18,7 +18,7 @@ content = "hello world"
 
 ```md
 === SLUPE RESULTS ===
-abc ✅ file_write /tmp/slupe-entry-tests/test.txt
+abc ✅ write_file /tmp/slupe-entry-tests/test.txt
 === END ===
 
 === OUTPUTS ===
@@ -35,7 +35,7 @@ hooks:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: def]
-action = "file_write"
+action = "write_file"
 path = "/tmp/slupe-entry-tests/test2.txt"
 content = "should not write"
 #!end_def

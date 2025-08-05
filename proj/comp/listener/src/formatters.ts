@@ -4,7 +4,7 @@ import { readFileSync } from 'fs';
 
 export function formatSummary(orchResult: OrchestratorResult): string {
   const lines = ['=== SLUPE RESULTS ==='];
-  
+
   // If no actions and no errors, indicate that
   if (!orchResult.results?.length && !orchResult.parseErrors?.length && !orchResult.hookErrors?.before?.length) {
     lines.push('No NESL blocks found');
@@ -37,8 +37,8 @@ export function formatSummary(orchResult: OrchestratorResult): string {
       let icon = result.success ? '✅' : '❌';
       const primaryParam = getPrimaryParamFromResult(result);
 
-      // Check for partial success in files_read
-      if (result.success && result.action === 'files_read' && result.data?.errors) {
+      // Check for partial success in read_files
+      if (result.success && result.action === 'read_files' && result.data?.errors) {
         icon = '⚠️ ';
         const totalFiles = (result.data.paths?.length || 0) + (result.data.errors?.length || 0);
         const successCount = result.data.paths?.length || 0;
@@ -164,19 +164,19 @@ function getErrorSummary(error?: string, result?: any): string {
 function formatFileReadOutput(result: any): string[] {
   const lines: string[] = [];
 
-  if (result.action === 'file_read') {
+  if (result.action === 'read_file') {
     // Simple file read - data contains { path, content }
     const path = result.data.path || result.params?.path || 'unknown';
     lines.push(`=== START FILE: ${path} ===`);
     lines.push((result.data.content !== undefined ? result.data.content : result.data) || '[empty file]');
     lines.push(`=== END FILE: ${path} ===`);
-  } else if (result.action === 'file_read_numbered') {
+  } else if (result.action === 'read_file_numbered') {
     // Numbered file read - data contains { path, content } where content has line numbers
     const path = result.data.path || result.params?.path || 'unknown';
     lines.push(`=== START FILE: [numbered] ${path} ===`);
     lines.push((result.data.content !== undefined ? result.data.content : result.data) || '[empty file]');
     lines.push(`=== END FILE: [numbered] ${path} ===`);
-  } else if (result.action === 'files_read') {
+  } else if (result.action === 'read_files') {
     // Multiple files read - data contains { paths: string[], content: string[], errors?: [{path, error}] }
     // Each element in content array corresponds to the file at the same index in paths
     const successCount = result.data.paths?.length || 0;
@@ -278,8 +278,8 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
       let icon = result.success ? '✅' : '❌';
       const primaryParam = getPrimaryParamFromResult(result);
 
-      // Check for partial success in files_read
-      if (result.success && result.action === 'files_read' && result.data?.errors) {
+      // Check for partial success in read_files
+      if (result.success && result.action === 'read_files' && result.data?.errors) {
         icon = '⚠️ ';
         const totalFiles = (result.data.paths?.length || 0) + (result.data.errors?.length || 0);
         const successCount = result.data.paths?.length || 0;
@@ -356,7 +356,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
 
       // Failed replace operations where text wasn't found
       if (!result.success &&
-        ['file_replace_text', 'file_replace_all_text', 'file_replace_text_range'].includes(result.action) &&
+        ['replace_text_in_file', 'replace_all_text_in_file', 'replace_text_range_in_file'].includes(result.action) &&
         result.error?.includes('not found in file') &&
         result.params?.path) {
         shouldShow = true;
@@ -364,23 +364,23 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
       }
       // Failed replace operations with duplicate text
       else if (!result.success &&
-        ['file_replace_text', 'file_replace_all_text', 'file_replace_text_range'].includes(result.action) &&
+        ['replace_text_in_file', 'replace_all_text_in_file', 'replace_text_range_in_file'].includes(result.action) &&
         result.error?.includes('appears') &&
         result.error?.includes('times') &&
         result.params?.path) {
         shouldShow = true;
         filePath = result.params.path;
       }
-      // Failed file_replace_text_range operations (e.g., when old_text_end not found after old_text_beginning)
+      // Failed replace_text_range_in_file operations (e.g., when old_text_end not found after old_text_beginning)
       else if (!result.success &&
-        result.action === 'file_replace_text_range' &&
+        result.action === 'replace_text_range_in_file' &&
         result.error?.includes('not found after') &&
         result.params?.path) {
         shouldShow = true;
         filePath = result.params.path;
       }
-      // Successful file_read operations
-      else if (result.success && result.action === 'file_read' && result.params?.path) {
+      // Successful read_file operations
+      else if (result.success && result.action === 'read_file' && result.params?.path) {
         shouldShow = true;
         filePath = result.params.path;
       }
@@ -406,7 +406,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
       .join(', ');
 
     lines.push('', `[${opsStr}] ${filePath}:`);
-    
+
     try {
       const content = readFileSync(filePath, 'utf-8');
       lines.push(`=== START FILE: ${filePath} ===`);
@@ -421,7 +421,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
   if (orchResult.results) {
     for (const result of orchResult.results) {
       // Skip file operations we already handled
-      if (['file_read', 'file_replace_text', 'file_replace_all_text', 'file_replace_text_range'].includes(result.action)) {
+      if (['read_file', 'replace_text_in_file', 'replace_all_text_in_file', 'replace_text_range_in_file'].includes(result.action)) {
         continue;
       }
 
@@ -454,13 +454,13 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
 
         // Handle other output types
         const primaryParam = getPrimaryParamFromResult(result);
-        const includeParam = !['file_read_numbered', 'files_read'].includes(result.action);
+        const includeParam = !['read_file_numbered', 'read_files'].includes(result.action);
         const header = (primaryParam && includeParam)
           ? `[${result.blockId}] ${result.action} ${primaryParam}:`
           : `[${result.blockId}] ${result.action}:`;
         lines.push('', header);
 
-        if (['file_read_numbered', 'files_read'].includes(result.action)) {
+        if (['read_file_numbered', 'read_files'].includes(result.action)) {
           const formattedOutput = formatFileReadOutput(result);
           lines.push(...formattedOutput);
         } else if (typeof result.data === 'string') {
@@ -485,13 +485,13 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
 
 function shouldShowOutput(action: string): boolean {
   // Actions with output_display: never
-  const neverShowOutput = ['file_write', 'file_replace_text', 'file_replace_all_text', 'file_append', 'file_delete', 'file_move', 'dir_create', 'dir_delete'];
+  const neverShowOutput = ['write_file', 'replace_text_in_file', 'replace_all_text_in_file', 'append_to_file', 'delete_file', 'move_file', 'dir_create', 'dir_delete'];
   if (neverShowOutput.includes(action)) {
     return false;
   }
 
   // Actions with output_display: always
-  const alwaysShowOutput = ['file_read', 'file_read_numbered', 'files_read', 'ls', 'grep', 'glob'];
+  const alwaysShowOutput = ['read_file', 'read_file_numbered', 'read_files', 'ls', 'grep', 'glob'];
   if (alwaysShowOutput.includes(action)) {
     return true;
   }

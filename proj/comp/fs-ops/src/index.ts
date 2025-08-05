@@ -8,17 +8,17 @@ import type { SlupeAction } from '../../nesl-action-parser/src/index.js';
 import type { FsGuard } from '../../fs-guard/src/index.js';
 
 // Import all implemented action handlers
-import { handle__file_write } from './actions/file_write.js';
-import { handle__file_read } from './actions/file_read.js';
-import { handle__file_read_numbered } from './actions/file_read_numbered.js';
-import { handle__file_replace_text } from './actions/file_replace_text.js';
-import { handle__file_replace_all_text } from './actions/file_replace_all_text.js';
-import { handle__file_replace_lines } from './actions/file_replace_lines.js';
-import { handle__file_delete } from './actions/file_delete.js';
-import { handle__file_move } from './actions/file_move.js';
-import { handle__files_read } from './actions/files_read.js';
-import { handle__file_replace_text_range } from './actions/file_replace_text_range.js';
-import { handle__file_append } from './actions/file_append.js';
+import { handle__write_file } from './actions/write_file.js';
+import { handle__read_file } from './actions/read_file.js';
+import { handle__read_file_numbered } from './actions/read_file_numbered.js';
+import { handle__replace_text_in_file } from './actions/replace_text_in_file.js';
+import { handle__replace_all_text_in_file } from './actions/replace_all_text_in_file.js';
+import { handle__replace_lines_in_file } from './actions/replace_lines_in_file.js';
+import { handle__delete_file } from './actions/delete_file.js';
+import { handle__move_file } from './actions/move_file.js';
+import { handle__read_files } from './actions/read_files.js';
+import { handle__replace_text_range_in_file } from './actions/replace_text_range_in_file.js';
+import { handle__append_to_file } from './actions/append_to_file.js';
 
 export interface FileOpResult {
   success: boolean;
@@ -68,17 +68,17 @@ export class FsOpsExecutor {
 
   constructor(private guard: FsGuard) {
     this.handlers = new Map([
-      ['file_write', handle__file_write],
-      ['file_read', handle__file_read],
-      ['file_read_numbered', handle__file_read_numbered],
-      ['file_replace_text', handle__file_replace_text],
-      ['file_replace_all_text', handle__file_replace_all_text],
-      ['file_replace_lines', handle__file_replace_lines],
-      ['file_delete', handle__file_delete],
-      ['file_move', handle__file_move],
-      ['files_read', handle__files_read],
-      ['file_replace_text_range', handle__file_replace_text_range],
-      ['file_append', handle__file_append]
+      ['write_file', handle__write_file],
+      ['read_file', handle__read_file],
+      ['read_file_numbered', handle__read_file_numbered],
+      ['replace_text_in_file', handle__replace_text_in_file],
+      ['replace_all_text_in_file', handle__replace_all_text_in_file],
+      ['replace_lines_in_file', handle__replace_lines_in_file],
+      ['delete_file', handle__delete_file],
+      ['move_file', handle__move_file],
+      ['read_files', handle__read_files],
+      ['replace_text_range_in_file', handle__replace_text_range_in_file],
+      ['append_to_file', handle__append_to_file]
     ]);
   }
 
@@ -88,10 +88,10 @@ export class FsOpsExecutor {
   async execute(action: SlupeAction): Promise<FileOpResult> {
     try {
       // Check fs-guard permissions first
-      debug&&console.time('guard-check');
+      debug && console.time('guard-check');
       const guardResult = await this.guard.check(action);
-      debug&&console.timeEnd('guard-check');
-      
+      debug && console.timeEnd('guard-check');
+
       if (!guardResult.allowed) {
         return {
           success: false,
@@ -115,9 +115,9 @@ export class FsOpsExecutor {
         };
       }
 
-      debug&&console.time('handler-execute');
+      debug && console.time('handler-execute');
       const result = await handler(action);
-      debug&&console.timeEnd('handler-execute');
+      debug && console.timeEnd('handler-execute');
       return result;
     } catch (error: any) {
       // This should never happen - handlers should catch their own errors

@@ -3,7 +3,7 @@ import type { FileOpResult } from '../index.js';
 import { readFile } from 'fs/promises';
 import { formatNodeError } from '../utils.js';
 
-export async function handle__files_read(action: SlupeAction): Promise<FileOpResult> {
+export async function handle__read_files(action: SlupeAction): Promise<FileOpResult> {
   const { paths } = action.parameters;
 
   // Parse the multi-line paths string
@@ -15,7 +15,7 @@ export async function handle__files_read(action: SlupeAction): Promise<FileOpRes
   if (pathList.length === 0) {
     return {
       success: false,
-      error: 'files_read: No paths provided'
+      error: 'read_files: No paths provided'
     };
   }
 
@@ -44,7 +44,7 @@ export async function handle__files_read(action: SlupeAction): Promise<FileOpRes
       .join('\n');
     return {
       success: false,
-      error: `files_read: Failed to read all ${failedFiles.length} file(s):\n${errorDetails}`
+      error: `read_files: Failed to read all ${failedFiles.length} file(s):\n${errorDetails}`
     };
   }
 

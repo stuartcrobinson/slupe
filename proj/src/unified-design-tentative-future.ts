@@ -1,7 +1,7 @@
 
 export const NESL_SYNTAX_EXAMPLE = `\`\`\`sh nesl
 #!nesl [@three-char-SHA-256: k7m]
-action = "file_write"
+action = "write_file"
 path = "/tmp/\\"hello\\".txt"
 content = <<'EOT_k7m'
 Hello world!
@@ -12,7 +12,7 @@ EOT_k7m
 
 export const ActionDefinitions = {
   // TODO
-  file_replace_text_range: {
+  replace_text_range_in_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Replace first and only instance of text range in file. must exist only once',
@@ -27,7 +27,7 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', replacements_made: 'integer?', error: 'string?' }
   },
-  
+
 
   // TODO
   files_replace_all_text: {
@@ -71,7 +71,7 @@ export const ActionDefinitions = {
   },
 
   // TODO
-  file_append: {
+  append_to_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Append to file',
@@ -82,9 +82,9 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', error: 'string?' }
   },
-  
-  
-  file_move: {
+
+
+  move_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Move/rename file',
@@ -122,7 +122,7 @@ export const ActionDefinitions = {
       error: 'string'
     }
   },
-  
+
   ripgrep: {
     type: 'read' as const,
     description: 'Search pattern in files',
@@ -147,7 +147,7 @@ export const ActionDefinitions = {
       error: 'string'
     }
   },
-  
+
   glob: {
     type: 'read' as const,
     description: 'Find files matching pattern',
@@ -167,7 +167,7 @@ export const ActionDefinitions = {
       error: 'string'
     }
   },
-  
+
   exec: {
     type: 'dynamic' as const,
     description: 'Execute code',
@@ -193,7 +193,7 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', error: 'string?' }
   },
-  
+
   context_remove: {
     type: 'meta' as const,
     description: 'Remove item from working context',
@@ -203,7 +203,7 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', error: 'string?' }
   },
-  
+
   context_list: {
     type: 'meta' as const,
     description: 'List items in working context',
@@ -221,7 +221,7 @@ export const ActionDefinitions = {
       error: 'string'
     }
   },
-  
+
   context_prune: {
     type: 'meta' as const,
     description: 'Remove unused items from working context',
@@ -229,7 +229,7 @@ export const ActionDefinitions = {
     parameters: {},
     returns: { success: 'boolean', removed: 'array of strings', error: 'string?' }
   },
-  
+
   context_clear: {
     type: 'meta' as const,
     description: 'Clear all working context items',
@@ -237,7 +237,7 @@ export const ActionDefinitions = {
     parameters: {},
     returns: { success: 'boolean', error: 'string?' }
   },
-  
+
   git_squash: {
     type: 'git' as const,
     description: 'Squash commits',
@@ -251,7 +251,7 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', error: 'string?' }
   },
-  
+
   undo: {
     type: 'git' as const,
     description: 'Undo last AI changes',
@@ -260,7 +260,7 @@ export const ActionDefinitions = {
     parameters: {},
     returns: { success: 'boolean', error: 'string?' }
   },
-  
+
   git_step_back: {
     type: 'git' as const,
     description: 'Move to previous commit',
@@ -269,7 +269,7 @@ export const ActionDefinitions = {
     parameters: {},
     returns: { success: 'boolean', stashed_files: 'array of strings', error: 'string?' }
   },
-  
+
   git_step_forward: {
     type: 'git' as const,
     description: 'Move to next commit',

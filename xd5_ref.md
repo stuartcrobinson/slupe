@@ -197,7 +197,7 @@ like:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: mnf]
-action = "file_move"
+action = "move_file"
 old_path = "/tmp/t_move-nonexistent-file/ghost.txt"
 new_path = "/tmp/t_move-nonexistent-file/nowhere.txt"
 #!end_mnf
@@ -206,7 +206,7 @@ new_path = "/tmp/t_move-nonexistent-file/nowhere.txt"
 ```json
 {
   "success": false,
-  "error": "file_move: Source file not found '/tmp/t_move-nonexistent-file/ghost.txt' (ENOENT)"
+  "error": "move_file: Source file not found '/tmp/t_move-nonexistent-file/ghost.txt' (ENOENT)"
 }
 ```
 

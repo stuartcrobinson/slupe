@@ -42,22 +42,22 @@ Constraints:
 
 ## Tools
 
-### `file_write`
+### `write_file`
 Write content to file (creates or overwrites)  
 - `path`
 - `content`
 
-### `file_replace_text`
+### `replace_text_in_file`
 Replace exactly one text occurrence  
 - `path`
 - `old_text`
 - `new_text` 
 
-### `file_read`
+### `read_file`
 Read file contents  
 - `path` 
 
-### `files_read`
+### `read_files`
 Read multiple files  
 - `paths`
 
@@ -65,7 +65,7 @@ ex:
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: rm4]
-action = "files_read"
+action = "read_files"
 paths = <<'EOT_rm4'
 /tmp/file1.txt
 /tmp/file2.txt

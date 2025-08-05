@@ -1,12 +1,12 @@
-# file_append Integration Tests
+# append_to_file Integration Tests
 
-## file_append
+## append_to_file
 
 ### 001-append-after-write
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: aw1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_append-after-write/log.txt"
 content = <<'EOT_aw1'
 === LOG START ===
@@ -18,7 +18,7 @@ EOT_aw1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: aw2]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_append-after-write/log.txt"
 content = <<'EOT_aw2'
 
@@ -55,7 +55,7 @@ EOT_aw2
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: an1]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_append-nested/deep/dir/structure/notes.txt"
 content = <<'EOT_an1'
 First entry in a deeply nested file.
@@ -83,7 +83,7 @@ This tests parent directory creation.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ma1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_multiple-appends/build.log"
 content = "=== BUILD LOG ==="
 #!end_ma1
@@ -91,7 +91,7 @@ content = "=== BUILD LOG ==="
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ma2]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_multiple-appends/build.log"
 content = <<'EOT_ma2'
 
@@ -125,7 +125,7 @@ Step 2: Running tests...
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: an1]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_append-nonexistent/new-file.txt"
 content = "This creates a new file"
 #!end_an1
@@ -149,7 +149,7 @@ This creates a new file
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: aw1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_append-newlines/data.txt"
 content = "First line"
 #!end_aw1
@@ -157,7 +157,7 @@ content = "First line"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: aw2]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_append-newlines/data.txt"
 content = <<'EOT_aw2'
 
@@ -187,7 +187,7 @@ Third line
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ae3]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_append-empty/test.txt"
 content = "Original content"
 #!end_ae3
@@ -195,7 +195,7 @@ content = "Original content"
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ae4]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_append-empty/test.txt"
 content = ""
 #!end_ae4
@@ -219,7 +219,7 @@ Original content
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: as1]
-action = "file_write"
+action = "write_file"
 path = "/tmp/t_append-special/code.js"
 content = <<'EOT_as1'
 function test() {
@@ -231,7 +231,7 @@ EOT_as1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: as2]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_append-special/code.js"
 content = <<'EOT_as2'
 
