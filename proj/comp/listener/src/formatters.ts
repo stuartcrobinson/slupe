@@ -485,7 +485,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
 
 function shouldShowOutput(action: string): boolean {
   // Actions with output_display: never
-  const neverShowOutput = ['file_write', 'file_replace_text', 'file_replace_all_text', 'file_append', 'file_delete', 'file_move', 'dir_create', 'dir_delete'];
+  const neverShowOutput = ['file_write', 'file_replace_text', 'file_replace_all_text', 'append_to_file', 'file_delete', 'file_move', 'dir_create', 'dir_delete'];
   if (neverShowOutput.includes(action)) {
     return false;
   }

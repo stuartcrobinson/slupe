@@ -71,7 +71,7 @@ export const ActionDefinitions = {
   },
 
   // TODO
-  file_append: {
+  append_to_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Append to file',

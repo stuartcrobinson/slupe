@@ -18,7 +18,7 @@ import { handle__file_delete } from './actions/file_delete.js';
 import { handle__file_move } from './actions/file_move.js';
 import { handle__files_read } from './actions/files_read.js';
 import { handle__file_replace_text_range } from './actions/file_replace_text_range.js';
-import { handle__file_append } from './actions/file_append.js';
+import { handle__append_to_file } from './actions/append_to_file.js';
 
 export interface FileOpResult {
   success: boolean;
@@ -78,7 +78,7 @@ export class FsOpsExecutor {
       ['file_move', handle__file_move],
       ['files_read', handle__files_read],
       ['file_replace_text_range', handle__file_replace_text_range],
-      ['file_append', handle__file_append]
+      ['append_to_file', handle__append_to_file]
     ]);
   }
 

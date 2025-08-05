@@ -83,7 +83,7 @@ EOT_a7x
 **2. Appending a log entry**
 ```sh nesl
 #!nesl [@three-char-SHA-256: m2p]
-action = "file_append"
+action = "append_to_file"
 path = "/var/log/app.log"
 content = <<'EOT_m2p'
 [2025-01-29 10:15:23] Process completed successfully
@@ -111,7 +111,7 @@ Replace all occurrences
 - `new_text`
 - `count` (optional) string. eg: `count = "2"`
 
-### `file_append`
+### `append_to_file`
 Append to file
 - `path`
 - `content`

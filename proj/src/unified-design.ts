@@ -171,7 +171,7 @@ export const ActionDefinitions = {
     returns: { success: 'boolean', error: 'string?' }
   },
 
-  file_append: {
+  append_to_file: {
     type: 'write' as const,
     executor: 'fs-ops' as const,
     description: 'Append content to existing file. Creates file if it does not exist.',

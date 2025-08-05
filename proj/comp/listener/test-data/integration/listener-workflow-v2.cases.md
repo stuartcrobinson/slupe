@@ -1276,7 +1276,7 @@ EOT_ap1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ap2]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_listener_append/journal.txt"
 content = <<'EOT_ap2'
 Day 3: Fixed critical bug
@@ -1290,7 +1290,7 @@ EOT_ap2
 ````sh
 === SLUPE RESULTS ===
 ap1 ✅ file_write /tmp/t_listener_append/journal.txt
-ap2 ✅ file_append /tmp/t_listener_append/journal.txt
+ap2 ✅ append_to_file /tmp/t_listener_append/journal.txt
 === END ===
 ````
 
@@ -1298,7 +1298,7 @@ ap2 ✅ file_append /tmp/t_listener_append/journal.txt
 ````sh
 === SLUPE RESULTS ===
 ap1 ✅ file_write /tmp/t_listener_append/journal.txt
-ap2 ✅ file_append /tmp/t_listener_append/journal.txt
+ap2 ✅ append_to_file /tmp/t_listener_append/journal.txt
 === END ===
 
 === OUTPUTS ===
@@ -1318,7 +1318,7 @@ Testing append to create new file.
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ac1]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_listener_append_new/fresh-log.txt"
 content = <<'EOT_ac1'
 === Application Log ===
@@ -1331,7 +1331,7 @@ EOT_ac1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ac2]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_listener_append_new/fresh-log.txt"
 content = <<'EOT_ac2'
 [2024-01-01 09:00] First request received
@@ -1344,16 +1344,16 @@ EOT_ac2
 #### Expected Prepended Results
 ````sh
 === SLUPE RESULTS ===
-ac1 ✅ file_append /tmp/t_listener_append_new/fresh-log.txt
-ac2 ✅ file_append /tmp/t_listener_append_new/fresh-log.txt
+ac1 ✅ append_to_file /tmp/t_listener_append_new/fresh-log.txt
+ac2 ✅ append_to_file /tmp/t_listener_append_new/fresh-log.txt
 === END ===
 ````
 
 #### Expected Output File
 ````sh
 === SLUPE RESULTS ===
-ac1 ✅ file_append /tmp/t_listener_append_new/fresh-log.txt
-ac2 ✅ file_append /tmp/t_listener_append_new/fresh-log.txt
+ac1 ✅ append_to_file /tmp/t_listener_append_new/fresh-log.txt
+ac2 ✅ append_to_file /tmp/t_listener_append_new/fresh-log.txt
 === END ===
 
 === OUTPUTS ===
@@ -1384,7 +1384,7 @@ EOT_ar1
 
 ```sh nesl
 #!nesl [@three-char-SHA-256: ar2]
-action = "file_append"
+action = "append_to_file"
 path = "/tmp/t_listener_append_read/messages.txt"
 content = <<'EOT_ar2'
 Message 3: Great to hear!
@@ -1405,7 +1405,7 @@ path = "/tmp/t_listener_append_read/messages.txt"
 ````sh
 === SLUPE RESULTS ===
 ar1 ✅ file_write /tmp/t_listener_append_read/messages.txt
-ar2 ✅ file_append /tmp/t_listener_append_read/messages.txt
+ar2 ✅ append_to_file /tmp/t_listener_append_read/messages.txt
 ar3 ✅ file_read /tmp/t_listener_append_read/messages.txt
 === END ===
 ````
@@ -1414,7 +1414,7 @@ ar3 ✅ file_read /tmp/t_listener_append_read/messages.txt
 ````sh
 === SLUPE RESULTS ===
 ar1 ✅ file_write /tmp/t_listener_append_read/messages.txt
-ar2 ✅ file_append /tmp/t_listener_append_read/messages.txt
+ar2 ✅ append_to_file /tmp/t_listener_append_read/messages.txt
 ar3 ✅ file_read /tmp/t_listener_append_read/messages.txt
 === END ===
 

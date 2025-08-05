@@ -97,7 +97,7 @@ Replace text between markers
 
 `file_replace_text_range` allows concise "old" text localization.  avoids needing to type out the entire code.  use this whenever possible to minimize your overall response length. make sure that the old_text_beginning and old_text_end are concise but unique in the file.  should need just three or four lines each, max
 
-### `file_append`
+### `append_to_file`
 Append to file
 - `path`
 - `content`

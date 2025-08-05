@@ -15,7 +15,7 @@ const mockGuard: FsGuard = {
 describe('Debug newline issue', () => {
   it('trace 001-append-after-write', async () => {
     // Read the test case directly
-    const mdContent = readFileSync('/Users/stuart/repos/slupe/proj/comp/fs-ops/test-data/integration/write_replace_result_contents/file_append.cases.md', 'utf8');
+    const mdContent = readFileSync('/Users/stuart/repos/slupe/proj/comp/fs-ops/test-data/integration/write_replace_result_contents/append_to_file.cases.md', 'utf8');
     
     // Extract just the 001 test section
     const test001Match = mdContent.match(/### 001-append-after-write([\s\S]*?)(?=###|$)/);

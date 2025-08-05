@@ -103,7 +103,7 @@ Replace line range
 - `lines`
 - `new_content`
 
-### `file_append`
+### `append_to_file`
 Append to file
 - `path`
 - `content`

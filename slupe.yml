@@ -11,7 +11,7 @@ allowed-actions:
   - file_replace_text_range
   - file_replace_all_text
   - files_read
-  - file_append
+  - append_to_file
 
 # File system guard configuration
 fs-guard:
