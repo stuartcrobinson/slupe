@@ -43,7 +43,6 @@ EOT_aw2
 === LOG START ===
 [2024-01-01 09:00] System initialized
 [2024-01-01 09:15] Configuration loaded
-
 [2024-01-01 10:00] User session started
 [2024-01-01 10:30] Transaction completed
 === LOG END ===
@@ -258,7 +257,6 @@ EOT_as2
 function test() {
   console.log("Hello");
 }
-
 function special() {
   const chars = 'Special: "\'\\n\t${}';
   return chars;
