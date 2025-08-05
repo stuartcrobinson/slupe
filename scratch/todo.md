@@ -3,6 +3,8 @@ ____________________
 aug 4 
 
 
+existing:
+
 // File operations
 write_file(path, content)
 read_file(path)
@@ -13,6 +15,8 @@ replace_text_in_file(path, old_text, new_text)
 replace_all_text_in_file(path, old_text, new_text, count?)
 replace_text_range_in_file(path, old_text_beginning, old_text_end, new_text)
 append_to_file(path, content)
+
+need new:
 
 // Structure operations
 replace_structure(path, target, content)
@@ -33,6 +37,7 @@ execute_code(code, lang, cwd?, version?, return_output?)
 X add file_replace_text_range
 - add parsed structure edit actions and append_to_file.  cos claude keeps making it up
 https://claude.ai/chat/d8212c32-e2ba-4888-b92d-22875549255d
+https://claude.ai/chat/416cc9b7-c83d-4e81-9774-bc245fcebfad
 - make clipboard-input and clipboard-ouput default to true. 
     pring usage notes whenever slupe is run
 
