@@ -54,7 +54,7 @@ async function processFileChange(filePath: string, state: ListenerState): Promis
 
     // Copy combined content to clipboard before writing files
     let clipboardCopyTime: Date | undefined;
-    if (state.useClipboard) {
+    if (state.useClipboardWrite) {
       try {
         await clipboard.write(result.fullOutput);
         clipboardCopyTime = new Date();
@@ -158,7 +158,8 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
     isProcessing: false,
     outputPath: join(dirname(config.filePath), config.outputFilename || '.slupe-output-latest.txt'),
     debug: config.debug || false,
-    useClipboard: config.useClipboard || false,
+    useClipboardRead: config.useClipboardRead || false,
+    useClipboardWrite: config.useClipboardWrite || false,
     inputPath: config.filePath,
     slupeInstance: config.slupeInstance
   };
@@ -178,7 +179,7 @@ export async function startListener(config: ListenerConfig): Promise<ListenerHan
 
   // Start clipboard monitoring if enabled
   let clipboardMonitor: ClipboardMonitor | undefined;
-  if (config.useClipboard) {
+  if (config.useClipboardRead) {
     clipboardMonitor = new ClipboardMonitor(config.filePath);
     await clipboardMonitor.start();
   }

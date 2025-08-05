@@ -170,6 +170,20 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', error: 'string?' }
   },
+
+  file_append: {
+    type: 'write' as const,
+    executor: 'fs-ops' as const,
+    description: 'Append content to existing file. Creates file if it does not exist.',
+    accessibility: ['llm'] as const,
+    output_display: 'never' as const,
+    primary_param: 'path' as const,
+    parameters: {
+      path: { type: 'string', required: true, format: 'absolute_path' },
+      content: { type: 'string', required: true }
+    },
+    returns: { success: 'boolean', error: 'string?' }
+  },
   
   exec: {
     type: 'dynamic' as const,

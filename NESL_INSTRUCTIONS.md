@@ -9,6 +9,7 @@ Critical constraints:
 - `exec` is not supported.  to initiate bash commands, place them in a separate fenced code block and just ask the user to run them
 - multiline strings in nesl must be in heredocs using << notation.
 
+
 ## NESL examples
 
 ### example 1
@@ -94,6 +95,13 @@ Replace text between markers
 - `old_text_end`
 - `new_text`
 
+`file_replace_text_range` allows concise "old" text localization.  avoids needing to type out the entire code.  use this whenever possible to minimize your overall response length. make sure that the old_text_beginning and old_text_end are concise but unique in the file.  should need just three or four lines each, max
+
+### `file_append`
+Append to file
+- `path`
+- `content`
+
 ### `file_read`
 Read file
 - `path`
@@ -135,4 +143,4 @@ when asked to share your thoughts (like if user says "wdyt"), then walk it out a
 
 - do not attempt to run nesl syntax while responding.  nesl is NOT "tools" like ones that you might have access to already as an LLM
 
-
+- if the user asks you to do anything code related, like writing/editing/fixing/debugging code, you must respond with your new code or code changes as nesl syntax

@@ -12,6 +12,7 @@ allowed-actions:
   - file_read_numbered
   - file_replace_all_text
   - files_read
+  - file_append
   - exec
 
 # File system guard configuration
@@ -50,6 +51,7 @@ vars:
   # Add more variables as needed
 
 # Listener configuration
-clipboard: false  # Enable clipboard copy on execution
+clipboard_read: true   # Enable clipboard monitoring (default: true)
+clipboard_write: true  # Enable clipboard writing (default: true)
 input_file: slupe_input.md
 output_file: .slupe_output.md`;

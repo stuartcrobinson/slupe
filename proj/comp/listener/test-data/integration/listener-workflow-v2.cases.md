@@ -1249,3 +1249,182 @@ Final thoughts and conclusions.
 === END FILE: /tmp/t_listener_replace_range_notfound/notes.md ===
 === END ===
 ````
+
+
+### file-append-simple
+
+#### Initial Content
+````sh
+Testing file append functionality.
+````
+
+#### New Content
+````sh
+Testing file append functionality.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: ap1]
+action = "file_write"
+path = "/tmp/t_listener_append/journal.txt"
+content = <<'EOT_ap1'
+=== Daily Journal ===
+Day 1: Started the project
+Day 2: Made good progress
+EOT_ap1
+#!end_ap1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: ap2]
+action = "file_append"
+path = "/tmp/t_listener_append/journal.txt"
+content = <<'EOT_ap2'
+Day 3: Fixed critical bug
+Day 4: Released version 1.0
+EOT_ap2
+#!end_ap2
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+ap1 ✅ file_write /tmp/t_listener_append/journal.txt
+ap2 ✅ file_append /tmp/t_listener_append/journal.txt
+=== END ===
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+ap1 ✅ file_write /tmp/t_listener_append/journal.txt
+ap2 ✅ file_append /tmp/t_listener_append/journal.txt
+=== END ===
+
+=== OUTPUTS ===
+=== END ===
+````
+
+### file-append-create-new
+
+#### Initial Content
+````sh
+Testing append to create new file.
+````
+
+#### New Content
+````sh
+Testing append to create new file.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: ac1]
+action = "file_append"
+path = "/tmp/t_listener_append_new/fresh-log.txt"
+content = <<'EOT_ac1'
+=== Application Log ===
+[2024-01-01 08:00] Application starting...
+[2024-01-01 08:01] Initialization complete
+[2024-01-01 08:02] Ready to accept connections
+EOT_ac1
+#!end_ac1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: ac2]
+action = "file_append"
+path = "/tmp/t_listener_append_new/fresh-log.txt"
+content = <<'EOT_ac2'
+[2024-01-01 09:00] First request received
+[2024-01-01 09:15] Processing batch job
+EOT_ac2
+#!end_ac2
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+ac1 ✅ file_append /tmp/t_listener_append_new/fresh-log.txt
+ac2 ✅ file_append /tmp/t_listener_append_new/fresh-log.txt
+=== END ===
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+ac1 ✅ file_append /tmp/t_listener_append_new/fresh-log.txt
+ac2 ✅ file_append /tmp/t_listener_append_new/fresh-log.txt
+=== END ===
+
+=== OUTPUTS ===
+=== END ===
+````
+
+### file-append-with-read
+
+#### Initial Content
+````sh
+Testing append with subsequent read.
+````
+
+#### New Content
+````sh
+Testing append with subsequent read.
+
+```sh nesl
+#!nesl [@three-char-SHA-256: ar1]
+action = "file_write"
+path = "/tmp/t_listener_append_read/messages.txt"
+content = <<'EOT_ar1'
+Message 1: Hello
+Message 2: How are you?
+EOT_ar1
+#!end_ar1
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: ar2]
+action = "file_append"
+path = "/tmp/t_listener_append_read/messages.txt"
+content = <<'EOT_ar2'
+Message 3: Great to hear!
+Message 4: See you soon
+EOT_ar2
+#!end_ar2
+```
+
+```sh nesl
+#!nesl [@three-char-SHA-256: ar3]
+action = "file_read"
+path = "/tmp/t_listener_append_read/messages.txt"
+#!end_ar3
+```
+````
+
+#### Expected Prepended Results
+````sh
+=== SLUPE RESULTS ===
+ar1 ✅ file_write /tmp/t_listener_append_read/messages.txt
+ar2 ✅ file_append /tmp/t_listener_append_read/messages.txt
+ar3 ✅ file_read /tmp/t_listener_append_read/messages.txt
+=== END ===
+````
+
+#### Expected Output File
+````sh
+=== SLUPE RESULTS ===
+ar1 ✅ file_write /tmp/t_listener_append_read/messages.txt
+ar2 ✅ file_append /tmp/t_listener_append_read/messages.txt
+ar3 ✅ file_read /tmp/t_listener_append_read/messages.txt
+=== END ===
+
+=== OUTPUTS ===
+
+[ar3 ✅] /tmp/t_listener_append_read/messages.txt:
+=== START FILE: /tmp/t_listener_append_read/messages.txt ===
+Message 1: Hello
+Message 2: How are you?Message 3: Great to hear!
+Message 4: See you soon
+=== END FILE: /tmp/t_listener_append_read/messages.txt ===
+=== END ===
+````
