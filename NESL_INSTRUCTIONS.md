@@ -87,6 +87,13 @@ Replace all occurrences
 - `new_text`
 - `count` (optional) string. eg: `count = "2"`
 
+### `file_replace_text_range`
+Replace text between markers
+- `path`
+- `old_text_beginning`
+- `old_text_end`
+- `new_text`
+
 ### `file_read`
 Read file
 - `path`

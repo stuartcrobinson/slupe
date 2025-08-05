@@ -356,7 +356,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
 
       // Failed replace operations where text wasn't found
       if (!result.success &&
-        ['file_replace_text', 'file_replace_all_text'].includes(result.action) &&
+        ['file_replace_text', 'file_replace_all_text', 'file_replace_text_range'].includes(result.action) &&
         result.error?.includes('not found in file') &&
         result.params?.path) {
         shouldShow = true;
@@ -364,9 +364,17 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
       }
       // Failed replace operations with duplicate text
       else if (!result.success &&
-        ['file_replace_text', 'file_replace_all_text'].includes(result.action) &&
+        ['file_replace_text', 'file_replace_all_text', 'file_replace_text_range'].includes(result.action) &&
         result.error?.includes('appears') &&
         result.error?.includes('times') &&
+        result.params?.path) {
+        shouldShow = true;
+        filePath = result.params.path;
+      }
+      // Failed file_replace_text_range operations (e.g., when old_text_end not found after old_text_beginning)
+      else if (!result.success &&
+        result.action === 'file_replace_text_range' &&
+        result.error?.includes('not found after') &&
         result.params?.path) {
         shouldShow = true;
         filePath = result.params.path;
@@ -413,7 +421,7 @@ export function formatFullOutput(orchResult: OrchestratorResult): string {
   if (orchResult.results) {
     for (const result of orchResult.results) {
       // Skip file operations we already handled
-      if (['file_read', 'file_replace_text', 'file_replace_all_text'].includes(result.action)) {
+      if (['file_read', 'file_replace_text', 'file_replace_all_text', 'file_replace_text_range'].includes(result.action)) {
         continue;
       }
 

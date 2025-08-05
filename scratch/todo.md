@@ -3,6 +3,8 @@ ____________________
 aug 4 
 
 
+- call bank ozk
+
 - add parsed structure edit actions and file_replace_text_range
 https://claude.ai/chat/d8212c32-e2ba-4888-b92d-22875549255d
 - make clipboard-input and clipboard-ouput default to true. 
@@ -247,4 +249,3 @@ all the imports and dependency file locationn and formats is a big source of was
 
 ---
 
-asdf

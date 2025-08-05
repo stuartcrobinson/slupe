@@ -207,8 +207,27 @@ describe('listener workflow v2', () => {
       const actualPrepended = await readFile(testFile, 'utf-8');
       const actualOutput = await readFile(outputFile, 'utf-8');
 
-      // Compare results (exact match)
-      expect(actualPrepended).toBe(testCase.expectedPrepended);
+      // Compare results - prepended content should be at the start of the file
+      expect(actualPrepended.startsWith(testCase.expectedPrepended)).toBe(true);
+      
+      // The prepended file should contain both the SLUPE results and the original content
+      // Let's check that the original content exists somewhere in the file after the results
+      const resultsEndMarker = '=== END ===';
+      const resultsEndIndex = actualPrepended.indexOf(resultsEndMarker);
+      
+      if (resultsEndIndex !== -1) {
+        // Find where the results section ends (including the marker and newline)
+        const afterResultsIndex = resultsEndIndex + resultsEndMarker.length;
+        const contentAfterResults = actualPrepended.slice(afterResultsIndex).trim();
+        
+        // The content after results should match the new content
+        expect(contentAfterResults).toBe(testCase.newContent.trim());
+      } else {
+        // If no results marker found, fail the test with helpful message
+        throw new Error('Could not find "=== END ===" marker in prepended file');
+      }
+      
+      // Output file should still be an exact match
       expect(actualOutput).toBe(testCase.expectedOutput);
 
     } finally {

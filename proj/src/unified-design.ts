@@ -114,6 +114,22 @@ export const ActionDefinitions = {
     },
     returns: { success: 'boolean', lines_replaced: 'integer?', error: 'string?' }
   },
+  
+  file_replace_text_range: {
+    type: 'write' as const,
+    executor: 'fs-ops' as const,
+    description: 'Replace text range from start marker to end marker (inclusive). Both markers must appear exactly once, with end after start.',
+    accessibility: ['llm'] as const,
+    output_display: 'never' as const,
+    primary_param: 'path' as const,
+    parameters: {
+      path: { type: 'string', required: true, format: 'absolute_path' },
+      old_text_beginning: { type: 'string', required: true },
+      old_text_end: { type: 'string', required: true },
+      new_text: { type: 'string', required: true }
+    },
+    returns: { success: 'boolean', replacements: 'integer?', error: 'string?' }
+  },
 
   files_read: {
     type: 'read' as const,

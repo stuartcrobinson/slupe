@@ -8,6 +8,8 @@ allowed-actions:
   - file_delete
   - file_move
   - file_replace_text
+  - file_replace_text_range
+  - file_read_numbered
   - file_replace_all_text
   - files_read
   - exec
@@ -35,8 +37,12 @@ hooks:
   # after:
   #   - run: |
   #       git add -A && 
-  #       git commit -m "$(echo "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files:\\n$(git diff --cached --name-only | head -10)")" &&
-  #       git push
+  #       if git diff --cached --quiet; then 
+  #         echo "No changes to commit"; 
+  #       else 
+  #         git commit -m "$(echo "auto-slupe:: $(git diff --cached --name-only | wc -l | tr -d ' ') files:$(git diff --cached --name-only | head -10)")" && 
+  #         git push -u origin HEAD; 
+  #       fi
   
 # Variables available in commands
 vars:

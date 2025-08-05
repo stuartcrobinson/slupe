@@ -15,6 +15,7 @@ export async function createStarterConfig(repoPath: string): Promise<boolean> {
   const isTest = process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
   if (!isTest) {
     configContent = configContent.replace(/^  - exec\n/m, '');
+    configContent = configContent.replace(/^  - file_read_numbered\n/m, '');
 
     // Find hooks section and uncomment all lines within it
     const lines = configContent.split('\n');
