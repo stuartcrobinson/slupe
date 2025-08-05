@@ -34,7 +34,7 @@ EOT_aw2
   "success": true,
   "data": {
     "path": "/tmp/t_append-after-write/log.txt",
-    "bytesWritten": 96
+    "bytesWritten": 97
   }
 }
 ```
