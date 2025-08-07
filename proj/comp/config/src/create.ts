@@ -16,6 +16,7 @@ export async function createStarterConfig(repoPath: string): Promise<boolean> {
   if (!isTest) {
     configContent = configContent.replace(/^  - exec\n/m, '');
     configContent = configContent.replace(/^  - read_file_numbered\n/m, '');
+    configContent = configContent.replace(/^  - read_files\n/m, '');          //too confusing cos we cant allow read_structures until nesl supports dup params. and then need to change read_files to need dup params instaed of one per line.
 
     // Find hooks section and uncomment all lines within it
     const lines = configContent.split('\n');
