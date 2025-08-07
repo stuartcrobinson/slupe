@@ -1,0 +1,53 @@
+# Unit tests for structure boundary detection
+# Validates decorator, comment, and docstring inclusion
+
+- name: typescript_decorator_inclusion
+  file: decorated.ts
+  content: |2
+    // This comment is NOT part of the class
+    
+    /** This JSDoc IS part of the class */
+    @Injectable()
+    @Singleton
+    export class ServiceWithDecorators {
+      method() {}
+    }
+  target: "ServiceWithDecorators"
+  expected_start_line: 3  # JSDoc line
+  expected_end_line: 8
+  includes_decorators: true
+  includes_jsdoc: true
+  excludes_regular_comment: true
+
+- name: python_decorator_stacking
+  file: decorated.py
+  content: |2
+    # Regular comment not included
+    
+    @route('/api')
+    @authenticate
+    @cache(ttl=300)
+    def api_endpoint():
+        """Docstring IS included"""
+        return {'status': 'ok'}
+  target: "api_endpoint"
+  expected_start_line: 3  # First decorator
+  expected_end_line: 8
+  includes_all_decorators: true
+  includes_docstring: true
+
+- name: indented_structure_boundaries
+  file: nested.py
+  content: |2
+    class Outer:
+        def method(self):
+            @decorator
+            def inner():
+                pass
+  target: |
+    Outer
+    method
+    inner
+  expected_start_line: 3  # Decorator line
+  expected_end_line: 5
+  preserves_indentation: true

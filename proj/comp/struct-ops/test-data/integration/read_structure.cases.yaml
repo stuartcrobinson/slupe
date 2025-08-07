@@ -1,20 +1,33 @@
-# read_structure test cases
-# Testing structure extraction across TypeScript and Python
+# read_structure integration test cases
+# Testing realistic code extraction scenarios
 
-- name: typescript_simple_function
-  file: example.ts
+- name: typescript_function_among_others
+  file: calculator.ts
   content: |2
+    import { Logger } from './logger';
+    
+    const DEFAULT_MULTIPLIER = 2;
+    
+    export function initialize() {
+      console.log('Initializing');
+    }
+    
     export function calculate(x: number): number {
-      return x * 2;
+      return x * DEFAULT_MULTIPLIER;
+    }
+    
+    export function cleanup() {
+      console.log('Cleaning up');
     }
   target: "calculate"
   expected:
     matches:
       - text: |2
           export function calculate(x: number): number {
-            return x * 2;
+            return x * DEFAULT_MULTIPLIER;
           }
-        line_range_inclusive: [1, 3]
+        line_range_inclusive: [9, 11]
+        parent_context: null
 
 - name: typescript_class_with_method
   file: class.ts
@@ -69,8 +82,8 @@
   target: "calculate"
   expected:
     matches:
-      - text: |2
-          calculate() {
+      - text: |2                    #thoughts... maybe we should include the parent header or signature in the response.  in case LLM in confused about multipel hits
+          calculate() {                 
             return 1;
           }
         line_range_inclusive: [2, 4]
