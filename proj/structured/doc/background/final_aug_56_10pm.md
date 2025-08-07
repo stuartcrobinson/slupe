@@ -76,7 +76,6 @@ move_structure_to_file_end(source_path: string, source_target: string, dest_path
 - Permissions: Operations fail with PERMISSION_DENIED if insufficient
 - **Parser requirement**: Operations fail with PARSER_FAILED if file has syntax errors
 - Atomic operations at single-file level only
-- Concurrent modification detection via hash
 
 ### Newline Handling
 - `insert_before_structure`: Adds newline after content if next line is non-empty
@@ -233,3 +232,12 @@ interface Warning {
 - `replace_all_text_in_structure`: Only allowed to match ONE structure (fails with TARGET_AMBIGUOUS otherwise)
 - `expected_count`: Total replacements in that single structure
 - Content parameter max size: 1MB (enforced)
+
+
+---
+
+# updates 
+
+Move operations are destructive without atomicity. 
+- read both files first, validate both operations will succeed, then execute.
+
