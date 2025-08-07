@@ -1,5 +1,4 @@
 # Unit tests for target matching flexibility
-# Tests various ways to specify the same target
 
 - name: class_variations
   file: service.ts
@@ -10,25 +9,17 @@
         super();
       }
     }
-  variations:
-    - target: "UserService"
-      should_match: true
-    - target: "export class UserService"
-      should_match: true
-    - target: "class UserService"
-      should_match: true
-    - target: "UserService {"
-      should_match: true
-    - target: "export class UserService {"
-      should_match: true
-    - target: "export class UserService extends"
-      should_match: true
-    - target: "@Injectable()"
-      should_match: false  # Decorator alone doesn't match
-    - target: "Service"
-      should_match: false  # Partial name doesn't match
-    - target: "BaseService"
-      should_match: false  # Parent class doesn't match
+  variations_valid:
+    - "UserService"
+    - "export class UserService"
+    - "class UserService"
+    - "UserService {"
+    - "export class UserService {"
+    - "export class UserService extends"
+  variations_invalid:
+    - "@Injectable()"  # Decorator alone
+    - "Service"  # Partial name
+    - "BaseService"  # Parent class
 
 - name: function_variations
   file: utils.ts
@@ -36,23 +27,16 @@
     export async function processData(input: string): Promise<Result> {
       return await transform(input);
     }
-  variations:
-    - target: "processData"
-      should_match: true
-    - target: "function processData"
-      should_match: true
-    - target: "async function processData"
-      should_match: true
-    - target: "export async function processData"
-      should_match: true
-    - target: "processData(input:"
-      should_match: true
-    - target: "function processData(input: string)"
-      should_match: true
-    - target: "process"
-      should_match: false  # Partial name
-    - target: "transform"
-      should_match: false  # Different function
+  variations_valid:
+    - "processData"
+    - "function processData"
+    - "async function processData"
+    - "export async function processData"
+    - "processData(input:"
+    - "function processData(input: string)"
+  variations_invalid:
+    - "process"  # Partial
+    - "transform"  # Different function
 
 - name: method_variations
   file: class.ts
@@ -62,21 +46,18 @@
         return x * 2;
       }
     }
-  variations:
-    - target: |
-        Calculator
-        calculate
-      should_match: true
-    - target: |
-        Calculator
-        public calculate
-      should_match: true
-    - target: |
-        Calculator
-        calculate(x: number)
-      should_match: true
-    - target: "calculate"  # Without parent
-      should_match: true  # But would be ambiguous if multiple exist
+  variations_valid:
+    - |
+      Calculator
+      calculate
+    - |
+      Calculator
+      public calculate
+    - |
+      Calculator
+      calculate(x: number)
+    - "calculate"  # Matches but ambiguous if multiple
+  variations_invalid: []
 
 - name: python_def_variations
   file: module.py
@@ -84,17 +65,13 @@
     @cache
     def expensive_operation(n: int) -> int:
         return sum(i * i for i in range(n))
-  variations:
-    - target: "expensive_operation"
-      should_match: true
-    - target: "def expensive_operation"
-      should_match: true
-    - target: "expensive_operation(n:"
-      should_match: true
-    - target: "@cache"
-      should_match: false  # Decorator alone
-    - target: "def expensive_operation(n: int) -> int:"
-      should_match: true
+  variations_valid:
+    - "expensive_operation"
+    - "def expensive_operation"
+    - "expensive_operation(n:"
+    - "def expensive_operation(n: int) -> int:"
+  variations_invalid:
+    - "@cache"  # Decorator alone
 
 - name: nested_target_specificity
   file: nested.ts
@@ -106,17 +83,15 @@
         }
       }
     }
-  variations:
-    - target: |
-        OuterClass
-        innerMethod
-        if (condition)
-      should_match: true
-    - target: |
-        OuterClass
-        if (condition)
-      should_match: false  # Skipped intermediate level
-    - target: |
-        innerMethod
-        if (condition)
-      should_match: true  # Valid without top-level parent
+  variations_valid:
+    - |
+      OuterClass
+      innerMethod
+      if (condition)
+    - |
+      innerMethod
+      if (condition)
+  variations_invalid:
+    - |
+      OuterClass
+      if (condition)  # Skipped intermediate
