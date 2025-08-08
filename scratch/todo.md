@@ -1,3 +1,30 @@
+___________________
+aug 8
+
+https://claude.ai/chat/58ff27d9-3da3-473b-83c6-318bb1151b64
+
+still tryign to figure out format for LLM to describe code headers.  complicated.  deciding to only allow identifier name.  and full line literal even tho that owuld still fail sometimes. 
+
+
+___________________
+aug 7
+
+need to clarify target matching behavior 
+https://claude.ai/chat/9d2d05d6-b2a7-49ba-be91-c4bf1bc53bbd
+https://claude.ai/chat/5ff2f046-7465-4674-91a0-fb2d46d534c6
+
+see 
+[text](../proj/structured/doc/background/final_aug_56_10pm.md) 
+[text](../proj/structured/doc/background/implementation_aug_7_2pm.md)
+
+and compare with 
+[text](../proj/structured/doc/background/concise/final_syntax.md)
+
+we need to make sure that the 50 char literal stuff is only for text matching or non-code matching.  maybe comment blocks.  but we need to think clearly about that.  when it applies vs more speicfic code matching.  and for code it should allow:
+- the entire header line 
+- just the construct name 
+- other????????? 
+
 
 ____________________
 aug 4 

@@ -10,12 +10,14 @@
       }
     }
   variations_valid:
-    - "UserService"
+    - "    UserService"
     - "export class UserService"
-    - "class UserService"
+    - " class UserService"
     - "UserService {"
-    - "export class UserService {"
+    - "    export class UserService {"
     - "export class UserService extends"
+    - "    export class UserService extends BaseService {"
+    - "export class UserService extends BaseService {"
   variations_invalid:
     - "@Injectable()"  # Decorator alone
     - "Service"  # Partial name
@@ -28,12 +30,14 @@
       return await transform(input);
     }
   variations_valid:
-    - "processData"
+    - "   processData "
     - "function processData"
     - "async function processData"
     - "export async function processData"
     - "processData(input:"
     - "function processData(input: string)"
+    - "export async function processData(input: string): Promise<Result> {"
+    - "        export async function processData(input: string): Promise<Result> {"
   variations_invalid:
     - "process"  # Partial
     - "transform"  # Different function
