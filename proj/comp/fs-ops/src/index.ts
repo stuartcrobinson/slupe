@@ -160,7 +160,23 @@ export class FsOpsExecutor {
       };
     }
 
-    return await this.fsIo.delete(path);
+    const result = await this.fsIo.delete(path);
+    if (result.success) {
+      return {
+        success: true,
+        data: { path }
+      };
+    }
+    
+    // Transform ENOENT errors to match test format
+    if (!result.success && result.errorCode === 'ENOENT') {
+      return {
+        success: false,
+        error: `ENOENT: no such file or directory, unlink '${path}'`
+      };
+    }
+    
+    return result;
   }
 
   private async handle_append_to_file(action: SlupeAction): Promise<FileOpResult> {
@@ -184,7 +200,23 @@ export class FsOpsExecutor {
       };
     }
 
-    return await this.fsIo.move(old_path, new_path);
+    const result = await this.fsIo.move(old_path, new_path);
+    if (result.success) {
+      return {
+        success: true,
+        data: { old_path, new_path }
+      };
+    }
+    
+    // Transform ENOENT errors
+    if (!result.success && result.errorCode === 'ENOENT') {
+      return {
+        success: false,
+        error: `ENOENT: no such file or directory, rename '${old_path}' -> '${new_path}'`
+      };
+    }
+    
+    return result;
   }
   
   private async handle_read_files(action: SlupeAction): Promise<FileOpResult> {

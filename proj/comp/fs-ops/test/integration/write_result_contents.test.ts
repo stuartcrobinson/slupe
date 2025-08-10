@@ -8,10 +8,10 @@ import type { FsGuard } from '../../../fs-guard/src/index.js';
 
 // Mock FsGuard that allows all operations
 const mockGuard: FsGuard = {
-  async check(action) {
+  async checkPath(path: string, mode: 'read' | 'write') {
     return { allowed: true };
   }
-};
+} as any;
 
 const executor = new FsOpsExecutor(mockGuard);
 
