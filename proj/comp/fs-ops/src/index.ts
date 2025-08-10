@@ -1,13 +1,8 @@
 import type { SlupeAction } from '../../nesl-action-parser/src/index.js';
 import type { FsGuard } from '../../fs-guard/src/index.js';
-import { FsIo } from '../../fs-io/src/index.js';
-import { rename } from 'fs/promises';
+import { FsIo, type FsIoResult } from '../../fs-io/src/index.js';
 
-export interface FileOpResult {
-  success: boolean;
-  data?: any;
-  error?: string;
-}
+export type FileOpResult = FsIoResult<any>;
 
 export class FileOpError extends Error {
   constructor(
@@ -43,10 +38,24 @@ const NOT_IMPLEMENTED = new Set([
 
 export class FsOpsExecutor {
   private fsIo: FsIo;
-  [key: string]: any;
+  private handlers: Map<string, (action: SlupeAction) => Promise<FileOpResult>>;
 
   constructor(private guard: FsGuard) {
     this.fsIo = new FsIo(guard);
+    
+    this.handlers = new Map([
+      ['write_file', this.handle_write_file.bind(this)],
+      ['read_file', this.handle_read_file.bind(this)],
+      ['read_file_numbered', this.handle_read_file_numbered.bind(this)],
+      ['read_files', this.handle_read_files.bind(this)],
+      ['delete_file', this.handle_delete_file.bind(this)],
+      ['append_to_file', this.handle_append_to_file.bind(this)],
+      ['move_file', this.handle_move_file.bind(this)],
+      ['replace_text_in_file', this.handle_replace_text_in_file.bind(this)],
+      ['replace_all_text_in_file', this.handle_replace_all_text_in_file.bind(this)],
+      ['replace_text_range_in_file', this.handle_replace_text_range_in_file.bind(this)],
+      ['replace_lines_in_file', this.handle_replace_lines_in_file.bind(this)]
+    ]);
   }
 
   async execute(action: SlupeAction): Promise<FileOpResult> {
@@ -58,16 +67,15 @@ export class FsOpsExecutor {
         };
       }
 
-      const methodName = `handle_${action.action}`;
-      const handler = (this as any)[methodName];
-      if (typeof handler !== 'function') {
+      const handler = this.handlers.get(action.action);
+      if (!handler) {
         return {
           success: false,
           error: `Unknown action: ${action.action}`
         };
       }
 
-      return handler.call(this, action);
+      return handler(action);
     } catch (error: any) {
       return {
         success: false,
@@ -76,7 +84,6 @@ export class FsOpsExecutor {
     }
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_write_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, content } = action.parameters;
     if (!path || content === undefined) {
@@ -94,7 +101,6 @@ export class FsOpsExecutor {
     };
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_read_file(action: SlupeAction): Promise<FileOpResult> {
     const { path } = action.parameters;
     if (!path) {
@@ -114,7 +120,6 @@ export class FsOpsExecutor {
     return result;
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_read_file_numbered(action: SlupeAction): Promise<FileOpResult> {
     const { path } = action.parameters;
     if (!path) {
@@ -140,7 +145,6 @@ export class FsOpsExecutor {
     };
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_delete_file(action: SlupeAction): Promise<FileOpResult> {
     const { path } = action.parameters;
     if (!path) {
@@ -157,7 +161,6 @@ export class FsOpsExecutor {
     };
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_append_to_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, content } = action.parameters;
     if (!path || content === undefined) {
@@ -175,7 +178,6 @@ export class FsOpsExecutor {
     };
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_move_file(action: SlupeAction): Promise<FileOpResult> {
     const { old_path, new_path } = action.parameters;
     if (!old_path || !new_path) {
@@ -184,26 +186,12 @@ export class FsOpsExecutor {
         error: 'Missing required parameters: old_path and new_path'
       };
     }
-
-    const readCheck = await this.guard.checkPath(old_path, 'read');
-    if (!readCheck.allowed) {
-      return {
-        success: false,
-        error: readCheck.reason || 'Read access denied'
-      };
-    }
-
-    const writeCheck = await this.guard.checkPath(new_path, 'write');
-    if (!writeCheck.allowed) {
-      return {
-        success: false,
-        error: writeCheck.reason || 'Write access denied'
-      };
-    }
-
-    try {
-      await rename(old_path, new_path);
-      return { success: true };
+    
+    const result = await this.fsIo.move(old_path, new_path);
+    return {
+      success: result.success,
+      error: result.error
+    };
     } catch (error: any) {
       return {
         success: false,
@@ -212,7 +200,6 @@ export class FsOpsExecutor {
     }
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_read_files(action: SlupeAction): Promise<FileOpResult> {
     const { paths } = action.parameters;
     if (!paths) {
@@ -240,7 +227,6 @@ export class FsOpsExecutor {
     };
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_replace_text_in_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, old_text, new_text } = action.parameters;
     if (!path || old_text === undefined || new_text === undefined) {
@@ -279,7 +265,6 @@ export class FsOpsExecutor {
     };
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_replace_all_text_in_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, old_text, new_text, count } = action.parameters;
     if (!path || old_text === undefined || new_text === undefined) {
@@ -332,7 +317,6 @@ export class FsOpsExecutor {
     };
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_replace_text_range_in_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, old_text_beginning, old_text_end, new_text } = action.parameters;
     if (!path || !old_text_beginning || !old_text_end || new_text === undefined) {
@@ -373,7 +357,6 @@ export class FsOpsExecutor {
     };
   }
 
-  // @ts-ignore - called dynamically via execute()
   private async handle_replace_lines_in_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, start_line, end_line, new_text } = action.parameters;
     if (!path || !start_line || !end_line || new_text === undefined) {

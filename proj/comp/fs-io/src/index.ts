@@ -189,6 +189,103 @@ export class FsIo {
       };
     }
   }
+  
+  async move(oldPath: string, newPath: string): Promise<FsIoResult<void>> {
+    const readCheck = await this.guard.checkPath(oldPath, 'read');
+    if (!readCheck.allowed) {
+      return {
+        success: false,
+        error: readCheck.reason || 'Read access denied for source'
+      };
+    }
+    
+    const writeCheck = await this.guard.checkPath(newPath, 'write');
+    if (!writeCheck.allowed) {
+      return {
+        success: false,
+        error: writeCheck.reason || 'Write access denied for destination'
+      };
+    }
+    
+    try {
+      const { rename } = await import('fs/promises');
+      await rename(oldPath, newPath);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: formatFsError(error, oldPath, 'move')
+      };
+    }
+  }
+  
+  async createDir(path: string): Promise<FsIoResult<void>> {
+    const guardCheck = await this.guard.checkPath(path, 'write');
+    
+    if (!guardCheck.allowed) {
+      return {
+        success: false,
+        error: guardCheck.reason || 'Write access denied'
+      };
+    }
+    
+    try {
+      await mkdir(path, { recursive: true });
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: formatFsError(error, path, 'createDir')
+      };
+    }
+  }
+  
+  async deleteDir(path: string): Promise<FsIoResult<void>> {
+    const guardCheck = await this.guard.checkPath(path, 'write');
+    
+    if (!guardCheck.allowed) {
+      return {
+        success: false,
+        error: guardCheck.reason || 'Write access denied'
+      };
+    }
+    
+    try {
+      const { rm } = await import('fs/promises');
+      await rm(path, { recursive: true, force: true });
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: formatFsError(error, path, 'deleteDir')
+      };
+    }
+  }
+  
+  async list(path: string): Promise<FsIoResult<string[]>> {
+    const guardCheck = await this.guard.checkPath(path, 'read');
+    
+    if (!guardCheck.allowed) {
+      return {
+        success: false,
+        error: guardCheck.reason || 'Read access denied'
+      };
+    }
+    
+    try {
+      const { readdir } = await import('fs/promises');
+      const entries = await readdir(path);
+      return {
+        success: true,
+        data: entries
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: formatFsError(error, path, 'list')
+      };
+    }
+  }
 }
 
 
