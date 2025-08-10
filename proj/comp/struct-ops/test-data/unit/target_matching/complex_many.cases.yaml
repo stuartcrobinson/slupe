@@ -790,7 +790,7 @@
     Test
     static async method()
     if (x)
-  error: "TARGET_NOT_FOUND"  # Missing 'private'
+  error: "TARGET_NOT_FOUND" 
 
 - name: partial_modifier_no_match
   content: |2

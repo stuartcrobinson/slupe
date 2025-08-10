@@ -17,6 +17,8 @@ A **structure** is either:
 ### Line Structure Returns  
 - Any complete line that isn't a block starter (partial lines not targetable)
 - Returns exactly that single line with all whitespace preserved
+- **Excluded from targeting**: blank lines and single-character lines (e.g., lone `{` or `}`)
+- Comment lines ARE targetable as line structures
 
 ## Target Format
 
@@ -67,6 +69,8 @@ When SKIP_PARENTS active:
 - `GrandParent\nChild` matches Child anywhere within GrandParent
 - Validates only that each parent exists in ancestry chain (order preserved)
 
+**Multi-line target behavior**: If any line in the path fails to match (even with parent skipping), the entire target fails with TARGET_NOT_FOUND. Each line must exist in the specified hierarchical relationship.
+
 ## Special Cases
 
 ### else/elif Handling
@@ -80,8 +84,8 @@ When SKIP_PARENTS active:
 
 ### Invalid Targets
 - Empty lines not targetable
+- Single-character lines not targetable (e.g., `}`, `{`, `;`)
 - Partial lines not targetable (must be complete line from source)
-- Lines containing only structural punctuation (`}`, `{`) are targetable but rarely useful
 
 ### Decorators/Annotations
 - Included in block structure boundaries
