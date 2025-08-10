@@ -192,12 +192,6 @@ export class FsOpsExecutor {
       success: result.success,
       error: result.error
     };
-    } catch (error: any) {
-      return {
-        success: false,
-        error: `Failed to move file: ${error.message}`
-      };
-    }
   }
 
   private async handle_read_files(action: SlupeAction): Promise<FileOpResult> {
