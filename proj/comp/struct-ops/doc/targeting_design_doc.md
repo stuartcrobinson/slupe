@@ -42,7 +42,7 @@ Six-phase progression with increasing normalization and leniency:
 
 ### Phase 2: REMOVE_STRUCT
 1. Reset to strict parent hierarchy
-2. Remove structural chars `{};/\:` from normalized strings
+2. Remove leading and trailing structural chars `{};/\:` from normalized strings (preserve internal)
 3. Attempt exact match
 4. If no matches → Allow SKIP_PARENTS
 
@@ -56,7 +56,7 @@ Six-phase progression with increasing normalization and leniency:
 ## Normalization Rules
 
 - **Preserved characters**: `()[]` and all semantic keywords (public, private, static, async, const, let, function, class, etc.)
-- **Removed for matching**: Whitespace, then structural punctuation `{};/\:` progressively
+- **Removed for matching**: Whitespace, then leading/trailing structural punctuation `{};/\:` progressively
 - **Matching requirement**: After normalization, entire line must match (not just subset)
 - **Return text**: Always original source with exact whitespace/formatting
 
