@@ -5,6 +5,10 @@ aug 9
 idea ... for web browser tool... have auto-updated summary document that summarizes all main points and decisiosn made inthat enw chat.  and it can have an "update" button with a little text field for comments to add
 
 
+start here:
+https://claude.ai/chat/e5be2059-397f-41bb-bf67-86ec407d8c8a 
+
+for major code /test refactor, test overhaul.  actually use mocking correctly. 
 
 TODO 
 
