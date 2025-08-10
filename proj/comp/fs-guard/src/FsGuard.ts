@@ -21,34 +21,15 @@ export class FsGuard {
     this.deniedPatterns = this.deniedPatterns.map(p => this.resolvePattern(p));
   }
 
+  async checkPath(path: string, mode: 'read' | 'write'): Promise<GuardCheckResult> {
+    return this._checkPath(path, mode);
+  }
+
   async check(action: SlupeAction): Promise<GuardCheckResult> {
-    const permissions = FsGuard.ACTION_PERMISSIONS[action.action];
-    if (!permissions) {
-      // Unknown action - let fs-ops handle it
-      return { allowed: true };
-    }
-
-    // Check each required permission
-    for (const perm of permissions) {
-      const paramValue = action.parameters[perm.paramName];
-      if (!paramValue) {
-        continue; // Let fs-ops handle missing params
-      }
-
-      // Handle multi-path parameters (read_files)
-      const paths = perm.paramName === 'paths'
-        ? this.parseMultilinePaths(paramValue)
-        : [paramValue];
-
-      for (const path of paths) {
-        const result = await this.checkPath(path, perm.type);
-        if (!result.allowed) {
-          return result;
-        }
-      }
-    }
-
-    return { allowed: true };
+    return {
+      allowed: true,
+      reason: 'FsGuard.check(action) deprecated - use checkPath() or let orchestrator handle'
+    };
   }
 
   private async _checkPath(path: string, permType: 'read' | 'write'): Promise<GuardCheckResult> {

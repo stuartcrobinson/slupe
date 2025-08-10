@@ -4,6 +4,14 @@ aug 9
 
 idea ... for web browser tool... have auto-updated summary document that summarizes all main points and decisiosn made inthat enw chat.  and it can have an "update" button with a little text field for comments to add
 
+
+
+TODO 
+
+g2b ❌ replace_text_range_in_file /Users/stuart/repos/slupe/proj/comp/fs-guard/src/FsGuard.ts - old_text_end appears 2 times after old_text_beginning, must appear exactly once
+
+update the range function so it searches untli the FIRST match for old_text_end.  its fine if there are multiple
+
 ___________________
 aug 8
 

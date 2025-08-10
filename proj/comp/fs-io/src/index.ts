@@ -122,6 +122,8 @@ export class FsIo {
   }
 }
 
+export { FsIo, type FsIoConfig, type IoResult, type ReadResult, type WriteResult };
+
 function formatFsError(error: any, path: string, operation: string): string {
   const code = error.code || 'UNKNOWN';
   
