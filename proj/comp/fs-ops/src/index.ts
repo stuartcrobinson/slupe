@@ -3,6 +3,7 @@ import type { FsGuard } from '../../fs-guard/src/index.js';
 import { FsIo } from '../../fs-io/src/index.js';
 import { rename } from 'fs/promises';
 
+export interface FileOpResult {
   success: boolean;
   data?: any;
   error?: string;

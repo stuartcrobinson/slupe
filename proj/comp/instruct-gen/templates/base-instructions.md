@@ -86,7 +86,7 @@ Replace all occurrences
 - `path`
 - `old_text`
 - `new_text`
-- `count` (optional) string. eg: `count = "2"`
+- `count` (optional) string. eg: `count = "2"`. "0" means none will be replaced
 
 ### `replace_text_range_in_file`
 Replace text between markers
