@@ -46,74 +46,11 @@ export interface SlupeOptions {
   enableHooks?: boolean;
 }
 
-interface PathRequirement {
-  paramName: string;
-  mode: 'read' | 'write';
-}
-
 class ActionRegistry {
-  private static readonly ACTION_PATHS: Record<string, PathRequirement[]> = {
-    read_file: [{ paramName: 'path', mode: 'read' }],
-    write_file: [{ paramName: 'path', mode: 'write' }],
-    delete_file: [{ paramName: 'path', mode: 'write' }],
-    replace_text_in_file: [
-      { paramName: 'path', mode: 'read' },
-      { paramName: 'path', mode: 'write' }
-    ],
-    replace_all_text_in_file: [
-      { paramName: 'path', mode: 'read' },
-      { paramName: 'path', mode: 'write' }
-    ],
-    replace_text_range_in_file: [
-      { paramName: 'path', mode: 'read' },
-      { paramName: 'path', mode: 'write' }
-    ],
-    replace_lines_in_file: [
-      { paramName: 'path', mode: 'read' },
-      { paramName: 'path', mode: 'write' }
-    ],
-    append_to_file: [{ paramName: 'path', mode: 'write' }],
-    move_file: [
-      { paramName: 'old_path', mode: 'read' },
-      { paramName: 'new_path', mode: 'write' }
-    ],
-    read_files: [{ paramName: 'paths', mode: 'read' }],
-    read_file_numbered: [{ paramName: 'path', mode: 'read' }],
-    ls: [{ paramName: 'path', mode: 'read' }],
-    grep: [{ paramName: 'path', mode: 'read' }],
-    glob: [{ paramName: 'base_path', mode: 'read' }]
-  };
-
   constructor(
     private executors: Map<string, (action: SlupeAction) => Promise<FileOpResult>>,
-    private allowedActions: string[],
-    private fsGuard: FsGuard
+    private allowedActions: string[]
   ) {}
-
-  async checkPermissions(action: SlupeAction): Promise<GuardCheckResult> {
-    const requirements = ActionRegistry.ACTION_PATHS[action.action];
-    if (!requirements) {
-      return { allowed: true };
-    }
-
-    for (const req of requirements) {
-      const value = action.parameters[req.paramName];
-      if (!value) continue;
-
-      if (req.paramName === 'paths') {
-        const paths = value.split('\n').map(p => p.trim()).filter(p => p);
-        for (const path of paths) {
-          const result = await this.fsGuard.checkPath(path, req.mode);
-          if (!result.allowed) return result;
-        }
-      } else {
-        const result = await this.fsGuard.checkPath(value, req.mode);
-        if (!result.allowed) return result;
-      }
-    }
-
-    return { allowed: true };
-  }
 
   getExecutor(action: string): ((action: SlupeAction) => Promise<FileOpResult>) | undefined {
     return this.executors.get(action);
@@ -324,7 +261,7 @@ export class Slupe {
       }
     }
 
-    const registry = new ActionRegistry(executors, config['allowed-actions'], fsGuard);
+    const registry = new ActionRegistry(executors, config['allowed-actions']);
     return { registry };
   }
 
@@ -393,18 +330,6 @@ export class Slupe {
         params: action.parameters,
         success: false,
         error: `Action '${action.action}' is not in allowed-actions list (${this.config['allowed-actions']})`
-      };
-    }
-
-    const permCheck = await this.registry.checkPermissions(action);
-    if (!permCheck.allowed) {
-      return {
-        seq,
-        blockId: action.metadata.blockId,
-        action: action.action,
-        params: action.parameters,
-        success: false,
-        error: permCheck.reason || 'Permission denied'
       };
     }
 

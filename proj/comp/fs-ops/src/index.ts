@@ -1,24 +1,9 @@
-/**
- * fs-ops - File system operations executor for slupe
- * 
- * Handles all file and directory operations from parsed NESL actions
- */
-
 import type { SlupeAction } from '../../nesl-action-parser/src/index.js';
 import type { FsGuard } from '../../fs-guard/src/index.js';
-
-// Import all implemented action handlers
-import { handle__write_file } from './actions/write_file.js';
-import { handle__read_file } from './actions/read_file.js';
-import { handle__read_file_numbered } from './actions/read_file_numbered.js';
-import { handle__replace_text_in_file } from './actions/replace_text_in_file.js';
-import { handle__replace_all_text_in_file } from './actions/replace_all_text_in_file.js';
-import { handle__replace_lines_in_file } from './actions/replace_lines_in_file.js';
-import { handle__delete_file } from './actions/delete_file.js';
-import { handle__move_file } from './actions/move_file.js';
-import { handle__read_files } from './actions/read_files.js';
-import { handle__replace_text_range_in_file } from './actions/replace_text_range_in_file.js';
-import { handle__append_to_file } from './actions/append_to_file.js';
+import { FsIo } from '../../fs-io/src/index.js';
+import type { FsIoResult } from '../../fs-io/src/index.js';
+import { readFile, writeFile, unlink, rename } from 'fs/promises';
+import { dirname, basename } from 'path';
 
 export interface FileOpResult {
   success: boolean;
@@ -38,7 +23,6 @@ export class FileOpError extends Error {
   }
 }
 
-// Actions that are specified but not yet implemented
 const NOT_IMPLEMENTED = new Set([
   'dir_create',
   'dir_delete',
@@ -59,80 +43,346 @@ const NOT_IMPLEMENTED = new Set([
   'files_replace_text_in_parents'
 ]);
 
-const debug = false;
-/**
- * File system operations executor with security guard
- */
 export class FsOpsExecutor {
-  private handlers: Map<string, (action: SlupeAction) => Promise<FileOpResult>>;
+  private fsIo: FsIo;
 
   constructor(private guard: FsGuard) {
-    this.handlers = new Map([
-      ['write_file', handle__write_file],
-      ['read_file', handle__read_file],
-      ['read_file_numbered', handle__read_file_numbered],
-      ['replace_text_in_file', handle__replace_text_in_file],
-      ['replace_all_text_in_file', handle__replace_all_text_in_file],
-      ['replace_lines_in_file', handle__replace_lines_in_file],
-      ['delete_file', handle__delete_file],
-      ['move_file', handle__move_file],
-      ['read_files', handle__read_files],
-      ['replace_text_range_in_file', handle__replace_text_range_in_file],
-      ['append_to_file', handle__append_to_file]
-    ]);
+    this.fsIo = new FsIo(guard);
   }
 
-  /**
-   * Execute a file system operation with guard checks
-   */
   async execute(action: SlupeAction): Promise<FileOpResult> {
     try {
-      // Check fs-guard permissions first
-      debug && console.time('guard-check');
-      const guardResult = await this.guard.check(action);
-      debug && console.timeEnd('guard-check');
-
-      if (!guardResult.allowed) {
+      if (NOT_IMPLEMENTED.has(action.action)) {
         return {
           success: false,
-          error: `fs-guard violation: ${guardResult.reason}`
+          error: `Action not yet implemented: ${action.action}`
         };
       }
 
-      const handler = this.handlers.get(action.action);
+      const handler = this[`handle_${action.action}`];
       if (!handler) {
-        // Check if it's a known but not implemented action
-        if (NOT_IMPLEMENTED.has(action.action)) {
-          return {
-            success: false,
-            error: `Action not yet implemented: ${action.action}`
-          };
-        }
-        // Truly unknown action
         return {
           success: false,
           error: `Unknown action: ${action.action}`
         };
       }
 
-      debug && console.time('handler-execute');
-      const result = await handler(action);
-      debug && console.timeEnd('handler-execute');
-      return result;
+      return handler.call(this, action);
     } catch (error: any) {
-      // This should never happen - handlers should catch their own errors
       return {
         success: false,
         error: `Unexpected error in execute: ${error.message}`
       };
     }
   }
+
+  private async handle_write_file(action: SlupeAction): Promise<FileOpResult> {
+    const { path, content } = action.parameters;
+    if (!path || content === undefined) {
+      return {
+        success: false,
+        error: 'Missing required parameters: path and content'
+      };
+    }
+    return this.fsIo.write(path, content);
+  }
+
+  private async handle_read_file(action: SlupeAction): Promise<FileOpResult> {
+    const { path } = action.parameters;
+    if (!path) {
+      return {
+        success: false,
+        error: 'Missing required parameter: path'
+      };
+    }
+    
+    const result = await this.fsIo.read(path);
+    if (result.success && result.data) {
+      return {
+        success: true,
+        data: result.data.content
+      };
+    }
+    return result;
+  }
+
+  private async handle_read_file_numbered(action: SlupeAction): Promise<FileOpResult> {
+    const { path } = action.parameters;
+    if (!path) {
+      return {
+        success: false,
+        error: 'Missing required parameter: path'
+      };
+    }
+
+    const result = await this.fsIo.read(path);
+    if (!result.success) return result;
+
+    const lines = result.data.content.split('\n');
+    const maxLineNumWidth = lines.length.toString().length;
+    const numberedLines = lines.map((line, i) => {
+      const lineNum = (i + 1).toString().padStart(maxLineNumWidth, ' ');
+      return `${lineNum} | ${line}`;
+    });
+
+    return {
+      success: true,
+      data: numberedLines.join('\n')
+    };
+  }
+
+  private async handle_delete_file(action: SlupeAction): Promise<FileOpResult> {
+    const { path } = action.parameters;
+    if (!path) {
+      return {
+        success: false,
+        error: 'Missing required parameter: path'
+      };
+    }
+    return this.fsIo.delete(path);
+  }
+
+  private async handle_append_to_file(action: SlupeAction): Promise<FileOpResult> {
+    const { path, content } = action.parameters;
+    if (!path || content === undefined) {
+      return {
+        success: false,
+        error: 'Missing required parameters: path and content'
+      };
+    }
+    return this.fsIo.append(path, content);
+  }
+
+  private async handle_move_file(action: SlupeAction): Promise<FileOpResult> {
+    const { old_path, new_path } = action.parameters;
+    if (!old_path || !new_path) {
+      return {
+        success: false,
+        error: 'Missing required parameters: old_path and new_path'
+      };
+    }
+
+    const readCheck = await this.guard.checkPath(old_path, 'read');
+    if (!readCheck.allowed) {
+      return {
+        success: false,
+        error: readCheck.reason || 'Read access denied'
+      };
+    }
+
+    const writeCheck = await this.guard.checkPath(new_path, 'write');
+    if (!writeCheck.allowed) {
+      return {
+        success: false,
+        error: writeCheck.reason || 'Write access denied'
+      };
+    }
+
+    try {
+      await rename(old_path, new_path);
+      return { success: true };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: `Failed to move file: ${error.message}`
+      };
+    }
+  }
+
+  private async handle_read_files(action: SlupeAction): Promise<FileOpResult> {
+    const { paths } = action.parameters;
+    if (!paths) {
+      return {
+        success: false,
+        error: 'Missing required parameter: paths'
+      };
+    }
+
+    const pathList = paths.split('\n').map(p => p.trim()).filter(p => p);
+    const results: Record<string, string | { error: string }> = {};
+
+    for (const path of pathList) {
+      const result = await this.fsIo.read(path);
+      if (result.success && result.data) {
+        results[path] = result.data.content;
+      } else {
+        results[path] = { error: result.error || 'Unknown error' };
+      }
+    }
+
+    return {
+      success: true,
+      data: results
+    };
+  }
+
+  private async handle_replace_text_in_file(action: SlupeAction): Promise<FileOpResult> {
+    const { path, old_text, new_text } = action.parameters;
+    if (!path || old_text === undefined || new_text === undefined) {
+      return {
+        success: false,
+        error: 'Missing required parameters: path, old_text, and new_text'
+      };
+    }
+
+    const readResult = await this.fsIo.read(path);
+    if (!readResult.success) return readResult;
+
+    const content = readResult.data.content;
+    const occurrences = content.split(old_text).length - 1;
+
+    if (occurrences === 0) {
+      return {
+        success: false,
+        error: `Text not found in file: ${path}`
+      };
+    }
+
+    if (occurrences > 1) {
+      return {
+        success: false,
+        error: `Multiple occurrences (${occurrences}) found. Use replace_all_text_in_file instead`
+      };
+    }
+
+    const newContent = content.replace(old_text, new_text);
+    return this.fsIo.write(path, newContent);
+  }
+
+  private async handle_replace_all_text_in_file(action: SlupeAction): Promise<FileOpResult> {
+    const { path, old_text, new_text, count } = action.parameters;
+    if (!path || old_text === undefined || new_text === undefined) {
+      return {
+        success: false,
+        error: 'Missing required parameters: path, old_text, and new_text'
+      };
+    }
+
+    const readResult = await this.fsIo.read(path);
+    if (!readResult.success) return readResult;
+
+    const content = readResult.data.content;
+    const occurrences = content.split(old_text).length - 1;
+
+    if (occurrences === 0) {
+      return {
+        success: false,
+        error: `Text not found in file: ${path}`
+      };
+    }
+
+    let newContent: string;
+    if (count !== undefined) {
+      const maxReplacements = parseInt(count, 10);
+      if (isNaN(maxReplacements)) {
+        return {
+          success: false,
+          error: `Invalid count parameter: ${count}`
+        };
+      }
+
+      let replacedCount = 0;
+      newContent = content.replace(new RegExp(escapeRegex(old_text), 'g'), (match) => {
+        if (replacedCount < maxReplacements) {
+          replacedCount++;
+          return new_text;
+        }
+        return match;
+      });
+    } else {
+      newContent = content.split(old_text).join(new_text);
+    }
+
+    return this.fsIo.write(path, newContent);
+  }
+
+  private async handle_replace_text_range_in_file(action: SlupeAction): Promise<FileOpResult> {
+    const { path, old_text_beginning, old_text_end, new_text } = action.parameters;
+    if (!path || !old_text_beginning || !old_text_end || new_text === undefined) {
+      return {
+        success: false,
+        error: 'Missing required parameters'
+      };
+    }
+
+    const readResult = await this.fsIo.read(path);
+    if (!readResult.success) return readResult;
+
+    const content = readResult.data.content;
+    const startIndex = content.indexOf(old_text_beginning);
+    if (startIndex === -1) {
+      return {
+        success: false,
+        error: 'Beginning text not found in file'
+      };
+    }
+
+    const endIndex = content.indexOf(old_text_end, startIndex);
+    if (endIndex === -1) {
+      return {
+        success: false,
+        error: 'End text not found after beginning text'
+      };
+    }
+
+    const actualEndIndex = endIndex + old_text_end.length;
+    const newContent = content.slice(0, startIndex) + new_text + content.slice(actualEndIndex);
+
+    return this.fsIo.write(path, newContent);
+  }
+
+  private async handle_replace_lines_in_file(action: SlupeAction): Promise<FileOpResult> {
+    const { path, start_line, end_line, new_text } = action.parameters;
+    if (!path || !start_line || !end_line || new_text === undefined) {
+      return {
+        success: false,
+        error: 'Missing required parameters'
+      };
+    }
+
+    const startLineNum = parseInt(start_line, 10);
+    const endLineNum = parseInt(end_line, 10);
+
+    if (isNaN(startLineNum) || isNaN(endLineNum)) {
+      return {
+        success: false,
+        error: 'Invalid line numbers'
+      };
+    }
+
+    if (startLineNum < 1 || endLineNum < startLineNum) {
+      return {
+        success: false,
+        error: 'Invalid line range'
+      };
+    }
+
+    const readResult = await this.fsIo.read(path);
+    if (!readResult.success) return readResult;
+
+    const lines = readResult.data.content.split('\n');
+
+    if (endLineNum > lines.length) {
+      return {
+        success: false,
+        error: `End line ${endLineNum} exceeds file length ${lines.length}`
+      };
+    }
+
+    const newLines = [
+      ...lines.slice(0, startLineNum - 1),
+      new_text,
+      ...lines.slice(endLineNum)
+    ];
+
+    return this.fsIo.write(path, newLines.join('\n'));
+  }
 }
 
-/**
- * Legacy function export for backward compatibility
- * @deprecated Use FsOpsExecutor class instead
- */
 export async function executeFileOperation(_action: SlupeAction): Promise<FileOpResult> {
   throw new Error('Direct function call deprecated. Use FsOpsExecutor class.');
+}
+
+function escapeRegex(str: string): string {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }

@@ -26,10 +26,7 @@ export class FsGuard {
   }
 
   async check(action: SlupeAction): Promise<GuardCheckResult> {
-    return {
-      allowed: true,
-      reason: 'FsGuard.check(action) deprecated - use checkPath() or let orchestrator handle'
-    };
+    throw new Error('FsGuard.check(action) no longer supported - use checkPath(path, mode)');
   }
 
   private async _checkPath(path: string, permType: 'read' | 'write'): Promise<GuardCheckResult> {

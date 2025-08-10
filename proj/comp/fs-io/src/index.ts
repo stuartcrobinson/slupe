@@ -8,7 +8,7 @@ export interface FsIoConfig {
   createParentDirs?: boolean;
 }
 
-export interface IoResult<T = any> {
+export interface FsFsIoResult<T = any> {
   success: boolean;
   data?: T;
   error?: string;
@@ -34,7 +34,7 @@ export class FsIo {
     };
   }
   
-  async read(path: string): Promise<IoResult<ReadResult>> {
+  async read(path: string): Promise<FsIoResult<ReadResult>> {
     const guardCheck = await this.guard.checkPath(path, 'read');
     
     if (!guardCheck.allowed) {
@@ -71,7 +71,7 @@ export class FsIo {
     }
   }
   
-  async write(path: string, content: string): Promise<IoResult<WriteResult>> {
+  async write(path: string, content: string): Promise<FsIoResult<WriteResult>> {
     const guardCheck = await this.guard.checkPath(path, 'write');
     
     if (!guardCheck.allowed) {
@@ -120,9 +120,78 @@ export class FsIo {
       return false;
     }
   }
+  
+  async append(path: string, content: string): Promise<FsIoResult<WriteResult>> {
+    const guardCheck = await this.guard.checkPath(path, 'write');
+    
+    if (!guardCheck.allowed) {
+      return {
+        success: false,
+        error: guardCheck.reason || 'Write access denied'
+      };
+    }
+    
+    const contentSize = Buffer.byteLength(content, this.config.encoding);
+    
+    if (contentSize > this.config.maxFileSize) {
+      return {
+        success: false,
+        error: `Content too large: ${contentSize} bytes (max: ${this.config.maxFileSize})`
+      };
+    }
+    
+    try {
+      if (this.config.createParentDirs) {
+        const dir = dirname(path);
+        await mkdir(dir, { recursive: true });
+      }
+      
+      await writeFile(path, content, { 
+        encoding: this.config.encoding,
+        flag: 'a'
+      });
+      
+      return {
+        success: true,
+        data: {
+          bytesWritten: contentSize
+        }
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: formatFsError(error, path, 'append')
+      };
+    }
+  }
+  
+  async delete(path: string): Promise<FsIoResult<void>> {
+    const guardCheck = await this.guard.checkPath(path, 'write');
+    
+    if (!guardCheck.allowed) {
+      return {
+        success: false,
+        error: guardCheck.reason || 'Write access denied'
+      };
+    }
+    
+    try {
+      const { unlink } = await import('fs/promises');
+      await unlink(path);
+      
+      return {
+        success: true
+      };
+    } catch (error: any) {
+      return {
+        success: false,
+        error: formatFsError(error, path, 'delete')
+      };
+    }
+  }
 }
 
-export { FsIo, type FsIoConfig, type IoResult, type ReadResult, type WriteResult };
+export { FsIo, type FsIoConfig, type FsIoResult, type ReadResult, type WriteResult };
 
 function formatFsError(error: any, path: string, operation: string): string {
   const code = error.code || 'UNKNOWN';
