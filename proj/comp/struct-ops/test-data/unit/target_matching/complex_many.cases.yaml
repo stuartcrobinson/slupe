@@ -1,0 +1,1060 @@
+# More multi-line targeting edge cases
+
+- name: constructor_in_class
+  content: |2
+    class Thing {
+      constructor(x) {
+        this.x = x;
+      }
+    }
+  target: |
+    Thing
+    constructor
+  expected: |
+    constructor(x) {
+      this.x = x;
+    }
+
+- name: getter_setter
+  content: |2
+    class User {
+      get name() { return this._name; }
+      set name(val) { this._name = val; }
+    }
+  target: |
+    User
+    get name()
+  expected: "get name() { return this._name; }"
+
+- name: try_catch_finally
+  content: |2
+    function risky() {
+      try {
+        doThing();
+      } catch (e) {
+        log(e);
+      } finally {
+        cleanup();
+      }
+    }
+  target: |
+    risky
+    try
+  expected: |
+    try {
+      doThing();
+    } catch (e) {
+      log(e);
+    } finally {
+      cleanup();
+    }
+
+- name: catch_block_alone
+  content: |2
+    try {
+      x();
+    } catch (err) {
+      handle(err);
+    }
+  target: "catch (err)"
+  expected: |
+    catch (err) {
+      handle(err);
+    }
+
+- name: switch_case
+  content: |2
+    switch (action.type) {
+      case 'ADD':
+        return state + 1;
+      case 'SUB':
+        return state - 1;
+      default:
+        return state;
+    }
+  target: "case 'ADD':"
+  expected: |
+    case 'ADD':
+      return state + 1;
+
+- name: lambda_in_map
+  content: |2
+    const doubled = items.map(x => x * 2);
+  target: "x => x * 2"
+  error: "TARGET_NOT_FOUND"  # Not a complete line
+
+- name: destructuring_params
+  content: |2
+    function process({id, name}) {
+      return `${id}: ${name}`;
+    }
+  target: "function process({id, name})"
+  expected: |
+    function process({id, name}) {
+      return `${id}: ${name}`;
+    }
+
+- name: while_inside_function
+  content: |2
+    function poll() {
+      while (running) {
+        check();
+      }
+    }
+  target: |
+    poll
+    while (running)
+  expected: |
+    while (running) {
+      check();
+    }
+
+- name: do_while
+  content: |2
+    do {
+      attempt();
+    } while (retries > 0);
+  target: "do"
+  expected: |
+    do {
+      attempt();
+    } while (retries > 0);
+
+- name: for_of_loop
+  content: |2
+    for (const item of items) {
+      process(item);
+    }
+  target: "for (const item of items)"
+  expected: |
+    for (const item of items) {
+      process(item);
+    }
+
+- name: nested_classes
+  content: |2
+    class Outer {
+      static class Inner {
+        method() {}
+      }
+    }
+  target: |
+    Outer
+    Inner
+    method
+  expected: "method() {}"
+
+- name: object_method_shorthand
+  content: |2
+    const obj = {
+      doThing() {
+        return 42;
+      }
+    };
+  target: "doThing()"
+  expected: |
+    doThing() {
+      return 42;
+    }
+
+- name: computed_property
+  content: |2
+    const obj = {
+      [key]: value,
+      [methodName]() { return 1; }
+    };
+  target: "[methodName]()"
+  expected: "[methodName]() { return 1; }"
+
+- name: generator_function
+  content: |2
+    function* sequence() {
+      yield 1;
+      yield 2;
+    }
+  target: "function* sequence()"
+  expected: |
+    function* sequence() {
+      yield 1;
+      yield 2;
+    }
+
+- name: async_generator
+  content: |2
+    async function* stream() {
+      yield await fetch();
+    }
+  target: "async function* stream()"
+  expected: |
+    async function* stream() {
+      yield await fetch();
+    }
+
+- name: module_pattern
+  content: |2
+    (function() {
+      const private = 1;
+      return { public: 2 };
+    })();
+  target: "function()"
+  expected: |
+    function() {
+      const private = 1;
+      return { public: 2 };
+    }
+
+- name: with_statement
+  content: |2
+    with (obj) {
+      prop = value;
+    }
+  target: "with (obj)"
+  expected: |
+    with (obj) {
+      prop = value;
+    }
+
+- name: labeled_statement
+  content: |2
+    outer: for (let i = 0; i < 10; i++) {
+      inner: for (let j = 0; j < 10; j++) {
+        break outer;
+      }
+    }
+  target: "outer: for (let i = 0; i < 10; i++)"
+  expected: |
+    outer: for (let i = 0; i < 10; i++) {
+      inner: for (let j = 0; j < 10; j++) {
+        break outer;
+      }
+    }
+
+- name: template_literal_function
+  content: |2
+    function tag(strings, ...values) {
+      return strings[0];
+    }
+  target: "function tag(strings, ...values)"
+  expected: |
+    function tag(strings, ...values) {
+      return strings[0];
+    }
+
+- name: python_list_comprehension
+  content: |2
+    def process():
+        result = [x * 2 for x in items if x > 0]
+        return result
+  target: |
+    process
+    result = [x * 2 for x in items if x > 0]
+  expected: "result = [x * 2 for x in items if x > 0]"
+
+- name: python_context_manager
+  content: |2
+    with open('file') as f:
+        data = f.read()
+  target: "with open('file') as f:"
+  expected: |
+    with open('file') as f:
+        data = f.read()
+
+- name: python_lambda
+  content: |2
+    processor = lambda x: x * 2
+  target: "processor = lambda x: x * 2"
+  expected: "processor = lambda x: x * 2"
+
+- name: typescript_interface
+  content: |2
+    interface User {
+      id: number;
+      name: string;
+    }
+  target: "User"
+  expected: |
+    interface User {
+      id: number;
+      name: string;
+    }
+
+- name: enum_member
+  content: |2
+    enum Status {
+      PENDING = 'pending',
+      ACTIVE = 'active'
+    }
+  target: |
+    Status
+    PENDING = 'pending'
+  expected: "PENDING = 'pending',"
+
+- name: decorator_factory
+  content: |2
+    @Component({
+      selector: 'app-root'
+    })
+    class AppComponent {}
+  target: "AppComponent"
+  expected: |
+    @Component({
+      selector: 'app-root'
+    })
+    class AppComponent {}
+
+# Multi-line targets with parent paths
+
+- name: simple_method_path
+  content: |2
+    class Calculator {
+      add(x, y) { return x + y; }
+    }
+  target: |
+    Calculator
+    add
+  expected: "add(x, y) { return x + y; }"
+
+- name: deep_control_flow
+  content: |2
+    function process() {
+      while (true) {
+        if (data) {
+          for (let item of items) {
+            console.log(item);
+          }
+        }
+      }
+    }
+  target: |
+    process
+    while (true)
+    if (data)
+    for (let item of items)
+  expected: |
+    for (let item of items) {
+      console.log(item);
+    }
+
+- name: catch_inside_method
+  content: |2
+    class Handler {
+      handle() {
+        try {
+          work();
+        } catch (e) {
+          log(e);
+        }
+      }
+    }
+  target: |
+    Handler
+    handle
+    catch (e)
+  expected: |
+    catch (e) {
+      log(e);
+    }
+
+- name: else_inside_constructor
+  content: |2
+    class Thing {
+      constructor(x) {
+        if (x) {
+          this.x = x;
+        } else {
+          this.x = 0;
+        }
+      }
+    }
+  target: |
+    Thing
+    constructor
+    else
+  expected: |
+    else {
+      this.x = 0;
+    }
+
+- name: function_inside_object_literal
+  content: |2
+    const api = {
+      getData() {
+        return fetch('/data');
+      }
+    };
+  target: |
+    const api = {
+    getData
+  expected: |
+    getData() {
+      return fetch('/data');
+    }
+
+- name: switch_case_nested
+  content: |2
+    function reducer(state, action) {
+      switch (action.type) {
+        case 'INCREMENT':
+          return state + 1;
+      }
+    }
+  target: |
+    reducer
+    switch (action.type)
+    case 'INCREMENT':
+  expected: |
+    case 'INCREMENT':
+      return state + 1;
+
+- name: lambda_inside_if
+  content: |2
+    if (needsProcessing) {
+      const processor = (x) => x * 2;
+    }
+  target: |
+    if (needsProcessing)
+    const processor = (x) => x * 2;
+  expected: "const processor = (x) => x * 2;"
+
+- name: default_case_in_switch
+  content: |2
+    switch (x) {
+      default:
+        handleUnknown();
+    }
+  target: |
+    switch (x)
+    default:
+  expected: |
+    default:
+      handleUnknown();
+
+- name: static_block_in_class
+  content: |2
+    class Config {
+      static {
+        this.value = 42;
+      }
+    }
+  target: |
+    Config
+    static
+  expected: |
+    static {
+      this.value = 42;
+    }
+
+- name: getter_with_if
+  content: |2
+    class User {
+      get isValid() {
+        if (this.email) {
+          return true;
+        }
+        return false;
+      }
+    }
+  target: |
+    User
+    get isValid()
+    if (this.email)
+  expected: |
+    if (this.email) {
+      return true;
+    }
+
+- name: finally_block_alone
+  content: |2
+    try {
+      risky();
+    } finally {
+      cleanup();
+    }
+  target: |
+    try
+    finally
+  expected: |
+    finally {
+      cleanup();
+    }
+
+- name: with_inside_function
+  content: |2
+    function configure() {
+      with (settings) {
+        debug = true;
+      }
+    }
+  target: |
+    configure
+    with (settings)
+  expected: |
+    with (settings) {
+      debug = true;
+    }
+
+- name: do_while_nested
+  content: |2
+    function retry() {
+      do {
+        if (attempt()) {
+          break;
+        }
+      } while (tries-- > 0);
+    }
+  target: |
+    retry
+    do
+    if (attempt())
+  expected: |
+    if (attempt()) {
+      break;
+    }
+
+- name: ambiguous_nested_ifs
+  content: |2
+    function check() {
+      if (a) {
+        if (b) return 1;
+      }
+      if (c) {
+        if (b) return 2;
+      }
+    }
+  target: |
+    check
+    if (b)
+  expected:
+    - "if (b) return 1;"
+    - "if (b) return 2;"
+
+- name: return_statement_alone
+  content: |2
+    function calc() {
+      if (x) {
+        return x * 2;
+      }
+    }
+  target: |
+    calc
+    if (x)
+    return x * 2;
+  expected: "return x * 2;"
+
+
+- name: expression_statement_in_for
+  content: |2
+    for (let i = 0; i < 10; i++) {
+      i * 2;
+      console.log(i);
+    }
+  target: |
+    for (let i = 0; i < 10; i++)
+    i * 2;
+  expected: "i * 2;"
+
+- name: yield_in_generator
+  content: |2
+    function* gen() {
+      while (true) {
+        yield counter++;
+      }
+    }
+  target: |
+    gen
+    while (true)
+    yield counter++;
+  expected: "yield counter++;"
+
+- name: break_with_label
+  content: |2
+    outer: for (let i = 0; i < 10; i++) {
+      if (done) {
+        break outer;
+      }
+    }
+  target: |
+    outer: for (let i = 0; i < 10; i++)
+    if (done)
+    break outer;
+  expected: "break outer;"
+
+# Multi-line targets with heavily modified functions/methods
+
+- name: async_static_in_class
+  content: |2
+    class Service {
+      public static async fetchAll(): Promise<Item[]> {
+        return await db.query();
+      }
+    }
+  target: |
+    Service
+    public static async fetchAll(): Promise<Item[]>
+  expected: |
+    public static async fetchAll(): Promise<Item[]> {
+      return await db.query();
+    }
+
+- name: private_readonly_getter
+  content: |2
+    class State {
+      private readonly get current() {
+        return this._state;
+      }
+    }
+  target: |
+    State
+    private readonly get current()
+  expected: |
+    private readonly get current() {
+      return this._state;
+    }
+
+- name: protected_abstract_async
+  content: |2
+    abstract class Base {
+      protected abstract async process(data: any): Promise<void>;
+    }
+  target: |
+    Base
+    protected abstract async process(data: any): Promise<void>
+  expected: "protected abstract async process(data: any): Promise<void>;"
+
+- name: export_default_async_function
+  content: |2
+    export default async function handler(req: Request): Promise<Response> {
+      if (!req.body) {
+        throw new Error();
+      }
+    }
+  target: |
+    export default async function handler(req: Request): Promise<Response>
+    if (!req.body)
+  expected: |
+    if (!req.body) {
+      throw new Error();
+    }
+
+- name: public_static_readonly_nested
+  content: |2
+    class Config {
+      public static readonly defaults = {
+        timeout: 5000
+      };
+    }
+  target: |
+    Config
+    public static readonly defaults = {
+  expected: |
+    public static readonly defaults = {
+      timeout: 5000
+    };
+
+- name: async_generator_method
+  content: |2
+    class Stream {
+      async *generate(): AsyncGenerator<number> {
+        yield 1;
+      }
+    }
+  target: |
+    Stream
+    async *generate(): AsyncGenerator<number>
+  expected: |
+    async *generate(): AsyncGenerator<number> {
+      yield 1;
+    }
+
+- name: static_async_with_try
+  content: |2
+    class API {
+      static async request(url: string) {
+        try {
+          return await fetch(url);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+    }
+  target: |
+    API
+    static async request(url: string)
+    try
+  expected: |
+    try {
+      return await fetch(url);
+    } catch (e) {
+      console.error(e);
+    }
+
+- name: override_async_method
+  content: |2
+    class Child extends Parent {
+      override async process() {
+        await super.process();
+      }
+    }
+  target: |
+    Child
+    override async process()
+  expected: |
+    override async process() {
+      await super.process();
+    }
+
+- name: const_static_arrow
+  content: |2
+    class Utils {
+      static readonly helper = async (x: number) => {
+        return x * 2;
+      };
+    }
+  target: |
+    Utils
+    static readonly helper = async (x: number) =>
+  expected: |
+    static readonly helper = async (x: number) => {
+      return x * 2;
+    };
+
+- name: volatile_synchronized_java_style
+  content: |2
+    class ThreadSafe {
+      private volatile synchronized update(val) {
+        this.state = val;
+      }
+    }
+  target: |
+    ThreadSafe
+    private volatile synchronized update(val)
+  expected: |
+    private volatile synchronized update(val) {
+      this.state = val;
+    }
+
+- name: final_static_method
+  content: |2
+    class Immutable {
+      public static final compute() {
+        if (cached) return cached;
+        return calculate();
+      }
+    }
+  target: |
+    Immutable
+    public static final compute()
+    if (cached)
+  expected: "if (cached) return cached;"
+
+- name: inline_export_async
+  content: |2
+    export async function* streamData() {
+      while (hasMore) {
+        yield await fetchNext();
+      }
+    }
+  target: |
+    export async function* streamData()
+    while (hasMore)
+  expected: |
+    while (hasMore) {
+      yield await fetchNext();
+    }
+
+- name: decorator_on_static_async
+  content: |2
+    class Service {
+      @cached
+      static async expensive() {
+        return compute();
+      }
+    }
+  target: |
+    Service
+    static async expensive()
+  expected: |
+    @cached
+    static async expensive() {
+      return compute();
+    }
+
+- name: missing_modifier_no_match_nested
+  content: |2
+    class Test {
+      private static async method() {
+        if (x) return;
+      }
+    }
+  target: |
+    Test
+    static async method()
+    if (x)
+  error: "TARGET_NOT_FOUND"  # Missing 'private'
+
+- name: partial_modifier_no_match
+  content: |2
+    class API {
+      public async fetch() {
+        return data;
+      }
+    }
+  target: |
+    API
+    async fetch()
+  error: "TARGET_NOT_FOUND"  # Missing 'public'
+
+# Complex types and modifiers in multi-line targets
+
+- name: generic_constraint_method
+  content: |2
+    class Container<T> {
+      public async get<K extends keyof T>(key: K): Promise<T[K]> {
+        return this.data[key];
+      }
+    }
+  target: |
+    Container
+    public async get<K extends keyof T>(key: K): Promise<T[K]>
+  expected: |
+    public async get<K extends keyof T>(key: K): Promise<T[K]> {
+      return this.data[key];
+    }
+
+- name: readonly_partial_mapped_type
+  content: |2
+    interface Store {
+      private readonly state: Readonly<Partial<State>>;
+      protected update(patch: Partial<State>): void;
+    }
+  target: |
+    Store
+    protected update(patch: Partial<State>): void
+  expected: "protected update(patch: Partial<State>): void;"
+
+- name: conditional_type_return
+  content: |2
+    class TypeGuard {
+      static isValid<T>(val: unknown): val is T extends string ? string : never {
+        if (typeof val === 'string') {
+          return true;
+        }
+      }
+    }
+  target: |
+    TypeGuard
+    static isValid<T>(val: unknown): val is T extends string ? string : never
+    if (typeof val === 'string')
+  expected: |
+    if (typeof val === 'string') {
+      return true;
+    }
+
+- name: intersection_union_params
+  content: |2
+    abstract class Processor {
+      abstract async process(data: (A & B) | (C & D)): Promise<Result>;
+    }
+  target: |
+    Processor
+    abstract async process(data: (A & B) | (C & D)): Promise<Result>
+  expected: "abstract async process(data: (A & B) | (C & D)): Promise<Result>;"
+
+- name: tuple_rest_params
+  content: |2
+    function combine(...args: [string, number, ...boolean[]]): Mixed {
+      const [str, num, ...bools] = args;
+      return process(str, num, bools);
+    }
+  target: |
+    combine
+    const [str, num, ...bools] = args;
+  expected: "const [str, num, ...bools] = args;"
+
+- name: infer_type_in_conditional
+  content: |2
+    type Unpacked<T> = T extends (infer U)[] ? U : T extends Promise<infer V> ? V : T;
+  target: "type Unpacked<T> = T extends (infer U)[] ? U : T extends Promise<infer V> ? V : T;"
+  expected: "type Unpacked<T> = T extends (infer U)[] ? U : T extends Promise<infer V> ? V : T;"
+
+- name: decorator_generic_class
+  content: |2
+    @Injectable<ServiceConfig>()
+    class DataService<T extends Model> {
+      async fetch(): Promise<T[]> {
+        return [];
+      }
+    }
+  target: |
+    DataService
+    async fetch(): Promise<T[]>
+  expected: |
+    async fetch(): Promise<T[]> {
+      return [];
+    }
+
+- name: variadic_generic_function
+  content: |2
+    export function compose<T extends any[]>(...fns: T): (x: any) => any {
+      return (x) => fns.reduce((v, f) => f(v), x);
+    }
+  target: |
+    export function compose<T extends any[]>(...fns: T): (x: any) => any
+    return (x) => fns.reduce((v, f) => f(v), x);
+  expected: "return (x) => fns.reduce((v, f) => f(v), x);"
+
+- name: override_with_narrowed_type
+  content: |2
+    class Specific extends Base {
+      override async getData(): Promise<SpecificData & { extra: true }> {
+        const base = await super.getData();
+        return { ...base, extra: true };
+      }
+    }
+  target: |
+    Specific
+    override async getData(): Promise<SpecificData & { extra: true }>
+    const base = await super.getData();
+  expected: "const base = await super.getData();"
+
+- name: static_generic_factory
+  content: |2
+    class Factory {
+      static create<T extends new (...args: any[]) => any>(
+        ctor: T,
+        ...args: ConstructorParameters<T>
+      ): InstanceType<T> {
+        return new ctor(...args);
+      }
+    }
+  target: |
+    Factory
+    static create<T extends new (...args: any[]) => any>(
+  expected: |
+    static create<T extends new (...args: any[]) => any>(
+      ctor: T,
+      ...args: ConstructorParameters<T>
+    ): InstanceType<T> {
+      return new ctor(...args);
+    }
+
+
+- name: async_iterator_protocol
+  content: |2
+    class Stream {
+      async *[Symbol.asyncIterator](): AsyncIterator<Data> {
+        while (this.hasNext()) {
+          yield await this.next();
+        }
+      }
+    }
+  target: |
+    Stream
+    async *[Symbol.asyncIterator](): AsyncIterator<Data>
+    while (this.hasNext())
+  expected: |
+    while (this.hasNext()) {
+      yield await this.next();
+    }
+
+- name: private_static_readonly_generic
+  content: |2
+    class Cache<K, V> {
+      private static readonly instances = new Map<string, Cache<any, any>>();
+      protected constructor(private readonly ttl: number) {}
+    }
+  target: |
+    Cache
+    protected constructor(private readonly ttl: number)
+  expected: "protected constructor(private readonly ttl: number) {}"
+
+- name: template_literal_type_param
+  content: |2
+    function query<T extends `SELECT * FROM ${string}`>(sql: T): QueryResult<T> {
+      if (!sql.startsWith('SELECT')) {
+        throw new Error();
+      }
+    }
+  target: |
+    query
+    if (!sql.startsWith('SELECT'))
+  expected: |
+    if (!sql.startsWith('SELECT')) {
+      throw new Error();
+    }
+
+- name: recursive_generic_constraint
+  content: |2
+    interface Tree<T extends Tree<T>> {
+      parent?: T;
+      children: T[];
+    }
+  target: |
+    Tree
+    children: T[];
+  expected: "children: T[];"
+
+- name: assertion_signature_method
+  content: |2
+    class Validator {
+      static assert(condition: any): asserts condition is true {
+        if (!condition) throw new Error();
+      }
+    }
+  target: |
+    Validator
+    static assert(condition: any): asserts condition is true
+    if (!condition)
+  expected: "if (!condition) throw new Error();"
+
+- name: const_assertion_object
+  content: |2
+    const config = {
+      api: {
+        endpoints: {
+          users: '/api/users'
+        } as const
+      }
+    } as const;
+  target: "const config = {"
+  expected: |
+    const config = {
+      api: {
+        endpoints: {
+          users: '/api/users'
+        } as const
+      }
+    } as const;
+
+- name: namespace_with_export
+  content: |2
+    namespace Utils {
+      export async function delay(ms: number): Promise<void> {
+        return new Promise(r => setTimeout(r, ms));
+      }
+    }
+  target: |
+    Utils
+    export async function delay(ms: number): Promise<void>
+  expected: |
+    export async function delay(ms: number): Promise<void> {
+      return new Promise(r => setTimeout(r, ms));
+    }
+
+- name: declare_global_augmentation
+  content: |2
+    declare global {
+      interface Window {
+        myAPI: {
+          async fetch<T>(url: string): Promise<T>;
+        };
+      }
+    }
+  target: |
+    declare global
+    interface Window
+    async fetch<T>(url: string): Promise<T>;
+  expected: "async fetch<T>(url: string): Promise<T>;"
+
+
+#https://claude.ai/chat/63b4f078-51e0-4140-9b1b-b6dfe0040b25

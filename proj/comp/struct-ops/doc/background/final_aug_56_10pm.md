@@ -52,9 +52,7 @@ move_structure_to_file_end(source_path: string, source_target: string, dest_path
   ```
 - **Empty target string (`""`)**: Targets file root/module scope
 - **Each line must specify the exact path** - no skipping intermediate levels
-- **Matching uses literal first 50 characters** of the structure's source text (no normalization)
-  - `def validate(self):` is different from `validate(self):`
-  - Includes keywords, punctuation, whitespace as written
+
 
 ### Structure Boundaries Include
 - Decorators (Python)
@@ -92,11 +90,6 @@ move_structure_to_file_end(source_path: string, source_target: string, dest_path
 - Inclusive ranges [start, end]
 - Recalculated fresh for each operation (no transaction support)
 
-### Markdown Structure Matching
-- Headings: Match heading text
-- List items: Match first 50 chars of item text
-- Code blocks: Match language tag or first line
-- Blockquotes: Match first line of quote
 
 ## Error Responses
 
@@ -216,11 +209,6 @@ interface Warning {
 - If parsed as one node → one structure (e.g., if_statement including elif/else)
 - If parsed as siblings → separate structures
 - Decorators included with their decorated structure
-
-**Structure identification:**
-- Uses literal first 50 characters of structure's source text
-- No normalization - exact text including whitespace, punctuation, keywords
-- Module-level structures targeted by their content (e.g., `"""Module documentation"""`)
 
 ### Move Operation Behavior
 - **No rollback on partial failure** - source may be deleted even if destination write fails

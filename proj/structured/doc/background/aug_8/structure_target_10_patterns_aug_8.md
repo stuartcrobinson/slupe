@@ -21,7 +21,7 @@ class TargetPattern(Enum):
     CONTROL_KEYWORD = 7                 # "if"
     CONTROL_HEAD = 8                    # "if x"
     CONTROL_EXTENDED = 9                # "if (x > 0"
-    
+        
     # Complete headers
     FULL_HEADER = 10                    # Everything up to {/:
 ```

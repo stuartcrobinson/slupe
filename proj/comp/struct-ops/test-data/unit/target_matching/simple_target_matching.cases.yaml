@@ -1,0 +1,327 @@
+# Target matching test cases - SIMPLIFIED & FOCUSED
+# Two matching approaches:
+# 1. Identifier only (e.g., "ProcessData")
+# 2. Full header line (first line of declaration, whitespace normalized)
+
+# TEST: Identifier-only matching
+- name: identifier_matching
+  content: |2
+    function otherFunc() { return 1; }
+    function processData() {
+      return;
+    }
+  variations_valid:
+    - "processData"
+  variations_invalid:
+    - "process"      # Partial
+    - "Data"         # Partial
+    - "function"    # Not identifier
+  returned_contents: |
+    function processData() {
+      return;
+    }
+
+# TEST: Full header line matching
+- name: header_line_matching
+  content: |2
+    def other(z): return z * 2
+    def calculate(x: int, y: int) -> int:
+        return x + y
+  variations_valid:
+    - "def calculate(x: int, y: int) -> int:"
+    - "def calculate(x: int, y: int) -> int"  # Missing final :
+  variations_invalid:
+    - "def calculate"                          # Incomplete header
+    - "calculate(x: int, y: int)"             # Missing keyword
+  returned_contents: |
+    def calculate(x: int, y: int) -> int:
+        return x + y
+
+# TEST: Whitespace normalization
+- name: whitespace_normalization
+  content: |2
+    const getData = () => ({ data: [] });
+    export async function fetchData(url: string): Promise<any> {
+      return fetch(url);
+    }
+  variations_valid:
+    - "fetchData"                                                    # Identifier
+    - "export async function fetchData(url: string): Promise<any> {" # Normal spacing
+    - "exportasyncfunctionfetchData(url:string):Promise<any>{"      # No spaces
+    - "export  async  function  fetchData ( url : string ) : Promise < any > {" # Extra spaces
+  variations_invalid:
+    - "export async function"                                       # No identifier
+  returned_contents: |
+    export async function fetchData(url: string): Promise<any> {
+      return fetch(url);
+    }
+
+# TEST: Control flow structures
+- name: control_flow_matching
+  content: |2
+    if x > 0:
+        print("positive")
+    elif x < 0:
+        print("negative")
+    else:
+        print("zero")
+  variations_valid:
+    - "if x > 0:"
+    - "ifx>0:"      # Normalized
+    - "if x > 0"    # Missing :
+  variations_invalid:
+    - "if"          # Ambiguous without condition
+    - "x > 0"       # Missing keyword
+  returned_contents: |
+    if x > 0:
+        print("positive")
+    elif x < 0:
+        print("negative")
+    else:
+        print("zero")
+
+# TEST: Decorators included in return
+- name: decorator_inclusion
+  content: |2
+    #unrelated comment 
+
+    @cache
+    def expensive():
+        return 42
+  variations_valid:
+    - "expensive"
+    - "def expensive():"
+  variations_invalid:
+    - "@cache"      # Decorator alone
+  returned_contents: |
+    @cache
+    def expensive():
+        return 42
+
+# TEST: Multiple matches (same identifier)
+- name: multiple_matches_same_name
+  content: |2
+    function add(a: number): number {
+      return a;
+    }
+    function add(a: number, b: number): number {
+      return a + b;
+    }
+  variations_valid:
+    - "add"         # Returns BOTH
+  variations_invalid:
+    - "ad"          # Partial
+  returned_contents:
+    - |
+      function add(a: number): number {
+        return a;
+      }
+    - |
+      function add(a: number, b: number): number {
+        return a + b;
+      }
+
+# TEST: Disambiguation via full header
+- name: disambiguate_overload
+  content: |2
+    function add(a: number): number {
+      return a;
+    }
+    function add(a: number, b: number): number {
+      return a + b;
+    }
+  variations_valid:
+    - "function add(a: number, b: number): number {"
+    - "functionadd(a:number,b:number):number"  # Normalized
+  variations_invalid:
+    - "add(a, b)"   # Not full header
+  returned_contents: |
+    function add(a: number, b: number): number {
+      return a + b;
+    }
+
+# TEST: Class method matching
+- name: class_method
+  content: |2
+    class Calculator {
+      public add(a: number, b: number): number {
+        return a + b;
+      }
+    }
+  variations_valid:
+    - "add"
+    - "public add(a: number, b: number): number {"
+    - "publicadd(a:number,b:number):number"  # Normalized
+  variations_invalid:
+    - "public"      # Modifier alone
+  returned_contents: |
+    public add(a: number, b: number): number {
+      return a + b;
+    }
+
+# TEST: Multiline condition (first line only)
+- name: multiline_condition
+  file: test.py
+  content: |2
+    if (long_condition and
+        another_condition):
+        print("yes")
+    else:
+        print("no")
+  variations_valid:
+    - "if (long_condition and"
+    - "if(long_conditionand"  # Normalized
+  variations_invalid:
+    - "if another_condition"  # Not first line
+    - "if(long_conditiona"  # more than one final char removed
+  returned_contents: |
+    if (long_condition and
+        another_condition):
+        print("yes")
+    else:
+        print("no")
+
+# TEST: Else block (no condition)
+- name: else_block
+  file: test.py
+  content: |2
+    if x:
+        pass
+    else:
+        print("no")
+  variations_valid:
+    - "else:"
+    - "else"
+  variations_invalid:
+    - "print"       # Body content
+  returned_contents: |
+    else:
+        print("no")
+
+# Anonymous function targeting
+- name: arrow_function_assignment
+  content: |2
+    const handler = (x) => x * 2;
+    const processor = function(y) { return y * 3; };
+  variations_valid:
+    - "const handler = (x) => x * 2;"
+    - "co		n	s	than  dler=(	x)=>x*2;"  # contains tabs
+  returned_contents: |
+    const handler = (x) => x * 2;
+
+# Module-level statements
+- name: module_level_console
+  content: |2
+    console.log('loading');
+    const x = 10;
+    function init() {}
+  variations_valid:
+    - "console.log('loading');"
+    - "console.log('loading')"  # without semicolon
+  returned_contents: |2
+    console.log('loading');
+
+# Multi-statement single line
+- name: single_line_if_block
+  content: |2
+    if (x) { console.log(x); return x; }
+  variations_valid:
+    - "if (x) { console.log(x); return x; }"
+    - "if(x){console.log(x);returnx;}"  # normalized
+  returned_contents: |
+    if (x) { console.log(x); return x; }
+
+# Invalid nested path
+- name: invalid_nesting_path
+  content: |2
+    console.log('loading');
+    class Foo {
+      method() {}
+    }
+  target: |
+    console.log('loading');
+    Foo
+  expected_error: TARGET_NOT_FOUND
+  error_details:
+    message: "console.log('loading'); does not contain Foo"
+
+
+# ADD TO target_matching.cases.yaml
+
+# TEST: Multiple matches returned for read_structure
+- name: duplicate_function_names
+  content: |2
+    function process() { return 1; }
+    function process() { return 2; }
+  variations_valid:
+    - "process"
+  returned_contents:
+    - "function process() { return 1; }"
+    - "function process() { return 2; }"
+
+# TEST: Methods in different classes
+- name: method_in_different_classes
+  content: |2
+    class A {
+      validate() { return true; }
+    }
+    class B {
+      validate() { return false; }
+    }
+  variations_valid:
+    - "validate"
+    - "va  lid   ate"
+  variations_invalid:
+    - "valid"  # Partial
+  returned_contents:
+    - "validate() { return true; }"
+    - "validate() { return false; }"
+    
+# TEST: Decorators and JSDoc included in boundaries
+- name: typescript_decorator_inclusion
+  content: |2
+    // This comment is NOT part of the class
+    
+    /** This JSDoc IS part of the class */
+    @Injectable()
+    @Singleton
+    export class ServiceWithDecorators {
+      method() {}
+    }
+  variations_valid:
+    - "ServiceWithDecorators"
+    - "export class ServiceWithDecorators"
+  variations_invalid:
+    - "@Injectable"  # Decorator alone
+    - "/** This JSDoc"  # Comment alone
+  returned_contents: |
+    /** This JSDoc IS part of the class */
+    @Injectable()
+    @Singleton
+    export class ServiceWithDecorators {
+      method() {}
+    }
+
+# TEST: Python decorators stacked
+- name: python_decorator_stacking]
+  content: |2
+    # Regular comment not included
+    
+    @route('/api')
+    @authenticate
+    @cache(ttl=300)
+    def api_endpoint():
+        """Docstring IS included"""
+        return {'status': 'ok'}
+  variations_valid:
+    - "api_endpoint"
+    - "def api_endpoint():"
+  variations_invalid:
+    - "@route"  # Decorator alone
+  returned_contents: |
+    @route('/api')
+    @authenticate
+    @cache(ttl=300)
+    def api_endpoint():
+        """Docstring IS included"""
+        return {'status': 'ok'}

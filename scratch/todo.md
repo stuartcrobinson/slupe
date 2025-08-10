@@ -1,3 +1,9 @@
+
+_________________
+aug 9 
+
+idea ... for web browser tool... have auto-updated summary document that summarizes all main points and decisiosn made inthat enw chat.  and it can have an "update" button with a little text field for comments to add
+
 ___________________
 aug 8
 

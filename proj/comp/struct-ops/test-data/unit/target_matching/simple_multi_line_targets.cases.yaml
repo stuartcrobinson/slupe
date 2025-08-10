@@ -1,0 +1,122 @@
+# Multi-line target path resolution tests
+
+
+- name: method_in_class
+  content: |2
+    class UserService {
+      validate(user) { return user.active; }
+    }
+  target: |
+    UserService
+    validate
+  expected: "validate(user) { return user.active; }"
+
+- name: function_in_if_block
+  content: |2
+    if (DEBUG) {
+      function log(msg) { console.log(msg); }
+    }
+  target: |
+    if (DEBUG)
+    log
+  expected: "function log(msg) { console.log(msg); }"
+
+- name: nested_control_flow
+  content: |2
+    while (running) {
+      if (shouldProcess) {
+        for (let i = 0; i < 10; i++) {
+          console.log(i);
+        }
+      }
+    }
+  target: |
+    while (running)
+    if (shouldProcess)
+    for (let i = 0; i < 10; i++)
+  expected: |
+    for (let i = 0; i < 10; i++) {
+      console.log(i);
+    }
+
+
+- name: ambiguous_child_different_parents
+  content: |2
+    class A {
+      run() { return 1; }
+    }
+    class B {
+      run() { return 2; }
+    }
+  target: |
+    B
+    run
+  expected: "run() { return 2; }"
+
+- name: child_not_in_parent
+  content: |2
+    function outer() { return 1; }
+    function inner() { return 2; }
+  target: |
+    outer
+    inner
+  error: "TARGET_NOT_FOUND"
+
+- name: skipped_intermediate_level
+  content: |2
+    class Service {
+      method() {
+        if (x) {
+          console.log('yes');
+        }
+      }
+    }
+  target: |
+    Service
+    console.log('yes');
+  error: "TARGET_NOT_FOUND"  # Must include method
+
+- name: multiple_matches_same_parent
+  content: |2
+    function process() {
+      if (x > 0) return 'positive';
+      if (x < 0) return 'negative';
+    }
+  target: |
+    process
+    if
+  matches:
+    - "if (x > 0) return 'positive';"
+    - "if (x < 0) return 'negative';"
+
+
+- name: module_level_then_class
+  content: |2
+    console.log('init');
+    class Foo {
+      bar() {}
+    }
+  target: |
+    console.log('init');
+    Foo
+  error: "TARGET_NOT_FOUND"  # console.log doesn't contain Foo
+
+- name: empty_parent_target
+  content: |2
+    function wrap() {
+      function inner() { return 42; }
+    }
+  target: |
+    
+    wrap
+  error: "INVALID_TARGET"  # Empty line in path
+
+- name: normalized_parent_matching
+  content: |2
+    if   (  x  >  0  )  {
+      return true;
+    }
+  target: |
+    if(x>0)
+    return true;
+  expected: "return true;"

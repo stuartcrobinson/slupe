@@ -76,7 +76,7 @@ proj/comp/struct-ops/
 
 1. **Parser management**: Singleton pattern for tree-sitter parsers (one per language, lazy init)
 
-2. **Target resolution**: Owned by struct-ops, not parsers. Uses "first 50 chars" matching (implementation details deferred)
+2. **Target resolution**: Owned by struct-ops, not parsers.  (implementation details deferred)
 
 3. **Indentation**: Handled by struct-ops, not parsers. Auto-detects and adjusts indentation for moved/inserted content
 
@@ -115,7 +115,7 @@ Struct-ops will define specific error types for LLM comprehension:
 - Extension to parser mapping strategy
 - Specific ParsedStructure interface shape
 - Markdown heading hierarchy edge cases
-- Target resolution implementation ("first 50 chars" details)
+- Target resolution implementation
 
 ## Followups
 

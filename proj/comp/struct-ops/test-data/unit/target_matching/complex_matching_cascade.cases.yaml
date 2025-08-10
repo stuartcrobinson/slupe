@@ -1,0 +1,269 @@
+# trouble.yml
+# https://claude.ai/chat/63b4f078-51e0-4140-9b1b-b6dfe0040b25
+
+
+#---> allow parent skipping                           SKIP_PARENTS
+#---> remove all structural chars                     REMOVE_STRUCT
+#---> CONTAINS or PREFIX (after remove struct prob)   STARTS_WITH
+
+
+# ok so lets match in this order:
+
+
+# NORM_WHITE & (then) REMOVE_LAST_CHAR
+#   SKIP_PARENTS
+# REMOVE_STRUCT
+#   SKIP_PARENTS
+# STARTS_WITH
+#   SKIP_PARENTS
+
+
+
+
+
+
+
+- name: assertion_signature_method
+  content: |2
+    class Validator {
+      static assert(condition: any): asserts condition is true {
+        if (!condition) throw new Error();
+      }
+    }
+  target: |
+    Validator
+    static assert(condition: any): asserts condition is true
+    if (!condition)
+  expected: "if (!condition) throw new Error();"
+
+#---> CONTAINS or PREFIX (after remove struct prob)
+
+
+
+- name: catch_block_alone
+  content: |2
+    try {
+      x();
+    } catch (err) {
+      handle(err);
+    }
+  target: "catch (err)"
+  expected: |
+    catch (err) {
+      handle(err);
+    }
+
+#---> remove all structural chars: {};()[]/\ (need to keep stuff like ! and * etc)
+
+
+- name: full_header_for_parent
+  content: |2
+    class Handler {
+      async process(data: string): Promise<void> {
+        if (!data) return;
+      }
+    }
+  target: |
+    Handler
+    async process(data: string): Promise<void>
+    if (!data)
+  expected: "if (!data) return;"
+
+#---> CONTAINS or PREFIX (after remove struct prob)
+
+
+# - name: elif_as_child
+#   content: |2
+#     if (x > 0) {
+#       doA();
+#     } elif (x < 0) {
+#       doB();
+#     }
+#   target: |
+#     if (x > 0)
+#     elif (x < 0)
+#   error: "TARGET_NOT_FOUND"  # elif not child of if in AST
+
+- name: elif_as_child
+  content: |2
+    if (x > 0) {
+      doA();
+    } elif (x < 0) {
+      doB();
+    }
+  target: |
+    if (x > 0)
+    elif (x < 0)
+  expected: |
+    } elif (x < 0) {
+      doB();
+    }
+
+#---> remove all structural chars
+
+
+- name: computed_property
+  content: |2
+    const obj = {
+      [key]: value,
+      [methodName]() { return 1; }
+    };
+  target: "[methodName]()"
+  expected: "[methodName]() { return 1; }"
+
+#---> remove all structural chars
+
+
+- name: module_pattern
+  content: |2
+    (function() {
+      const private = 1;
+      return { public: 2 };
+    })();
+  target: "function()"
+  expected: |
+    function() {
+      const private = 1;
+      return { public: 2 };
+    }
+
+#---> remove all structural chars
+
+
+- name: catch_inside_method
+  content: |2
+    class Handler {
+      handle() {
+        try {
+          work();
+        } catch (e) {
+          log(e);
+        }
+      }
+    }
+  target: |
+    Handler
+    handle
+    catch (e)
+  expected: |
+    catch (e) {
+      log(e);
+    }
+
+#---> allow parent skipping
+
+
+- name: else_inside_constructor
+  content: |2
+    class Thing {
+      constructor(x) {
+        if (x) {
+          this.x = x;
+        } else {
+          this.x = 0;
+        }
+      }
+    }
+  target: |
+    Thing
+    constructor
+    else
+  expected: |
+    else {
+      this.x = 0;
+    }
+
+#---> allow parent skipping
+
+
+- name: ambiguous_nested_ifs
+  content: |2
+    function check() {
+      if (a) {
+        if (b) return 1;
+      }
+      if (c) {
+        if (b) return 2;
+      }
+    }
+  target: |
+    check
+    if (b)
+  error: "TARGET_AMBIGUOUS"  # Two matches
+
+#---> allow parent skipping
+
+
+#llm seems to want to be able to skip parents 
+#but sometimes it might genuinely not know what its parent is.  LLM thinks "else" is sibling not child to "if". dummy
+
+#see? this is wrong im pretty sure:
+
+# - name: elif_attempt
+#   content: |2
+#     if (x > 0) {
+#       positive();
+#     } elif (x < 0) {
+#       negative();
+#     }
+#   target: |
+#     if (x > 0)
+#     elif (x < 0)
+#   error: "TARGET_NOT_FOUND"  # elif not child in AST
+
+#!!!! this test is just wrong. delete
+# change to:
+
+
+- name: elif_attempt
+  content: |2
+    if (x > 0) {
+      positive();
+    } elif (x < 0) {
+      negative();
+    }
+  target: |
+    if (x > 0)
+    elif (x < 0)
+  expected: |
+    } elif (x < 0) {
+      negative();
+    }
+
+
+# - name: chained_method_calls
+#   content: |2
+#     class Builder {
+#       build() {
+#         return this
+#           .step1()
+#           .step2();
+#       }
+#     }
+#   target: |
+#     Builder
+#     build
+#     .step1()
+#   error: "TARGET_NOT_FOUND"  # Not a structure
+
+#yes it is!  it should be.  every line can be a "structure"
+
+#!!!! this test is just wrong. delete
+# change to:
+
+
+- name: chained_method_calls
+  content: |2
+    class Builder {
+      build() {
+        return this
+          .step1()
+          .step2();
+      }
+    }
+  target: |
+    Builder
+    build
+    .step1()
+  expected: |
+    .step1()
