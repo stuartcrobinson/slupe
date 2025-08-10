@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # https://claude.ai/chat/523180d6-4ae8-4148-bc80-abb5149dbfa6
-
+#asdf
 # Check if at least one argument is provided
 if [ $# -eq 0 ]; then
     echo "Error: Please provide a commit message"
