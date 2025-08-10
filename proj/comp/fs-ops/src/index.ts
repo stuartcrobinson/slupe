@@ -57,15 +57,16 @@ export class FsOpsExecutor {
         };
       }
 
-      const handler = (this as any)[`handle_${action.action}`];
-      if (!handler) {
+      const methodName = `handle_${action.action}` as keyof this;
+      const handler = this[methodName];
+      if (typeof handler !== 'function') {
         return {
           success: false,
           error: `Unknown action: ${action.action}`
         };
       }
 
-      return handler.call(this, action);
+      return (handler as any).call(this, action);
     } catch (error: any) {
       return {
         success: false,
@@ -122,7 +123,7 @@ export class FsOpsExecutor {
     const result = await this.fsIo.read(path);
     if (!result.success) return result;
 
-    const lines = result.data.content.split('\n');
+    const lines = result.data!.content.split('\n');
     const maxLineNumWidth = lines.length.toString().length;
     const numberedLines = lines.map((line: string, i: number) => {
       const lineNum = (i + 1).toString().padStart(maxLineNumWidth, ' ');
@@ -390,7 +391,7 @@ export class FsOpsExecutor {
     const readResult = await this.fsIo.read(path);
     if (!readResult.success) return readResult;
 
-    const lines = readResult.data.content.split('\n');
+    const lines = readResult.data!.content.split('\n');
 
     if (endLineNum > lines.length) {
       return {

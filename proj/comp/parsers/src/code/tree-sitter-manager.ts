@@ -3,7 +3,7 @@
 
 export class TreeSitterManager {
   private static instance: TreeSitterManager;
-  private _parsers: Map<string, any> = new Map();
+  private readonly _parsers: Map<string, any> = new Map();
   
   private constructor() {}
   
