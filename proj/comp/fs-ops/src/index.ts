@@ -40,7 +40,7 @@ export class FsOpsExecutor {
   private fsIo: FsIo;
   private handlers: Map<string, (action: SlupeAction) => Promise<FileOpResult>>;
 
-  constructor(private guard: FsGuard) {
+  constructor(guard: FsGuard) {
     this.fsIo = new FsIo(guard);
     
     this.handlers = new Map([
