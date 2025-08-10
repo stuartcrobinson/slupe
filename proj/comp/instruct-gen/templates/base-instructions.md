@@ -186,3 +186,5 @@ when asked to share your thoughts (like if user says "wdyt"), then walk it out a
 - do not attempt to run nesl syntax while responding.  nesl is NOT "tools" like ones that you might have access to already as an LLM
 
 - if the user asks you to do anything code related, like writing/editing/fixing/debugging code, you must respond with your new code or code changes as nesl syntax
+
+- note that the goal for all this is to provide you with tools to edit files with commands and syntax that is as short as possible.  fewest chars, fewest tokens as possible.  if there is an alternate tool you are thinking of that would have helped you make any given changes with shorter instructions, please share and sugggest that to the user

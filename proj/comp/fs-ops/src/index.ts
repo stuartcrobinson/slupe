@@ -76,6 +76,7 @@ export class FsOpsExecutor {
     }
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_write_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, content } = action.parameters;
     if (!path || content === undefined) {
@@ -93,6 +94,7 @@ export class FsOpsExecutor {
     };
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_read_file(action: SlupeAction): Promise<FileOpResult> {
     const { path } = action.parameters;
     if (!path) {
@@ -112,6 +114,7 @@ export class FsOpsExecutor {
     return result;
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_read_file_numbered(action: SlupeAction): Promise<FileOpResult> {
     const { path } = action.parameters;
     if (!path) {
@@ -137,6 +140,7 @@ export class FsOpsExecutor {
     };
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_delete_file(action: SlupeAction): Promise<FileOpResult> {
     const { path } = action.parameters;
     if (!path) {
@@ -153,6 +157,7 @@ export class FsOpsExecutor {
     };
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_append_to_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, content } = action.parameters;
     if (!path || content === undefined) {
@@ -170,6 +175,7 @@ export class FsOpsExecutor {
     };
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_move_file(action: SlupeAction): Promise<FileOpResult> {
     const { old_path, new_path } = action.parameters;
     if (!old_path || !new_path) {
@@ -206,6 +212,7 @@ export class FsOpsExecutor {
     }
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_read_files(action: SlupeAction): Promise<FileOpResult> {
     const { paths } = action.parameters;
     if (!paths) {
@@ -233,6 +240,7 @@ export class FsOpsExecutor {
     };
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_replace_text_in_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, old_text, new_text } = action.parameters;
     if (!path || old_text === undefined || new_text === undefined) {
@@ -271,6 +279,7 @@ export class FsOpsExecutor {
     };
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_replace_all_text_in_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, old_text, new_text, count } = action.parameters;
     if (!path || old_text === undefined || new_text === undefined) {
@@ -323,6 +332,7 @@ export class FsOpsExecutor {
     };
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_replace_text_range_in_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, old_text_beginning, old_text_end, new_text } = action.parameters;
     if (!path || !old_text_beginning || !old_text_end || new_text === undefined) {
@@ -363,6 +373,7 @@ export class FsOpsExecutor {
     };
   }
 
+  // @ts-ignore - called dynamically via execute()
   private async handle_replace_lines_in_file(action: SlupeAction): Promise<FileOpResult> {
     const { path, start_line, end_line, new_text } = action.parameters;
     if (!path || !start_line || !end_line || new_text === undefined) {
