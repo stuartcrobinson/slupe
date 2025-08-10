@@ -46,10 +46,88 @@ export interface SlupeOptions {
   enableHooks?: boolean;
 }
 
+interface PathRequirement {
+  paramName: string;
+  mode: 'read' | 'write';
+}
+
+class ActionRegistry {
+  private static readonly ACTION_PATHS: Record<string, PathRequirement[]> = {
+    read_file: [{ paramName: 'path', mode: 'read' }],
+    write_file: [{ paramName: 'path', mode: 'write' }],
+    delete_file: [{ paramName: 'path', mode: 'write' }],
+    replace_text_in_file: [
+      { paramName: 'path', mode: 'read' },
+      { paramName: 'path', mode: 'write' }
+    ],
+    replace_all_text_in_file: [
+      { paramName: 'path', mode: 'read' },
+      { paramName: 'path', mode: 'write' }
+    ],
+    replace_text_range_in_file: [
+      { paramName: 'path', mode: 'read' },
+      { paramName: 'path', mode: 'write' }
+    ],
+    replace_lines_in_file: [
+      { paramName: 'path', mode: 'read' },
+      { paramName: 'path', mode: 'write' }
+    ],
+    append_to_file: [{ paramName: 'path', mode: 'write' }],
+    move_file: [
+      { paramName: 'old_path', mode: 'read' },
+      { paramName: 'new_path', mode: 'write' }
+    ],
+    read_files: [{ paramName: 'paths', mode: 'read' }],
+    read_file_numbered: [{ paramName: 'path', mode: 'read' }],
+    ls: [{ paramName: 'path', mode: 'read' }],
+    grep: [{ paramName: 'path', mode: 'read' }],
+    glob: [{ paramName: 'base_path', mode: 'read' }]
+  };
+
+  constructor(
+    private executors: Map<string, (action: SlupeAction) => Promise<FileOpResult>>,
+    private allowedActions: string[],
+    private fsGuard: FsGuard
+  ) {}
+
+  async checkPermissions(action: SlupeAction): Promise<GuardCheckResult> {
+    const requirements = ActionRegistry.ACTION_PATHS[action.action];
+    if (!requirements) {
+      return { allowed: true };
+    }
+
+    for (const req of requirements) {
+      const value = action.parameters[req.paramName];
+      if (!value) continue;
+
+      if (req.paramName === 'paths') {
+        const paths = value.split('\n').map(p => p.trim()).filter(p => p);
+        for (const path of paths) {
+          const result = await this.fsGuard.checkPath(path, req.mode);
+          if (!result.allowed) return result;
+        }
+      } else {
+        const result = await this.fsGuard.checkPath(value, req.mode);
+        if (!result.allowed) return result;
+      }
+    }
+
+    return { allowed: true };
+  }
+
+  getExecutor(action: string): ((action: SlupeAction) => Promise<FileOpResult>) | undefined {
+    return this.executors.get(action);
+  }
+
+  isAllowed(action: string): boolean {
+    return this.allowedActions.includes(action);
+  }
+}
+
 export class Slupe {
   private constructor(
     private config: SlupeConfig,
-    private executors: Map<string, (action: SlupeAction) => Promise<FileOpResult>>,
+    private registry: ActionRegistry,
     private hooksManager: HooksManager | undefined,
     private repoPath: string
   ) { }
@@ -66,22 +144,20 @@ export class Slupe {
 
     // Initialize executors
     console.time('initializeExecutors');
-    const executors = await Slupe.initializeExecutors(config, repoPath);
+    const { registry } = await Slupe.initializeExecutors(config, repoPath);
     console.timeEnd('initializeExecutors');
 
     // Initialize hooks if enabled
     let hooksManager: HooksManager | undefined;
     if (options.enableHooks !== false) {
       if (options.hooks) {
-        // Use provided hooks configuration
         hooksManager = new HooksManager(options.hooks, undefined, repoPath);
       } else if (config.hooks) {
-        // Use hooks from loaded config
         hooksManager = new HooksManager(config.hooks, config.vars, repoPath);
       }
     }
 
-    return new Slupe(config, executors, hooksManager, repoPath);
+    return new Slupe(config, registry, hooksManager, repoPath);
   }
 
   /**
@@ -212,17 +288,14 @@ export class Slupe {
   /**
    * Initialize action executors with configuration
    */
-  private static async initializeExecutors(config: SlupeConfig, repoPath: string): Promise<Map<string, (action: SlupeAction) => Promise<FileOpResult>>> {
+  private static async initializeExecutors(config: SlupeConfig, repoPath: string): Promise<{ registry: ActionRegistry }> {
 
-    // Create fs-guard with config (loadConfig ensures fs-guard section always exists)
     const fsGuardConfig = config['fs-guard'] || { allowed: [], denied: [] };
     const fsGuard = new FsGuard(fsGuardConfig, repoPath);
 
-    // Create executors
     const fsOps = new FsOpsExecutor(fsGuard);
     const exec = new ExecExecutor();
 
-    // Build routing table from TypeScript definitions
     const executors = new Map<string, (action: SlupeAction) => Promise<FileOpResult>>();
     const validActions = new Set<string>();
 
@@ -237,7 +310,6 @@ export class Slupe {
         case 'exec':
           executors.set(actionName, (action) => exec.execute(action));
           break;
-        // Skip unimplemented executors
         case 'context':
         case 'git':
           break;
@@ -246,14 +318,14 @@ export class Slupe {
       }
     }
 
-    // Validate allowed-actions against actual available tools
     for (const tool of config['allowed-actions']) {
       if (!validActions.has(tool)) {
         throw new Error(`Invalid action in allowed-actions: '${tool}'. Valid actions: ${Array.from(validActions).join(', ')}`);
       }
     }
 
-    return executors;
+    const registry = new ActionRegistry(executors, config['allowed-actions'], fsGuard);
+    return { registry };
   }
 
   /**
@@ -313,7 +385,7 @@ export class Slupe {
    * Never throws - all errors returned in ActionResult
    */
   private async executeAction(action: SlupeAction, seq: number): Promise<ActionResult> {
-    if (!this.config['allowed-actions'].includes(action.action)) {
+    if (!this.registry.isAllowed(action.action)) {
       return {
         seq,
         blockId: action.metadata.blockId,
@@ -324,7 +396,19 @@ export class Slupe {
       };
     }
 
-    const executor = this.executors.get(action.action);
+    const permCheck = await this.registry.checkPermissions(action);
+    if (!permCheck.allowed) {
+      return {
+        seq,
+        blockId: action.metadata.blockId,
+        action: action.action,
+        params: action.parameters,
+        success: false,
+        error: permCheck.reason || 'Permission denied'
+      };
+    }
+
+    const executor = this.registry.getExecutor(action.action);
 
     if (!executor) {
       return {

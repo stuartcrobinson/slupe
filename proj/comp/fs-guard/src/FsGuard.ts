@@ -10,35 +10,6 @@ export class FsGuard {
   private deniedPatterns: string[];
   private followSymlinks: boolean;
 
-  // Permission mapping for each action
-  private static readonly ACTION_PERMISSIONS: Record<string, PathPermission[]> = {
-    read_file: [{ type: 'read', path: 'path', paramName: 'path' }],
-    write_file: [{ type: 'write', path: 'path', paramName: 'path' }],
-    file_create: [{ type: 'write', path: 'path', paramName: 'path' }],
-    delete_file: [{ type: 'write', path: 'path', paramName: 'path' }],
-    replace_text_in_file: [
-      { type: 'read', path: 'path', paramName: 'path' },
-      { type: 'write', path: 'path', paramName: 'path' }
-    ],
-    replace_all_text_in_file: [
-      { type: 'read', path: 'path', paramName: 'path' },
-      { type: 'write', path: 'path', paramName: 'path' }
-    ],
-    move_file: [
-      { type: 'read', path: 'old_path', paramName: 'old_path' },
-      { type: 'write', path: 'new_path', paramName: 'new_path' }
-    ],
-    read_files: [{ type: 'read', path: 'paths', paramName: 'paths' }],
-    read_file_numbered: [{ type: 'read', path: 'path', paramName: 'path' }],
-    replace_lines_in_file: [
-      { type: 'read', path: 'path', paramName: 'path' },
-      { type: 'write', path: 'path', paramName: 'path' }
-    ],
-    ls: [{ type: 'read', path: 'path', paramName: 'path' }],
-    grep: [{ type: 'read', path: 'path', paramName: 'path' }],
-    glob: [{ type: 'read', path: 'base_path', paramName: 'base_path' }]
-  };
-
   constructor(config: FsGuardConfig, private repoRoot: string) {
     // Config is now required - defaults are handled in loadConfig
     this.allowedPatterns = config.allowed || [];
@@ -80,7 +51,7 @@ export class FsGuard {
     return { allowed: true };
   }
 
-  private async checkPath(path: string, permType: 'read' | 'write'): Promise<GuardCheckResult> {
+  private async _checkPath(path: string, permType: 'read' | 'write'): Promise<GuardCheckResult> {
     // Canonicalize path if it exists
     let canonicalPath = path;
     try {
@@ -180,10 +151,5 @@ export class FsGuard {
     return resolve(this.repoRoot, pattern);
   }
 
-  private parseMultilinePaths(paths: string): string[] {
-    return paths
-      .split('\n')
-      .map(line => line.trim())
-      .filter(line => line.length > 0);
-  }
+
 }
