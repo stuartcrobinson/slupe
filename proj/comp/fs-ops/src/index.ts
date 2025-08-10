@@ -2,7 +2,7 @@ import type { SlupeAction } from '../../nesl-action-parser/src/index.js';
 import type { FsGuard } from '../../fs-guard/src/index.js';
 import { FsIo } from '../../fs-io/src/index.js';
 import type { FsIoResult } from '../../fs-io/src/index.js';
-import { readFile, writeFile, unlink, rename } from 'fs/promises';
+import { rename } from 'fs/promises';
 import { dirname, basename } from 'path';
 
 export interface FileOpResult {
@@ -84,7 +84,13 @@ export class FsOpsExecutor {
         error: 'Missing required parameters: path and content'
       };
     }
-    return this.fsIo.write(path, content);
+    
+    const result = await this.fsIo.write(path, content);
+    return {
+      success: result.success,
+      data: result.data,
+      error: result.error
+    };
   }
 
   private async handle_read_file(action: SlupeAction): Promise<FileOpResult> {
@@ -139,7 +145,12 @@ export class FsOpsExecutor {
         error: 'Missing required parameter: path'
       };
     }
-    return this.fsIo.delete(path);
+    
+    const result = await this.fsIo.delete(path);
+    return {
+      success: result.success,
+      error: result.error
+    };
   }
 
   private async handle_append_to_file(action: SlupeAction): Promise<FileOpResult> {
@@ -150,7 +161,13 @@ export class FsOpsExecutor {
         error: 'Missing required parameters: path and content'
       };
     }
-    return this.fsIo.append(path, content);
+    
+    const result = await this.fsIo.append(path, content);
+    return {
+      success: result.success,
+      data: result.data,
+      error: result.error
+    };
   }
 
   private async handle_move_file(action: SlupeAction): Promise<FileOpResult> {
@@ -246,7 +263,12 @@ export class FsOpsExecutor {
     }
 
     const newContent = content.replace(old_text, new_text);
-    return this.fsIo.write(path, newContent);
+    const writeResult = await this.fsIo.write(path, newContent);
+    return {
+      success: writeResult.success,
+      data: writeResult.data,
+      error: writeResult.error
+    };
   }
 
   private async handle_replace_all_text_in_file(action: SlupeAction): Promise<FileOpResult> {
@@ -293,7 +315,12 @@ export class FsOpsExecutor {
       newContent = content.split(old_text).join(new_text);
     }
 
-    return this.fsIo.write(path, newContent);
+    const writeResult = await this.fsIo.write(path, newContent);
+    return {
+      success: writeResult.success,
+      data: writeResult.data,
+      error: writeResult.error
+    };
   }
 
   private async handle_replace_text_range_in_file(action: SlupeAction): Promise<FileOpResult> {
@@ -328,7 +355,12 @@ export class FsOpsExecutor {
     const actualEndIndex = endIndex + old_text_end.length;
     const newContent = content.slice(0, startIndex) + new_text + content.slice(actualEndIndex);
 
-    return this.fsIo.write(path, newContent);
+    const writeResult = await this.fsIo.write(path, newContent);
+    return {
+      success: writeResult.success,
+      data: writeResult.data,
+      error: writeResult.error
+    };
   }
 
   private async handle_replace_lines_in_file(action: SlupeAction): Promise<FileOpResult> {
@@ -375,7 +407,12 @@ export class FsOpsExecutor {
       ...lines.slice(endLineNum)
     ];
 
-    return this.fsIo.write(path, newLines.join('\n'));
+    const writeResult = await this.fsIo.write(path, newLines.join('\n'));
+    return {
+      success: writeResult.success,
+      data: writeResult.data,
+      error: writeResult.error
+    };
   }
 }
 
