@@ -7,11 +7,31 @@ idea ... for web browser tool... have auto-updated summary document that summari
 
 
 TODO 
+--
 
 g2b ❌ replace_text_range_in_file /Users/stuart/repos/slupe/proj/comp/fs-guard/src/FsGuard.ts - old_text_end appears 2 times after old_text_beginning, must appear exactly once
 
 update the range function so it searches untli the FIRST match for old_text_end.  its fine if there are multiple
 
+
+--
+
+
+```sh nesl
+#!nesl [@three-char-SHA-256: a7h]
+action = "replace_all_text_in_file"
+path = "/Users/stuart/repos/slupe/proj/comp/fs-ops/src/index.ts"
+old_text = <<'EOT_a7h'
+  private async handle_
+EOT_a7h
+new_text = <<'EOT_a7h'
+  private async handle_
+EOT_a7h
+count = "0"
+#!end_a7h
+```
+
+bizarre... should prob just remove the "count" thing altogether.  (cont 0 so never changed )
 ___________________
 aug 8
 
