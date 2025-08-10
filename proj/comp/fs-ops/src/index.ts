@@ -124,7 +124,15 @@ export class FsOpsExecutor {
     }
     
     return result;
-  };
+  }
+
+  private async handle_read_file_numbered(action: SlupeAction): Promise<FileOpResult> {
+    const { path } = action.parameters;
+    if (!path) {
+      return {
+        success: false,
+        error: 'Missing required parameter: path'
+      };
     }
 
     const result = await this.fsIo.read(path);

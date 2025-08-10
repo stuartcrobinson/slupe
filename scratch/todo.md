@@ -7,6 +7,13 @@ idea ... for web browser tool... have auto-updated summary document that summari
 
 
 TODO 
+
+--
+
+git undo!!!!!  - make it a permanent stable spot. but that can also be "redo"  even if sevearl udnos back.  and undo should work even if theres uncommitted changes.  just wipe them (stash i guess, and tell user they're stashed)
+
+git redo!!!
+
 --
 
 g2b ❌ replace_text_range_in_file /Users/stuart/repos/slupe/proj/comp/fs-guard/src/FsGuard.ts - old_text_end appears 2 times after old_text_beginning, must appear exactly once

@@ -91,8 +91,8 @@ Replace all occurrences
 ### `replace_text_range_in_file`
 Replace text between markers
 - `path`
-- `old_text_beginning`
-- `old_text_end`
+- `old_text_beginning` - must be unique in the file
+- `old_text_end` - must be two lines or more.  must not overlap with 'old_text_beginning'.  uses the first occurrence of `old_text_end` found AFTER the entire `old_text_beginning`
 - `new_text`
 
 `replace_text_range_in_file` allows concise "old" text localization.  avoids needing to type out the entire code.  use this whenever possible to minimize your overall response length. make sure that the old_text_beginning and old_text_end are concise but unique in the file.  should need just three or four lines each, max
