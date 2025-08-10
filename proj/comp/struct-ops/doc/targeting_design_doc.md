@@ -42,13 +42,13 @@ Six-phase progression with increasing normalization and leniency:
 
 ### Phase 2: REMOVE_STRUCT
 1. Reset to strict parent hierarchy
-2. Remove leading and trailing structural chars `{};/\:` from normalized strings (preserve internal)
+2. Additionally remove leading and trailing structural chars `{};/\:` from Phase 1 normalized strings (preserve internal)
 3. Attempt exact match
 4. If no matches → Allow SKIP_PARENTS
 
 ### Phase 3: STARTS_WITH
 1. Reset to strict parent hierarchy  
-2. Check if candidate line starts with target string (using normalized versions)
+2. Check if candidate line starts with target string (using Phase 2 normalized versions)
 3. Attempt match
 4. If no matches → Allow SKIP_PARENTS
 5. If still no matches → Return empty results
