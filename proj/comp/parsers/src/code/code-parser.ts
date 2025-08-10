@@ -1,10 +1,10 @@
 import type { ParsedStructure } from '../types.js';
 
 export class CodeParser {
-  constructor(private readonly _treeParser: any) {}
+  constructor(private readonly treeParser: any) {}
   
   extractStructures(_ast: any): ParsedStructure[] {
-    // Common AST to ParsedStructure conversion
+    void this.treeParser;
     throw new Error('Not implemented');
   }
 }

@@ -43,6 +43,7 @@ const NOT_IMPLEMENTED = new Set([
 
 export class FsOpsExecutor {
   private fsIo: FsIo;
+  [key: string]: any;
 
   constructor(private guard: FsGuard) {
     this.fsIo = new FsIo(guard);
@@ -57,8 +58,8 @@ export class FsOpsExecutor {
         };
       }
 
-      const methodName = `handle_${action.action}` as keyof this;
-      const handler = this[methodName];
+      const methodName = `handle_${action.action}`;
+      const handler = (this as any)[methodName];
       if (typeof handler !== 'function') {
         return {
           success: false,
@@ -66,7 +67,7 @@ export class FsOpsExecutor {
         };
       }
 
-      return (handler as any).call(this, action);
+      return handler.call(this, action);
     } catch (error: any) {
       return {
         success: false,
@@ -244,7 +245,7 @@ export class FsOpsExecutor {
     const readResult = await this.fsIo.read(path);
     if (!readResult.success) return readResult;
 
-    const content = readResult.data.content;
+    const content = readResult.data!.content;
     const occurrences = content.split(old_text).length - 1;
 
     if (occurrences === 0) {
@@ -282,7 +283,7 @@ export class FsOpsExecutor {
     const readResult = await this.fsIo.read(path);
     if (!readResult.success) return readResult;
 
-    const content = readResult.data.content;
+    const content = readResult.data!.content;
     const occurrences = content.split(old_text).length - 1;
 
     if (occurrences === 0) {
@@ -334,7 +335,7 @@ export class FsOpsExecutor {
     const readResult = await this.fsIo.read(path);
     if (!readResult.success) return readResult;
 
-    const content = readResult.data.content;
+    const content = readResult.data!.content;
     const startIndex = content.indexOf(old_text_beginning);
     if (startIndex === -1) {
       return {
