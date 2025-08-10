@@ -64,9 +64,11 @@ export class FsIo {
         }
       };
     } catch (error: any) {
+      const errorInfo = formatFsError(error, path, 'read');
       return {
         success: false,
-        error: formatFsError(error, path, 'read')
+        error: errorInfo.message,
+        errorCode: errorInfo.code
       };
     }
   }
@@ -105,9 +107,11 @@ export class FsIo {
         }
       };
     } catch (error: any) {
+      const errorInfo = formatFsError(error, path, 'write');
       return {
         success: false,
-        error: formatFsError(error, path, 'write')
+        error: errorInfo.message,
+        errorCode: errorInfo.code
       };
     }
   }
@@ -158,9 +162,11 @@ export class FsIo {
         }
       };
     } catch (error: any) {
+      const errorInfo = formatFsError(error, path, 'append');
       return {
         success: false,
-        error: formatFsError(error, path, 'append')
+        error: errorInfo.message,
+        errorCode: errorInfo.code
       };
     }
   }
@@ -183,9 +189,11 @@ export class FsIo {
         success: true
       };
     } catch (error: any) {
+      const errorInfo = formatFsError(error, path, 'delete');
       return {
         success: false,
-        error: formatFsError(error, path, 'delete')
+        error: errorInfo.message,
+        errorCode: errorInfo.code
       };
     }
   }
@@ -212,9 +220,11 @@ export class FsIo {
       await rename(oldPath, newPath);
       return { success: true };
     } catch (error: any) {
+      const errorInfo = formatFsError(error, oldPath, 'move');
       return {
         success: false,
-        error: formatFsError(error, oldPath, 'move')
+        error: errorInfo.message,
+        errorCode: errorInfo.code
       };
     }
   }
@@ -233,9 +243,11 @@ export class FsIo {
       await mkdir(path, { recursive: true });
       return { success: true };
     } catch (error: any) {
+      const errorInfo = formatFsError(error, path, 'createDir');
       return {
         success: false,
-        error: formatFsError(error, path, 'createDir')
+        error: errorInfo.message,
+        errorCode: errorInfo.code
       };
     }
   }
@@ -255,9 +267,11 @@ export class FsIo {
       await rm(path, { recursive: true, force: true });
       return { success: true };
     } catch (error: any) {
+      const errorInfo = formatFsError(error, path, 'deleteDir');
       return {
         success: false,
-        error: formatFsError(error, path, 'deleteDir')
+        error: errorInfo.message,
+        errorCode: errorInfo.code
       };
     }
   }
@@ -280,9 +294,11 @@ export class FsIo {
         data: entries
       };
     } catch (error: any) {
+      const errorInfo = formatFsError(error, path, 'list');
       return {
         success: false,
-        error: formatFsError(error, path, 'list')
+        error: errorInfo.message,
+        errorCode: errorInfo.code
       };
     }
   }
@@ -290,25 +306,35 @@ export class FsIo {
 
 
 
-function formatFsError(error: any, path: string, operation: string): string {
+function formatFsError(error: any, path: string, operation: string): { message: string; code?: string } {
   const code = error.code || 'UNKNOWN';
+  let message: string;
   
   switch (code) {
     case 'ENOENT':
-      return `File not found: ${path}`;
+      message = `File not found: ${path}`;
+      break;
     case 'EACCES':
-      return `Permission denied: ${path}`;
+      message = `Permission denied: ${path}`;
+      break;
     case 'EISDIR':
-      return `Path is a directory: ${path}`;
+      message = `Path is a directory: ${path}`;
+      break;
     case 'ENOTDIR':
-      return `Parent is not a directory: ${path}`;
+      message = `Parent is not a directory: ${path}`;
+      break;
     case 'EEXIST':
-      return `File already exists: ${path}`;
+      message = `File already exists: ${path}`;
+      break;
     case 'EMFILE':
-      return 'Too many open files';
+      message = 'Too many open files';
+      break;
     case 'ENOSPC':
-      return 'No space left on device';
+      message = 'No space left on device';
+      break;
     default:
-      return `${operation} failed: ${error.message || code}`;
+      message = `${operation} failed: ${error.message || code}`;
   }
+  
+  return { message, code };
 }

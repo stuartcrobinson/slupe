@@ -38,24 +38,23 @@ const NOT_IMPLEMENTED = new Set([
 
 export class FsOpsExecutor {
   private fsIo: FsIo;
-  private handlers: Map<string, (action: SlupeAction) => Promise<FileOpResult>>;
+  
+  private readonly handlers = {
+    write_file: this.handle_write_file.bind(this),
+    read_file: this.handle_read_file.bind(this),
+    read_file_numbered: this.handle_read_file_numbered.bind(this),
+    read_files: this.handle_read_files.bind(this),
+    delete_file: this.handle_delete_file.bind(this),
+    append_to_file: this.handle_append_to_file.bind(this),
+    move_file: this.handle_move_file.bind(this),
+    replace_text_in_file: this.handle_replace_text_in_file.bind(this),
+    replace_all_text_in_file: this.handle_replace_all_text_in_file.bind(this),
+    replace_text_range_in_file: this.handle_replace_text_range_in_file.bind(this),
+    replace_lines_in_file: this.handle_replace_lines_in_file.bind(this)
+  } as const;
 
   constructor(guard: FsGuard) {
     this.fsIo = new FsIo(guard);
-    
-    this.handlers = new Map([
-      ['write_file', this.handle_write_file.bind(this)],
-      ['read_file', this.handle_read_file.bind(this)],
-      ['read_file_numbered', this.handle_read_file_numbered.bind(this)],
-      ['read_files', this.handle_read_files.bind(this)],
-      ['delete_file', this.handle_delete_file.bind(this)],
-      ['append_to_file', this.handle_append_to_file.bind(this)],
-      ['move_file', this.handle_move_file.bind(this)],
-      ['replace_text_in_file', this.handle_replace_text_in_file.bind(this)],
-      ['replace_all_text_in_file', this.handle_replace_all_text_in_file.bind(this)],
-      ['replace_text_range_in_file', this.handle_replace_text_range_in_file.bind(this)],
-      ['replace_lines_in_file', this.handle_replace_lines_in_file.bind(this)]
-    ]);
   }
 
   async execute(action: SlupeAction): Promise<FileOpResult> {
@@ -67,7 +66,7 @@ export class FsOpsExecutor {
         };
       }
 
-      const handler = this.handlers.get(action.action);
+      const handler = this.handlers[action.action as keyof typeof this.handlers];
       if (!handler) {
         return {
           success: false,
@@ -75,7 +74,7 @@ export class FsOpsExecutor {
         };
       }
 
-      return handler(action);
+      return handler.call(this, action);
     } catch (error: any) {
       return {
         success: false,
