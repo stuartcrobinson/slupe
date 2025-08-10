@@ -8,7 +8,7 @@ export interface FsIoConfig {
   createParentDirs?: boolean;
 }
 
-export interface FsFsIoResult<T = any> {
+export interface FsIoResult<T = any> {
   success: boolean;
   data?: T;
   error?: string;
@@ -191,7 +191,7 @@ export class FsIo {
   }
 }
 
-export { FsIo, type FsIoConfig, type FsIoResult, type ReadResult, type WriteResult };
+
 
 function formatFsError(error: any, path: string, operation: string): string {
   const code = error.code || 'UNKNOWN';

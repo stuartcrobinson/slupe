@@ -12,14 +12,16 @@ done
 
 
 file_list=$(cat <<'EOF'
-
-
-/Users/stuart/repos/slupe/proj/src/index.ts
-/Users/stuart/repos/slupe/proj/src/cli.ts
-/Users/stuart/repos/slupe/proj/comp/instruct-gen/src/loader.ts
-/Users/stuart/repos/slupe/proj/comp/instruct-gen/src/parser.ts
-
-
+proj/comp/fs-guard/src/FsGuard.ts                   
+proj/comp/fs-io/src/index.ts                        
+proj/comp/fs-ops/src/index.ts                       
+proj/comp/parsers/src/code/code-parser.ts           
+proj/comp/parsers/src/code/languages/python.ts      
+proj/comp/parsers/src/code/languages/typescript.ts  
+proj/comp/parsers/src/code/tree-sitter-manager.ts   
+proj/comp/parsers/src/plaintext/line-parser.ts      
+proj/comp/struct-ops/src/actions/read_structure.ts  
+proj/comp/struct-ops/src/index.ts                   
 
 EOF
 )

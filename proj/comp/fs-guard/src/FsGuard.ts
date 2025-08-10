@@ -3,7 +3,7 @@ import { minimatch } from 'minimatch';
 import { dirname, resolve, isAbsolute } from 'path';
 import type { SlupeAction } from '../../nesl-action-parser/src/index.js';
 import type { FsGuardConfig } from '../../orch/src/types.js';
-import type { GuardCheckResult, PathPermission } from './types.js';
+import type { GuardCheckResult } from './types.js';
 
 export class FsGuard {
   private allowedPatterns: string[];
@@ -25,7 +25,7 @@ export class FsGuard {
     return this._checkPath(path, mode);
   }
 
-  async check(action: SlupeAction): Promise<GuardCheckResult> {
+  async check(_action: SlupeAction): Promise<GuardCheckResult> {
     throw new Error('FsGuard.check(action) no longer supported - use checkPath(path, mode)');
   }
 

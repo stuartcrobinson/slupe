@@ -1,11 +1,8 @@
 import type { SlupeAction } from '../../nesl-action-parser/src/index.js';
 import type { FsGuard } from '../../fs-guard/src/index.js';
 import { FsIo } from '../../fs-io/src/index.js';
-import type { FsIoResult } from '../../fs-io/src/index.js';
 import { rename } from 'fs/promises';
-import { dirname, basename } from 'path';
 
-export interface FileOpResult {
   success: boolean;
   data?: any;
   error?: string;
@@ -59,7 +56,7 @@ export class FsOpsExecutor {
         };
       }
 
-      const handler = this[`handle_${action.action}`];
+      const handler = (this as any)[`handle_${action.action}`];
       if (!handler) {
         return {
           success: false,
@@ -126,7 +123,7 @@ export class FsOpsExecutor {
 
     const lines = result.data.content.split('\n');
     const maxLineNumWidth = lines.length.toString().length;
-    const numberedLines = lines.map((line, i) => {
+    const numberedLines = lines.map((line: string, i: number) => {
       const lineNum = (i + 1).toString().padStart(maxLineNumWidth, ' ');
       return `${lineNum} | ${line}`;
     });
@@ -215,7 +212,7 @@ export class FsOpsExecutor {
       };
     }
 
-    const pathList = paths.split('\n').map(p => p.trim()).filter(p => p);
+    const pathList = paths.split('\n').map((p: string) => p.trim()).filter((p: string) => p);
     const results: Record<string, string | { error: string }> = {};
 
     for (const path of pathList) {
@@ -304,7 +301,7 @@ export class FsOpsExecutor {
       }
 
       let replacedCount = 0;
-      newContent = content.replace(new RegExp(escapeRegex(old_text), 'g'), (match) => {
+      newContent = content.replace(new RegExp(escapeRegex(old_text), 'g'), (match: string) => {
         if (replacedCount < maxReplacements) {
           replacedCount++;
           return new_text;

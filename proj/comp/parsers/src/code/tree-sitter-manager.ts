@@ -3,7 +3,7 @@
 
 export class TreeSitterManager {
   private static instance: TreeSitterManager;
-  private parsers: Map<string, any> = new Map();
+  private _parsers: Map<string, any> = new Map();
   
   private constructor() {}
   
@@ -14,7 +14,7 @@ export class TreeSitterManager {
     return TreeSitterManager.instance;
   }
   
-  getParser(language: string): any {
+  getParser(_language: string): any {
     // Lazy init logic
     throw new Error('Not implemented');
   }
