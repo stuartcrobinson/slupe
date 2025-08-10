@@ -108,19 +108,23 @@ export class FsOpsExecutor {
     if (result.success && result.data) {
       return {
         success: true,
-        data: result.data.content
+        data: {
+          path,
+          content: result.data.content
+        }
       };
     }
-    return result;
-  }
-
-  private async handle_read_file_numbered(action: SlupeAction): Promise<FileOpResult> {
-    const { path } = action.parameters;
-    if (!path) {
+    
+    // Transform error format to match test expectations
+    if (!result.success && result.errorCode === 'ENOENT') {
       return {
         success: false,
-        error: 'Missing required parameter: path'
+        error: `ENOENT: no such file or directory, open '${path}'`
       };
+    }
+    
+    return result;
+  };
     }
 
     const result = await this.fsIo.read(path);
