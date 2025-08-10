@@ -38,7 +38,7 @@ const NOT_IMPLEMENTED = new Set([
 
 export class FsOpsExecutor {
   private fsIo: FsIo;
-  
+
   private readonly handlers = {
     write_file: this.handle_write_file.bind(this),
     read_file: this.handle_read_file.bind(this),
@@ -66,7 +66,7 @@ export class FsOpsExecutor {
         };
       }
 
-      const handler = this.handlers[action.action as keyof typeof this.handlers];
+      const handler = this.handlers.get(action.action);
       if (!handler) {
         return {
           success: false,
@@ -74,7 +74,7 @@ export class FsOpsExecutor {
         };
       }
 
-      return handler.call(this, action);
+      return handler(action);
     } catch (error: any) {
       return {
         success: false,
@@ -91,13 +91,8 @@ export class FsOpsExecutor {
         error: 'Missing required parameters: path and content'
       };
     }
-    
-    const result = await this.fsIo.write(path, content);
-    return {
-      success: result.success,
-      data: result.data,
-      error: result.error
-    };
+
+    return await this.fsIo.write(path, content);
   }
 
   private async handle_read_file(action: SlupeAction): Promise<FileOpResult> {
@@ -108,7 +103,7 @@ export class FsOpsExecutor {
         error: 'Missing required parameter: path'
       };
     }
-    
+
     const result = await this.fsIo.read(path);
     if (result.success && result.data) {
       return {
@@ -152,12 +147,8 @@ export class FsOpsExecutor {
         error: 'Missing required parameter: path'
       };
     }
-    
-    const result = await this.fsIo.delete(path);
-    return {
-      success: result.success,
-      error: result.error
-    };
+
+    return await this.fsIo.delete(path);
   }
 
   private async handle_append_to_file(action: SlupeAction): Promise<FileOpResult> {
@@ -168,13 +159,8 @@ export class FsOpsExecutor {
         error: 'Missing required parameters: path and content'
       };
     }
-    
-    const result = await this.fsIo.append(path, content);
-    return {
-      success: result.success,
-      data: result.data,
-      error: result.error
-    };
+
+    return await this.fsIo.append(path, content);
   }
 
   private async handle_move_file(action: SlupeAction): Promise<FileOpResult> {
@@ -185,12 +171,8 @@ export class FsOpsExecutor {
         error: 'Missing required parameters: old_path and new_path'
       };
     }
-    
-    const result = await this.fsIo.move(old_path, new_path);
-    return {
-      success: result.success,
-      error: result.error
-    };
+
+    return await this.fsIo.move(old_path, new_path);
   }
 
   private async handle_read_files(action: SlupeAction): Promise<FileOpResult> {
@@ -250,12 +232,7 @@ export class FsOpsExecutor {
     }
 
     const newContent = content.replace(old_text, new_text);
-    const writeResult = await this.fsIo.write(path, newContent);
-    return {
-      success: writeResult.success,
-      data: writeResult.data,
-      error: writeResult.error
-    };
+    return await this.fsIo.write(path, newContent);
   }
 
   private async handle_replace_all_text_in_file(action: SlupeAction): Promise<FileOpResult> {
@@ -302,12 +279,7 @@ export class FsOpsExecutor {
       newContent = content.split(old_text).join(new_text);
     }
 
-    const writeResult = await this.fsIo.write(path, newContent);
-    return {
-      success: writeResult.success,
-      data: writeResult.data,
-      error: writeResult.error
-    };
+    return await this.fsIo.write(path, newContent);
   }
 
   private async handle_replace_text_range_in_file(action: SlupeAction): Promise<FileOpResult> {
@@ -323,6 +295,8 @@ export class FsOpsExecutor {
     if (!readResult.success) return readResult;
 
     const content = readResult.data!.content;
+
+    // Find the ONLY instance of old_text_beginning
     const startIndex = content.indexOf(old_text_beginning);
     if (startIndex === -1) {
       return {
@@ -331,23 +305,29 @@ export class FsOpsExecutor {
       };
     }
 
-    const endIndex = content.indexOf(old_text_end, startIndex);
+    // Check if there are multiple instances of old_text_beginning
+    const secondStartIndex = content.indexOf(old_text_beginning, startIndex + 1);
+    if (secondStartIndex !== -1) {
+      return {
+        success: false,
+        error: 'Multiple instances of beginning text found - expected exactly one'
+      };
+    }
+
+    // Find the FIRST instance of old_text_end AFTER the beginning text
+    const searchStartPos = startIndex + old_text_beginning.length;
+    const endIndex = content.indexOf(old_text_end, searchStartPos);
     if (endIndex === -1) {
       return {
         success: false,
-        error: 'End text not found after beginning text'
+        error: 'End text not found after the beginning text'
       };
     }
 
     const actualEndIndex = endIndex + old_text_end.length;
     const newContent = content.slice(0, startIndex) + new_text + content.slice(actualEndIndex);
 
-    const writeResult = await this.fsIo.write(path, newContent);
-    return {
-      success: writeResult.success,
-      data: writeResult.data,
-      error: writeResult.error
-    };
+    return await this.fsIo.write(path, newContent);
   }
 
   private async handle_replace_lines_in_file(action: SlupeAction): Promise<FileOpResult> {
