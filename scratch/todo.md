@@ -1,4 +1,4 @@
-
+why isn't gif showing on github readme 
 _________________
 aug 9 
 
